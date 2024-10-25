@@ -1,4 +1,4 @@
-import CustomText from '@/components/CustomText';
+import CustomText from '@/components/common/CustomText';
 import {colors} from '@/constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
 

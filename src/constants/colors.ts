@@ -7,6 +7,10 @@ export const colors = {
   GRAY_600: '#9E9E9E',
   GRAY_700: '#757575',
   GRAY_800: '#616161',
-  BLACK: '#424242',
+  GRAY_900: '#424242',
+  BLACK: '#212121',
+
   PRIMARY: '#B22222',
+
+  ERROR: '#FF0000',
 };

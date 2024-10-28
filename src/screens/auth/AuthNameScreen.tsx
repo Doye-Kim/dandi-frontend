@@ -6,8 +6,8 @@ import { responsive, validateName } from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
 import useForm from '@/hooks/useForm';
 import AuthButton from '@/components/auth/AuthButton';
-import CustomText from '@/components/common/CustomText';
 import InputField from '@/components/auth/InputField';
+import { TitleText } from '@/styles';
 
 const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
   const nameRef = useRef<TextInput | null>(null);
@@ -33,15 +33,7 @@ const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
           }}
         />
       </View>
-      <CustomText
-        style={{
-          color: colors.BLACK,
-          fontSize: responsive(24),
-          marginVertical: responsive(20),
-        }}
-      >
-        사용하실 닉네임을{'\n'}입력해 주세요
-      </CustomText>
+      <TitleText>사용하실 닉네임을{'\n'}입력해 주세요</TitleText>
       <InputField
         ref={nameRef}
         placeholder="닉네임을 입력해주세요"

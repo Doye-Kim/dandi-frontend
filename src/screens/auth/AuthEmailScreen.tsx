@@ -7,7 +7,7 @@ import { AuthHomeScreenProps } from './AuthHomeScreen';
 import InputField from '@/components/auth/InputField';
 import useForm from '@/hooks/useForm';
 import AuthButton from '@/components/auth/AuthButton';
-import CustomText from '@/components/common/CustomText';
+import { TitleText } from '@/styles';
 
 const AuthEmailScreen = ({ navigation }: AuthHomeScreenProps) => {
   const onPress = () => {
@@ -33,15 +33,7 @@ const AuthEmailScreen = ({ navigation }: AuthHomeScreenProps) => {
           }}
         />
       </View>
-      <CustomText
-        style={{
-          color: colors.BLACK,
-          fontSize: responsive(24),
-          marginVertical: responsive(20),
-        }}
-      >
-        로그인에 사용할 이메일을 {'\n'}입력해 주세요
-      </CustomText>
+      <TitleText>로그인에 사용할 이메일을 {'\n'}입력해 주세요</TitleText>
       <InputField
         ref={emailRef}
         placeholder="이메일을 입력해주세요"

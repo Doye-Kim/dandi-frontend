@@ -20,9 +20,8 @@ function validatePassword(values: { password: string }) {
     password: '',
   };
 
-  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(values.password)) {
-    errors.password =
-      '비밀번호는 영어 대소문자, 숫자 포함 8자 이상으로 설정해 주세요';
+  if (!values.password) {
+    errors.password = '비밀번호를 입력해 주세요';
   }
 
   return errors;

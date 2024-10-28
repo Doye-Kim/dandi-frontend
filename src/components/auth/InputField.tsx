@@ -15,7 +15,7 @@ interface InputFieldProps extends TextInputProps {
 const InputField = forwardRef<TextInput, InputFieldProps>(
   (
     { disabled = false, error, touched, ...props }: InputFieldProps,
-    ref?: ForwardedRef<TextInput>
+    ref?: ForwardedRef<TextInput>,
   ) => {
     const innerRef = useRef<TextInput | null>(null);
     const handlePressInput = () => {
@@ -37,7 +37,7 @@ const InputField = forwardRef<TextInput, InputFieldProps>(
         {touched && Boolean(error) && <ErrorText>{error}</ErrorText>}
       </Pressable>
     );
-  }
+  },
 );
 
 const StyleInputContainer = styled.View<{ error?: boolean }>`

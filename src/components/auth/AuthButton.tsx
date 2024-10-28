@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import CustomText from '../common/CustomText';
 import { colors } from '@/constants';
-import { responsive } from '@/utils';
+import { responsive, responsiveVertical } from '@/utils';
 
 const AuthButton = ({
   title,
@@ -29,8 +29,8 @@ const StyledButton = styled.TouchableOpacity`
   padding: ${responsive(10)}px;
   border-radius: ${responsive(20)}px;
   width: ${responsive(352)}px;
-  height: 60px;
-  margin-vertical: ${responsive(5)}px;
+  height: ${responsiveVertical(60)}px;
+  margin-vertical: ${responsiveVertical(5)}px;
   justify-content: center;
   align-items: center;
 `;

@@ -1,11 +1,11 @@
-import React from "react";
-import { Text, TextProps } from "react-native";
+import React from 'react';
+import { Text, TextProps } from 'react-native';
 
 interface CustomTextProps extends TextProps {}
 
 const CustomText = ({ style, ...rest }: CustomTextProps) => {
   const customStyle = {
-    fontFamily: "OAGothic-Medium",
+    fontFamily: 'OAGothic-Medium',
   };
   return <Text style={[customStyle, style]} {...rest} />;
 };

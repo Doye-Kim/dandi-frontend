@@ -6,8 +6,8 @@ import { responsive, validatePassword, validatePasswordConfirm } from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
 import AuthButton from '@/components/auth/AuthButton';
 import InputField from '@/components/auth/InputField';
-import CustomText from '@/components/common/CustomText';
 import useForm from '@/hooks/useForm';
+import { TitleText } from '@/styles';
 
 const AuthPasswordScreen = ({ navigation }: AuthHomeScreenProps) => {
   const passwordRef = useRef<TextInput | null>(null);
@@ -43,15 +43,7 @@ const AuthPasswordScreen = ({ navigation }: AuthHomeScreenProps) => {
           }}
         />
       </View>
-      <CustomText
-        style={{
-          color: colors.BLACK,
-          fontSize: responsive(24),
-          marginVertical: responsive(20),
-        }}
-      >
-        로그인에 사용할 비밀번호를 {'\n'}입력해 주세요
-      </CustomText>
+      <TitleText>로그인에 사용할 비밀번호를 {'\n'}입력해 주세요</TitleText>
       <InputField
         ref={passwordRef}
         placeholder="비밀번호를 입력해 주세요"

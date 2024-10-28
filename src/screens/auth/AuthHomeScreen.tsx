@@ -30,8 +30,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
             fontFamily: 'OAGothic-ExtraBold',
             fontSize: responsive(64),
             color: colors.PRIMARY,
-          }}
-        >
+          }}>
           단디
         </Text>
       </View>

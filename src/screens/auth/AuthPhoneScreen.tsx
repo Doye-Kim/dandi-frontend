@@ -7,8 +7,8 @@ import { responsive, validatePhone, validatePhoneAuthNum } from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
 import AuthButton from '@/components/auth/AuthButton';
 import InputField from '@/components/auth/InputField';
-import CustomText from '@/components/common/CustomText';
 import useForm from '@/hooks/useForm';
+import { TitleText } from '@/styles';
 
 const AuthPhoneScreen = ({ navigation }: AuthHomeScreenProps) => {
   const phoneRef = useRef<TextInput | null>(null);
@@ -44,15 +44,7 @@ const AuthPhoneScreen = ({ navigation }: AuthHomeScreenProps) => {
           }}
         />
       </View>
-      <CustomText
-        style={{
-          color: colors.BLACK,
-          fontSize: responsive(24),
-          marginVertical: responsive(20),
-        }}
-      >
-        본인인증을 위해{'\n'}전화번호가 필요해요
-      </CustomText>
+      <TitleText>본인인증을 위해{'\n'}전화번호가 필요해요</TitleText>
       <InputField
         ref={phoneRef}
         placeholder="전화번호를 입력해 주세요"

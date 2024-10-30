@@ -11,3 +11,5 @@ export { default as TabNotiFocusedIcon } from './noti-focused.svg';
 export { default as TabMyIcon } from './my.svg';
 export { default as TabMyFocusedIcon } from './my-focused.svg';
 export { default as CheckRingIcon } from './check-ring.svg';
+
+export { default as CurrentPin } from './current-pin.svg';

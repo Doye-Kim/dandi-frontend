@@ -9,7 +9,10 @@ const { LocationServiceModule } = NativeModules;
 const updateMovingState = (isMoving: boolean) => {
   LocationServiceModule.setMovingState(isMoving);
 };
-
+// MAX_LOCATIONS_LENGTH
+//    사용자의 이동 여부를 확인하기 위한 위치 데이터 최대 개수
+//    현재 10초에 한 번 수집, 10분 간의 데이터로 이동 여부 확인을 하기 때문에 60으로 설정해둠
+//    distances의 최대 개수도 이와 같음
 export const useDetermineMovement = (
   locations: locationType[],
   isMoving: boolean,
@@ -27,15 +30,15 @@ export const useDetermineMovement = (
   const determineMovement = async () => {
     const averageSpeed = calculateAverageSpeed(distances.current);
     const newIsMoving = averageSpeed > speedThreshold;
-    console.log('determine', averageSpeed, isMovingRef.current, newIsMoving);
+    // console.log('determine', averageSpeed, isMovingRef.current, newIsMoving);
 
     if (newIsMoving && !isMovingRef.current) {
       await startMovement();
-      console.log('move');
+      // console.log('move');
       updateMovingState(true);
     } else if (!newIsMoving && isMovingRef.current) {
       await stopMovement();
-      console.log('stop');
+      // console.log('stop');
       updateMovingState(false);
     }
 

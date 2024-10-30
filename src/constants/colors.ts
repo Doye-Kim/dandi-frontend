@@ -11,6 +11,7 @@ export const colors = {
   BLACK: '#212121',
 
   PRIMARY: '#B22222',
+  SELECTED_BLUE: '#E1EBFF',
 
   ERROR: '#FF0000',
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   TabLostIcon,
   TabLostFocusedIcon,
@@ -12,10 +12,10 @@ import {
   TabMyIcon,
   TabMyFocusedIcon,
 } from '@/assets/icons';
-import {View, StyleSheet} from 'react-native';
-import {CompositeNavigationProp} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
+import { View, StyleSheet } from 'react-native';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 type MainNavigationsType =
   (typeof mainNavigations)[keyof typeof mainNavigations];
@@ -36,12 +36,12 @@ import {
   getFocusedRouteNameFromRoute,
   useNavigation,
 } from '@react-navigation/native';
-import {colors, mainNavigations} from '@/constants';
-import LostMainScreen from '@/screens/lost/LostMainScreen';
+import { colors, mainNavigations } from '@/constants';
 import MapMainScreen from '@/screens/map/MapMainScreen';
 import ThingsMainScreen from '@/screens/things/ThingsMainScreen';
 import MyMainScreen from '@/screens/my/MyMainScreen';
 import NotiMainScreen from '@/screens/noti/NotiMainScreen';
+import LostStackNavigator from '@/navigations/stack/LostStackNavigator';
 
 const Tab = createBottomTabNavigator();
 // #todo: 현재 screen을 바로 연결해뒀지만 기능 개발 시 stack navigator 연결 필요
@@ -51,8 +51,8 @@ const Navbar = () => {
     <View style={styles.container}>
       <Tab.Navigator
         initialRouteName={mainNavigations.THINGS}
-        screenOptions={({route}) => ({
-          tabBarIcon: ({focused, color, size}) => {
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
             let Icon;
             switch (route.name) {
               case mainNavigations.LOST:
@@ -83,13 +83,13 @@ const Navbar = () => {
         })}>
         <Tab.Screen
           name={mainNavigations.LOST}
-          component={LostMainScreen}
+          component={LostStackNavigator}
           listeners={{
             tabPress: e => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
-                routes: [{name: mainNavigations.LOST}],
+                routes: [{ name: mainNavigations.LOST }],
               });
             },
           }}
@@ -102,7 +102,7 @@ const Navbar = () => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
-                routes: [{name: mainNavigations.MAP}],
+                routes: [{ name: mainNavigations.MAP }],
               });
             },
           }}
@@ -115,7 +115,7 @@ const Navbar = () => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
-                routes: [{name: mainNavigations.THINGS}],
+                routes: [{ name: mainNavigations.THINGS }],
               });
             },
           }}
@@ -128,7 +128,7 @@ const Navbar = () => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
-                routes: [{name: mainNavigations.NOTI}],
+                routes: [{ name: mainNavigations.NOTI }],
               });
             },
           }}
@@ -141,7 +141,7 @@ const Navbar = () => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
-                routes: [{name: mainNavigations.MY}],
+                routes: [{ name: mainNavigations.MY }],
               });
             },
           }}

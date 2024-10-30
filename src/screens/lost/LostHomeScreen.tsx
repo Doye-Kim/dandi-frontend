@@ -1,12 +1,18 @@
 import CustomText from '@/components/common/CustomText';
 import { colors } from '@/constants';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import styled from 'styled-components/native';
 
 const LostMainScreen = () => {
   return (
-    <SafeAreaView>
+    <Container>
       <CustomText style={{ color: colors.BLACK }}>lost main</CustomText>
-    </SafeAreaView>
+    </Container>
   );
 };
+
 export default LostMainScreen;
+
+const Container = styled.SafeAreaView`
+  flex: 1;
+  background-color: ${colors.WHITE};
+`;

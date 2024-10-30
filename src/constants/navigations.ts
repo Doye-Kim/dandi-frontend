@@ -15,4 +15,9 @@ const authNavigations = {
   EMAIL_CHECK: 'EmailCheck',
   LOGIN: 'Login',
 } as const;
-export { mainNavigations, authNavigations };
+
+const lostNavigations = {
+  PICKUP_LIST: 'PickupList',
+} as const;
+
+export { mainNavigations, authNavigations, lostNavigations };

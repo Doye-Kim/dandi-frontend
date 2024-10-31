@@ -159,8 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.WHITE,
     height: 70,
     justifyContent: 'center',
-    paddingBottom: 10,
-    paddingTop: 10,
+    alignItems: 'center',
     display: 'flex',
   },
 });

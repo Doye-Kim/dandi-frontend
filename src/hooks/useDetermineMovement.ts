@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { calculateAverageSpeed, calculateDistance } from '@/utils';
-import { locationType } from '@/screens/map/MapMainScreen';
 import { NativeModules } from 'react-native';
+import { LatLng, LatLon } from '@/api/map';
 
 const { LocationServiceModule } = NativeModules;
 
@@ -14,7 +14,7 @@ const updateMovingState = (isMoving: boolean) => {
 //    현재 10초에 한 번 수집, 10분 간의 데이터로 이동 여부 확인을 하기 때문에 60으로 설정해둠
 //    distances의 최대 개수도 이와 같음
 export const useDetermineMovement = (
-  locations: locationType[],
+  locations: LatLon[],
   isMoving: boolean,
   setIsMoving: (isMoving: boolean) => void,
 ) => {
@@ -34,11 +34,11 @@ export const useDetermineMovement = (
 
     if (newIsMoving && !isMovingRef.current) {
       await startMovement();
-      // console.log('move');
+      console.log('move');
       updateMovingState(true);
     } else if (!newIsMoving && isMovingRef.current) {
       await stopMovement();
-      // console.log('stop');
+      console.log('stop');
       updateMovingState(false);
     }
 
@@ -59,8 +59,8 @@ export const useDetermineMovement = (
   };
 
   const startMovement = async () => {
-    const newMovementId = 1;
-    await AsyncStorage.setItem('movementId', String(newMovementId));
+    const newRouteId = 1;
+    await AsyncStorage.setItem('routeId', String(newRouteId));
     await AsyncStorage.setItem(
       'locations',
       JSON.stringify(locations.slice(-10)),
@@ -69,7 +69,10 @@ export const useDetermineMovement = (
 
   const stopMovement = async () => {
     setIsMoving(false);
-    await AsyncStorage.removeItem('movementId');
+    const routeId = await AsyncStorage.getItem('routeId');
+    const track = await AsyncStorage.getItem('locations');
+    console.log({ routeId }, { track });
+    await AsyncStorage.removeItem('routeId');
     await AsyncStorage.removeItem('locations');
   };
 
@@ -77,10 +80,10 @@ export const useDetermineMovement = (
     if (locations.length >= 2) {
       const [lastLocation, prevLocation] = [locations.at(-1), locations.at(-2)];
       const dist = calculateDistance(
-        lastLocation?.latitude,
-        lastLocation?.longitude,
-        prevLocation?.latitude,
-        prevLocation?.longitude,
+        lastLocation?.lat,
+        lastLocation?.lon,
+        prevLocation?.lat,
+        prevLocation?.lon,
       );
       if (dist >= 0) distances.current.push(dist);
       if (distances.current.length > MAX_LOCATIONS_LENGTH)

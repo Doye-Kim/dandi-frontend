@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Geolocation from '@react-native-community/geolocation';
 import {
   NativeModules,
@@ -6,14 +6,14 @@ import {
   EmitterSubscription,
 } from 'react-native';
 import { requestLocationPermission } from '@/utils';
-import { locationType } from '@/screens/map/MapMainScreen';
+import { LatLng, LatLon } from '@/api/map';
 
 const { LocationServiceModule } = NativeModules;
 const locationEventEmitter = new NativeEventEmitter(LocationServiceModule);
 
 export const useLocationTracking = (
-  setLocations: (locations: locationType[]) => void,
-  setCurrentLocation: (currentLocation: locationType) => void,
+  setLocations: Dispatch<SetStateAction<LatLon[]>>,
+  setCurrentLocation: (currentLocation: LatLng) => void,
 ) => {
   useEffect(() => {
     let subscription: EmitterSubscription;
@@ -26,8 +26,8 @@ export const useLocationTracking = (
           pos => {
             console.log('current position:', pos.coords);
             setCurrentLocation({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
+              latitude: Number(pos.coords.latitude.toFixed(4)),
+              longitude: Number(pos.coords.longitude.toFixed(4)),
             });
           },
           err => console.error('Geolocation error:', err),
@@ -44,12 +44,12 @@ export const useLocationTracking = (
         subscription = locationEventEmitter.addListener(
           'LocationUpdated',
           locationData => {
-            setLocations((prev: locationType[]) => {
+            setLocations((prev: LatLon[]) => {
               const newLocations = [
                 ...prev,
                 {
-                  latitude: locationData.latitude,
-                  longitude: locationData.longitude,
+                  lat: Number(locationData.latitude.toFixed(4)),
+                  lon: Number(locationData.longitude.toFixed(4)),
                 },
               ];
               if (newLocations.length > 60) newLocations.shift();

@@ -1,23 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SafeAreaView, Text, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import { SafeAreaView, TouchableOpacity } from 'react-native';
+import MapView, {
+  Marker,
+  PROVIDER_GOOGLE,
+  Polyline,
+  Region,
+} from 'react-native-maps';
 
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useDetermineMovement } from '@/hooks/useDetermineMovement';
-import { CurrentPin } from '@/assets/icons';
+import { CurrentPin, MarkerIcon, SparkleIcon } from '@/assets/icons';
 import Geolocation from '@react-native-community/geolocation';
 import { requestLocationPermission } from '@/utils';
-
-export type locationType = {
-  latitude: number;
-  longitude: number;
-};
+import { colors } from '@/constants';
+import CustomHeader from '@/components/map/CustomHeader';
+import { LatLng, LatLon, UseRouteListItem } from '@/api/map';
+import { routes } from '@/dummy/dailyRoute.json';
+import CustomText from '@/components/common/CustomText';
+import styled from 'styled-components/native';
 
 const MapMainScreen = () => {
-  const [currentLocation, setCurrentLocation] = useState<locationType>(); // 사용자의 현재 위치
-  const [locations, setLocations] = useState<locationType[]>([]); // 사용자의 이동 여부를 확인하기 위한 10분 간의 위치 데이터
+  const [currentLocation, setCurrentLocation] = useState<LatLng>(); // 사용자의 현재 위치
+  const [locations, setLocations] = useState<LatLon[]>([]); // 사용자의 이동 여부를 확인하기 위한 10분 간의 위치 데이터
   const [isMoving, setIsMoving] = useState<boolean>(false); // 사용자 이동 여부
   const [movementId, setMovementId] = useState<number | null>(null); // 동선 ID
+  const [snapshotId, setSnapshotId] = useState<number>();
+  const [isOpenChecklist, setIsOpenChecklist] = useState<boolean>(false);
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
@@ -31,6 +39,7 @@ const MapMainScreen = () => {
       Geolocation.getCurrentPosition(
         position => {
           const { latitude, longitude } = position.coords;
+          console.log({ latitude, longitude });
           setCurrentLocation({ latitude, longitude });
           setRegion({
             ...region,
@@ -48,9 +57,11 @@ const MapMainScreen = () => {
     setRegion(newRegion);
   };
 
+  // 현재 위치 갱신 및 동선 수집
   useLocationTracking(setLocations, setCurrentLocation);
   useDetermineMovement(locations, isMoving, setIsMoving);
 
+  // 현재 위치 초기값 설정
   useEffect(() => {
     getCurrentLocation();
   }, []);
@@ -69,8 +80,31 @@ const MapMainScreen = () => {
     }
   }, [currentLocation]);
 
+  const [data, setData] = useState<UseRouteListItem[] | undefined>();
+
+  useEffect(() => {
+    const convertedData = routes.map(route => ({
+      ...route,
+      track: route.track.map(point => ({
+        latitude: point.lat,
+        longitude: point.lon,
+      })),
+    })) as UseRouteListItem[];
+    setData(convertedData);
+  }, [routes]);
+
+  const onPressPolyline = () => {
+    console.log('polyline');
+  };
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <CustomHeader />
+      <ToggleButton>
+        <SparkleIcon />
+        <CustomText style={{ marginLeft: 10, color: colors.WHITE }}>
+          동선 상세 보기
+        </CustomText>
+      </ToggleButton>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
@@ -83,15 +117,72 @@ const MapMainScreen = () => {
               latitude: currentLocation.latitude,
               longitude: currentLocation.longitude,
             }}
+            zIndex={10}
             anchor={{ x: 0.5, y: 0.5 }}>
-            <View style={{ padding: 0 }}>
-              <CurrentPin width={50} height={50} />
-            </View>
+            <CurrentPin width={60} height={60} />
           </Marker>
         )}
+
+        {data &&
+          data.map((route, index) => (
+            <React.Fragment key={route.routeId || index}>
+              <Polyline
+                coordinates={route.track}
+                strokeWidth={10}
+                strokeColor={colors.GRAY_800}
+                tappable={true}
+                onPress={onPressPolyline}
+              />
+              <Polyline
+                coordinates={route.track}
+                strokeWidth={8}
+                strokeColor={colors.WHITE}
+                tappable={true}
+                onPress={onPressPolyline}
+              />
+              <Polyline
+                coordinates={route.track}
+                strokeWidth={5}
+                strokeColor={colors.PRIMARY}
+                tappable={true}
+                onPress={onPressPolyline}
+              />
+              <Marker
+                coordinate={{
+                  latitude: route.track[0].latitude,
+                  longitude: route.track[0].longitude,
+                }}
+                anchor={{ x: 0.5, y: 1 }}>
+                <MarkerIcon width={30} height={30} />
+              </Marker>
+              <Marker
+                coordinate={{
+                  latitude: route.track[route.track.length - 1].latitude,
+                  longitude: route.track[route.track.length - 1].longitude,
+                }}
+                anchor={{ x: 0.5, y: 1 }}>
+                <MarkerIcon width={30} height={30} />
+              </Marker>
+            </React.Fragment>
+          ))}
       </MapView>
     </SafeAreaView>
   );
 };
 
 export default MapMainScreen;
+
+const ToggleButton = styled.TouchableOpacity`
+  padding-vertical: 5px;
+  padding-horizontal: 10px;
+  position: absolute;
+  top: 70px;
+  right: 0px;
+  z-index: 10;
+  margin: 5px;
+  background-color: ${colors.PRIMARY};
+  border-radius: 20px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;

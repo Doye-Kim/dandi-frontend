@@ -12,4 +12,10 @@ export { default as TabMyIcon } from './my.svg';
 export { default as TabMyFocusedIcon } from './my-focused.svg';
 export { default as CheckRingIcon } from './check-ring.svg';
 
+export { default as LeftIcon } from './left.svg';
+export { default as RightIcon } from './right.svg';
+
 export { default as CurrentPin } from './current-pin.svg';
+export { default as CheckIcon } from './check.svg';
+export { default as MarkerIcon } from './marker.svg';
+export { default as SparkleIcon } from './sparkle.svg';

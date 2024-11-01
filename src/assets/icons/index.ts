@@ -19,3 +19,4 @@ export { default as CurrentPin } from './current-pin.svg';
 export { default as CheckIcon } from './check.svg';
 export { default as MarkerIcon } from './marker.svg';
 export { default as SparkleIcon } from './sparkle.svg';
+export { default as CrossButton } from './cross.svg';

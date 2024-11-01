@@ -1,31 +1,38 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SafeAreaView, TouchableOpacity } from 'react-native';
-import MapView, {
-  Marker,
-  PROVIDER_GOOGLE,
-  Polyline,
-  Region,
-} from 'react-native-maps';
-
+import { SafeAreaView } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import styled from 'styled-components/native';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useDetermineMovement } from '@/hooks/useDetermineMovement';
-import { CurrentPin, MarkerIcon, SparkleIcon } from '@/assets/icons';
-import Geolocation from '@react-native-community/geolocation';
-import { requestLocationPermission } from '@/utils';
+import { CurrentPin, SparkleIcon } from '@/assets/icons';
+import { getCurrentLocation } from '@/utils';
 import { colors } from '@/constants';
 import CustomHeader from '@/components/map/CustomHeader';
-import { LatLng, LatLon, UseRouteListItem } from '@/api/map';
-import { routes } from '@/dummy/dailyRoute.json';
+import {
+  LatLng,
+  LatLon,
+  ResponseRouteItem,
+  ResponseRouteListItem,
+  UseRouteItem,
+  UseRouteListItem,
+} from '@/api/map';
 import CustomText from '@/components/common/CustomText';
-import styled from 'styled-components/native';
+import CheckListModal from '@/components/map/ChecklistModal';
+import CustomPolyline from '@/components/map/CustomPolyLine';
+import CustomMarker from '@/components/map/CustomMarker';
+import { routes } from '@/dummy/routes.json';
+import { nextRouteId } from '@/dummy/routes.json';
+import route from '@/dummy/route.json';
 
 const MapMainScreen = () => {
   const [currentLocation, setCurrentLocation] = useState<LatLng>(); // 사용자의 현재 위치
   const [locations, setLocations] = useState<LatLon[]>([]); // 사용자의 이동 여부를 확인하기 위한 10분 간의 위치 데이터
   const [isMoving, setIsMoving] = useState<boolean>(false); // 사용자 이동 여부
-  const [movementId, setMovementId] = useState<number | null>(null); // 동선 ID
-  const [snapshotId, setSnapshotId] = useState<number>();
+  const [routeId, setRouteId] = useState<number | null>(null); // 동선 ID
   const [isOpenChecklist, setIsOpenChecklist] = useState<boolean>(false);
+  const [isMain, setIsMain] = useState<boolean>(true);
+  const today = new Date();
+  const [date, setDate] = useState(today);
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
@@ -33,82 +40,120 @@ const MapMainScreen = () => {
     latitudeDelta: 0.01, // 초기 줌 레벨
     longitudeDelta: 0.01,
   });
-  const getCurrentLocation = async () => {
-    const hasPermission = await requestLocationPermission();
-    if (hasPermission) {
-      Geolocation.getCurrentPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          console.log({ latitude, longitude });
-          setCurrentLocation({ latitude, longitude });
-          setRegion({
-            ...region,
-            latitude,
-            longitude,
-          });
-        },
-        error => console.log(error),
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-      );
-    }
-  };
 
-  const handleRegionChangeComplete = (newRegion: Region) => {
-    setRegion(newRegion);
-  };
+  // 현재 위치 초기값 설정
+  useEffect(() => {
+    const fetchLocation = async () => {
+      const location = await getCurrentLocation();
+      if (location) {
+        setCurrentLocation(location);
+      }
+    };
+
+    fetchLocation();
+  }, []);
 
   // 현재 위치 갱신 및 동선 수집
   useLocationTracking(setLocations, setCurrentLocation);
   useDetermineMovement(locations, isMoving, setIsMoving);
 
-  // 현재 위치 초기값 설정
-  useEffect(() => {
-    getCurrentLocation();
-  }, []);
+  // 동선 데이터 처리
+  const [data, setData] = useState<
+    UseRouteListItem[] | UseRouteItem | undefined | null
+  >();
 
-  useEffect(() => {
-    if (currentLocation && mapRef.current) {
-      // 사용자가 설정한 줌 레벨 유지하면서 중심 좌표만 업데이트
-      mapRef.current.animateToRegion(
-        {
-          ...region,
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
-        },
-        1000,
-      );
-    }
-  }, [currentLocation]);
-
-  const [data, setData] = useState<UseRouteListItem[] | undefined>();
-
-  useEffect(() => {
-    const convertedData = routes.map(route => ({
+  const convertRouteArray = (
+    input: ResponseRouteListItem[],
+  ): UseRouteListItem[] => {
+    return input.map(route => ({
       ...route,
       track: route.track.map(point => ({
         latitude: point.lat,
         longitude: point.lon,
       })),
-    })) as UseRouteListItem[];
-    setData(convertedData);
-  }, [routes]);
-
-  const onPressPolyline = () => {
-    console.log('polyline');
+    }));
   };
+
+  const convertRouteObject = (input: ResponseRouteItem): UseRouteItem => {
+    return {
+      ...input,
+      track: input.track.map(point => ({
+        latitude: point.lat,
+        longitude: point.lon,
+      })),
+    };
+  };
+
+  // #todo: 동선이 없으면 현재 위치를 중심으로 함
+  useEffect(() => {
+    let convertedData;
+    if (isMain) convertedData = convertRouteArray(routes) as UseRouteListItem[];
+    else
+      convertedData = convertedData = convertRouteObject(route) as UseRouteItem;
+
+    const allCoordinates = Array.isArray(convertedData)
+      ? convertedData.flatMap(route => route.track)
+      : convertedData.track;
+
+    setData(convertedData);
+
+    // 모든 좌표를 맵 중심으로 맞춤
+    mapRef.current?.fitToCoordinates(allCoordinates, {
+      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, // 원하는 여백 추가
+      animated: true,
+    });
+  }, [isMain]);
+
+  // 상호작용
+  const handleRegionChangeComplete = (newRegion: Region) => {
+    setRegion(newRegion);
+  };
+
+  const onPressToggle = () => {
+    if (Array.isArray(data)) setRouteId(data[data.length - 1].id);
+    setIsMain(prev => !prev);
+  };
+
+  const onPressMarker = (id: number) => {
+    setIsOpenChecklist(true);
+    setRouteId(id);
+  };
+
+  const onPressPolyline = (id: number) => {
+    setIsMain(false);
+    setRouteId(id);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <CustomHeader />
-      <ToggleButton>
+      {isMain ? (
+        <CustomHeader
+          isMain={isMain}
+          today={today}
+          date={date}
+          setDate={setDate}
+        />
+      ) : (
+        !Array.isArray(data) &&
+        data && (
+          <CustomHeader
+            isMain={isMain}
+            today={today}
+            data={data}
+            setData={setData}
+          />
+        )
+      )}
+      <ToggleButton onPress={onPressToggle}>
         <SparkleIcon />
         <CustomText style={{ marginLeft: 10, color: colors.WHITE }}>
-          동선 상세 보기
+          {isMain ? '동선 상세 보기' : '동선 모아 보기'}
         </CustomText>
       </ToggleButton>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
-        region={region}
+        initialRegion={region}
         onRegionChangeComplete={handleRegionChangeComplete}
         style={{ flex: 1 }}>
         {currentLocation && (
@@ -124,48 +169,51 @@ const MapMainScreen = () => {
         )}
 
         {data &&
-          data.map((route, index) => (
-            <React.Fragment key={route.routeId || index}>
-              <Polyline
-                coordinates={route.track}
-                strokeWidth={10}
-                strokeColor={colors.GRAY_800}
-                tappable={true}
+          (Array.isArray(data) ? data : [data]).map((route, index) => (
+            <React.Fragment key={route.id || index}>
+              <CustomPolyline
+                track={route.track}
+                id={route.id}
                 onPress={onPressPolyline}
               />
-              <Polyline
-                coordinates={route.track}
-                strokeWidth={8}
-                strokeColor={colors.WHITE}
-                tappable={true}
-                onPress={onPressPolyline}
-              />
-              <Polyline
-                coordinates={route.track}
-                strokeWidth={5}
-                strokeColor={colors.PRIMARY}
-                tappable={true}
-                onPress={onPressPolyline}
-              />
-              <Marker
-                coordinate={{
-                  latitude: route.track[0].latitude,
-                  longitude: route.track[0].longitude,
-                }}
-                anchor={{ x: 0.5, y: 1 }}>
-                <MarkerIcon width={30} height={30} />
-              </Marker>
-              <Marker
-                coordinate={{
-                  latitude: route.track[route.track.length - 1].latitude,
-                  longitude: route.track[route.track.length - 1].longitude,
-                }}
-                anchor={{ x: 0.5, y: 1 }}>
-                <MarkerIcon width={30} height={30} />
-              </Marker>
+              {Array.isArray(data) && index === data.length - 1 ? (
+                <CustomMarker
+                  track={route.track}
+                  isRoute={false}
+                  routeId={route.id}
+                  isLast={true}
+                  nextId={nextRouteId}
+                  onPress={onPressMarker}
+                />
+              ) : (
+                <CustomMarker
+                  track={route.track}
+                  isRoute={false}
+                  routeId={route.id}
+                  isLast={false}
+                  onPress={onPressMarker}
+                />
+              )}
             </React.Fragment>
           ))}
       </MapView>
+      {routeId &&
+        data &&
+        (Array.isArray(data) ? (
+          <CheckListModal
+            visible={isOpenChecklist}
+            onDismiss={() => setIsOpenChecklist(false)}
+            routeId={routeId}
+          />
+        ) : (
+          <CheckListModal
+            visible={isOpenChecklist}
+            onDismiss={() => setIsOpenChecklist(false)}
+            routeId={routeId}
+            snapshot={data.startSnapshot}
+            skip={data.skip}
+          />
+        ))}
     </SafeAreaView>
   );
 };

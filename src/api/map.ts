@@ -1,32 +1,33 @@
 import axiosInstance from './axios';
 
-export type LatLng = {
+export interface LatLng {
   latitude: number;
   longitude: number;
-};
+}
 
-export type LatLon = {
+export interface LatLon {
   lat: number;
   lon: number;
-};
+}
 
-export type ResponseRouteListItem = {
-  routeId: number; // 이동 ID
-  skip: 'Y' | 'N';
-  snapshotId: number; // 스냅샷 ID
+export interface ResponseRouteListItem {
+  id: number;
   track: LatLon[];
-  createdAt: string; // 이동 시작 시간
-  endedAt: string; // 이동 종료 시간
-};
+  createdAt: string;
+  endedAt: string;
+}
 
-export type UseRouteListItem = {
-  routeId: number; // 이동 ID
-  skip: 'Y' | 'N';
-  snapshotId: number; // 스냅샷 ID
+export interface UseRouteListItem {
+  id: number;
   track: LatLng[];
-  createdAt: string; // 이동 시작 시간
-  endedAt: string; // 이동 종료 시간
-};
+  createdAt: string;
+  endedAt: string;
+}
+
+export interface ResponseRouteList {
+  routes: ResponseRouteListItem[];
+  nextRouteId: number;
+}
 
 const startRoute = async ({ bagId }: { bagId: number }) => {
   const data = await axiosInstance.post('/routes', { bagId });
@@ -44,4 +45,53 @@ const endRoute = async ({
   return data;
 };
 
-export { startRoute, endRoute };
+const getRoutes = async (date: String) => {
+  const data = await axiosInstance.get(`/routes?date=${date}`);
+  return data;
+};
+
+const getRoute = async (routeId: number) => {
+  const data = await axiosInstance.get(`routes/${routeId}`);
+  return data;
+};
+
+// export type skipState = 'Y' | 'N';
+
+export type ResponseRouteItem = {
+  id: number;
+  memberId: number;
+  track: LatLon[];
+  skip: string;
+  startSnapshot: Snapshot;
+  createdAt: string;
+  endedAt: string;
+};
+
+export type UseRouteItem = {
+  id: number;
+  memberId: number;
+  track: LatLng[];
+  skip: string;
+  startSnapshot: Snapshot;
+  createdAt: string;
+  endedAt: string;
+};
+
+export interface Item {
+  name: string;
+  emoticon: string;
+  type: number;
+  isChecked: boolean;
+}
+
+export interface Snapshot {
+  bagId: number;
+  items: Item[];
+}
+
+export interface ResponseSnapshot {
+  skip: string;
+  snapshot: Snapshot;
+}
+
+export { startRoute, endRoute, getRoutes, getRoute };

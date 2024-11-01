@@ -1,3 +1,7 @@
+import Geolocation from '@react-native-community/geolocation';
+import { requestLocationPermission } from './permission';
+import { LatLng } from '@/api/map';
+
 const timeInterval = 10000;
 
 const calculateDistance = (
@@ -36,4 +40,25 @@ const calculateAverageSpeed = (distances: number[]) => {
   return averageSpeed;
 };
 
-export { calculateDistance, calculateAverageSpeed };
+const getCurrentLocation = async (): Promise<LatLng | null> => {
+  const hasPermission = await requestLocationPermission();
+  if (hasPermission) {
+    return new Promise((resolve, reject) => {
+      Geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          resolve({ latitude, longitude });
+        },
+        error => {
+          console.log(error);
+          reject(error);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      );
+    });
+  } else {
+    return null;
+  }
+};
+
+export { calculateDistance, calculateAverageSpeed, getCurrentLocation };

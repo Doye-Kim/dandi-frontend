@@ -1,9 +1,8 @@
 import React from 'react';
-import { Text, Modal } from 'react-native';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import { responsive, responsiveVertical } from '@/utils/common';
-import CustomText from '../common/CustomText';
+import { responsiveVertical } from '@/utils/common';
+import TrashBinIcon from '@/assets/icons/trash-bin.svg';
 
 interface ListOptionModalProps {
   isVisible: boolean;
@@ -14,7 +13,7 @@ const ListOptionModal = ({ isVisible, onDelete }: ListOptionModalProps) => {
   return isVisible ? (
     <Overlay>
       <DeleteButton onPress={onDelete}>
-        <CustomText style={{ color: colors.BLACK }}>삭제</CustomText>
+        <TrashBinIcon />
       </DeleteButton>
     </Overlay>
   ) : (

@@ -12,6 +12,7 @@ interface AlertListProps {
   selected: number[];
   handleSelect: (id: number) => void;
   handleLongPress: (id: number) => void;
+  goToDetail: (id: number) => void;
 }
 
 const AlertList = ({
@@ -20,6 +21,7 @@ const AlertList = ({
   selected,
   handleSelect,
   handleLongPress,
+  goToDetail,
 }: AlertListProps) => {
   return (
     <Container>
@@ -32,9 +34,10 @@ const AlertList = ({
             isSelected={selected.includes(item.id)}
             handleSelect={() => handleSelect(item.id)}
             handleLongPress={() => handleLongPress(item.id)}
+            goToDetail={() => goToDetail(item.id)}
           />
         )}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={
           !isSelectMode ? {} : { paddingBottom: responsive(70) }
         }

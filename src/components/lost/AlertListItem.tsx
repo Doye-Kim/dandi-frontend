@@ -11,6 +11,7 @@ interface AlertListItemProps {
   isSelected: boolean;
   handleSelect: () => void;
   handleLongPress: () => void;
+  goToDetail: () => void;
 }
 
 const AlertListItem = ({
@@ -19,11 +20,12 @@ const AlertListItem = ({
   isSelected,
   handleSelect,
   handleLongPress,
+  goToDetail,
 }: AlertListItemProps) => {
   return (
     <CardContainer
       isSelected={isSelected}
-      onPress={!isSelectMode ? handleSelect : handleSelect} // todo: selectMode일 때 => handleSelect, 아닐 때 => 상세 정보 페이지로 이동
+      onPress={!isSelectMode ? goToDetail : handleSelect}
       onLongPress={handleLongPress}>
       <AlertHeader>
         <EmojiBox>
@@ -90,5 +92,5 @@ const BlankBox = styled.View`
 
 const AlertContentText = styled(CustomText)`
   flex: 9;
-  color: ${colors.BLACK};
+  color: ${colors.GRAY_900};
 `;

@@ -1,14 +1,27 @@
 import React from 'react';
 import { useState } from 'react';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import CustomText from '@/components/common/CustomText';
 import AlertList from '@/components/lost/AlertList';
 import ListOptopmModal from '@/components/lost/ListOptionModal';
+import PickupQuizModal from '@/components/lost/PickupQuizModal';
 
-const PickupListScreen = () => {
+type PickupListScreenNavigationProp = StackNavigationProp<
+  LostStackParamList,
+  'PickupList'
+>;
+
+type PickupListScreenProps = {
+  navigation: PickupListScreenNavigationProp;
+};
+
+const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<number[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<null | number>(null);
+  const [quizModalVisible, setQuizModalVisible] = useState<boolean>(false);
   // todo: API 연동 후 데이터 변경
   const pickupData = [
     {
@@ -56,9 +69,9 @@ const PickupListScreen = () => {
   const handleSelectItem = (id: number) => {
     if (!selectMode) return;
 
-    setSelected(prev => {
+    setSelected((prev) => {
       if (prev.includes(id)) {
-        return prev.filter(el => el !== id);
+        return prev.filter((el) => el !== id);
       }
       return [...prev, id];
     });
@@ -69,6 +82,21 @@ const PickupListScreen = () => {
     setSelectMode(false);
     setSelected([]);
   };
+  // 상세 페이지 이동 전 퀴즈 시도 함수
+  const tryQuiz = (id: number) => {
+    setSelectedItemId(id);
+    setQuizModalVisible(true);
+  };
+
+  // 퀴즈 성공 시 상세 페이지로 이동하는 함수
+  const handleQuizSuccess = () => {
+    // todo: 퀴즈 성공 시 상세 페이지로 이동
+    if (selectedItemId !== null) {
+      navigation.navigate('PickupDetail', { id: selectedItemId });
+      setQuizModalVisible(false);
+      setSelectedItemId(null);
+    }
+  };
 
   return (
     <Container>
@@ -78,8 +106,14 @@ const PickupListScreen = () => {
         selected={selected}
         handleSelect={handleSelectItem}
         handleLongPress={handleSelectMode}
+        goToDetail={tryQuiz}
       />
       <ListOptopmModal isVisible={selectMode} onDelete={deleteAlert} />
+      <PickupQuizModal
+        inVisible={quizModalVisible}
+        onClose={() => setQuizModalVisible(false)}
+        onQuizSuccess={handleQuizSuccess}
+      />
     </Container>
   );
 };

@@ -19,4 +19,11 @@ export { default as CurrentPin } from './current-pin.svg';
 export { default as CheckIcon } from './check.svg';
 export { default as MarkerIcon } from './marker.svg';
 export { default as SparkleIcon } from './sparkle.svg';
+
+export { default as CalendarIcon } from './calendar.svg';
+export { default as CommentIcon } from './comment.svg';
+export { default as InfoIcon } from './info.svg';
+export { default as SimpleMarkerIcon } from './simple-marker.svg';
+export { default as TrashBinIcon } from './trash-bin.svg';
+
 export { default as CrossButton } from './cross.svg';

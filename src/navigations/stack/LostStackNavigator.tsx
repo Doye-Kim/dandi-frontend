@@ -3,9 +3,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { lostNavigations, colors } from '@/constants';
 import LostHomeScreen from '@/screens/lost/LostHomeScreen';
 import PickupListScreen from '@/screens/lost/PickupListScreen';
+import PickupDetailScreen from '@/screens/lost/PickupDetailScreen';
 
 export type LostStackParamList = {
   PickupList: undefined;
+  PickupDetail: { id: number };
 };
 
 const Stack = createStackNavigator<LostStackParamList>();
@@ -34,6 +36,14 @@ function LostStackNavigator() {
         component={PickupListScreen}
         options={{
           headerTitle: '습득물 목록',
+          headerTitleAlign: 'center',
+        }}
+      />
+      <Stack.Screen
+        name={lostNavigations.PICKUP_DETAIL}
+        component={PickupDetailScreen}
+        options={{
+          headerTitle: '습득물',
           headerTitleAlign: 'center',
         }}
       />

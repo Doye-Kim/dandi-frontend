@@ -18,6 +18,7 @@ const authNavigations = {
 
 const lostNavigations = {
   PICKUP_LIST: 'PickupList',
+  PICKUP_DETAIL: 'PickupDetail',
 } as const;
 
 export { mainNavigations, authNavigations, lostNavigations };

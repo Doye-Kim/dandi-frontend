@@ -23,7 +23,7 @@ type MainNavigationsType =
 export type RootParamList = {
   Lost: undefined;
   Map: undefined;
-  Things: undefined;
+  Bag: undefined;
   Notification: undefined;
   My: undefined;
 };
@@ -38,10 +38,11 @@ import {
 } from '@react-navigation/native';
 import { colors, mainNavigations } from '@/constants';
 import MapMainScreen from '@/screens/map/MapMainScreen';
-import ThingsMainScreen from '@/screens/things/ThingsMainScreen';
+import ThingsMainScreen from '@/screens/bag/BagMainScreen';
 import MyMainScreen from '@/screens/my/MyMainScreen';
 import NotiMainScreen from '@/screens/noti/NotiMainScreen';
 import LostStackNavigator from '@/navigations/stack/LostStackNavigator';
+import BagStackNavigator from '../stack/BagStackNavigator';
 
 const Tab = createBottomTabNavigator();
 // #todo: 현재 screen을 바로 연결해뒀지만 기능 개발 시 stack navigator 연결 필요
@@ -50,7 +51,7 @@ const Navbar = () => {
   return (
     <View style={styles.container}>
       <Tab.Navigator
-        initialRouteName={mainNavigations.THINGS}
+        initialRouteName={mainNavigations.BAG}
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let Icon;
@@ -61,7 +62,7 @@ const Navbar = () => {
               case mainNavigations.MAP:
                 Icon = focused ? TabMapFocusedIcon : TabMapIcon;
                 break;
-              case mainNavigations.THINGS:
+              case mainNavigations.BAG:
                 Icon = focused ? TabBagFocusedIcon : TabBagIcon;
                 break;
               case mainNavigations.NOTI:
@@ -85,7 +86,7 @@ const Navbar = () => {
           name={mainNavigations.LOST}
           component={LostStackNavigator}
           listeners={{
-            tabPress: e => {
+            tabPress: (e) => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
@@ -98,7 +99,7 @@ const Navbar = () => {
           name={mainNavigations.MAP}
           component={MapMainScreen}
           listeners={{
-            tabPress: e => {
+            tabPress: (e) => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
@@ -108,14 +109,14 @@ const Navbar = () => {
           }}
         />
         <Tab.Screen
-          name={mainNavigations.THINGS}
-          component={ThingsMainScreen}
+          name={mainNavigations.BAG}
+          component={BagStackNavigator}
           listeners={{
-            tabPress: e => {
+            tabPress: (e) => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
-                routes: [{ name: mainNavigations.THINGS }],
+                routes: [{ name: mainNavigations.BAG }],
               });
             },
           }}
@@ -124,7 +125,7 @@ const Navbar = () => {
           name={mainNavigations.NOTI}
           component={NotiMainScreen}
           listeners={{
-            tabPress: e => {
+            tabPress: (e) => {
               e.preventDefault();
               navigation.reset({
                 index: 0,
@@ -137,7 +138,7 @@ const Navbar = () => {
           name={mainNavigations.MY}
           component={MyMainScreen}
           listeners={{
-            tabPress: e => {
+            tabPress: (e) => {
               e.preventDefault();
               navigation.reset({
                 index: 0,

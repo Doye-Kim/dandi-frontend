@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "itemOrder": 2,
+    "emoticon": "🙂",
+    "name": "Item Name 1",
+    "colorKey": 2,
+    "created_at": "2024-10-25T14:00:00"
+  },
+  {
+    "id": 2,
+    "itemOrder": 1,
+    "emoticon": "😎",
+    "name": "Item Name 2",
+    "colorKey": 1,
+    "created_at": "2024-10-24T12:00:00"
+  }
+]

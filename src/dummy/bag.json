@@ -1,0 +1,27 @@
+[
+  {
+    "id": 123,
+    "bagOrder": 1,
+    "name": "현재 가방"
+  },
+  {
+    "id": 124,
+    "bagOrder": 3,
+    "name": "출근"
+  },
+  {
+    "id": 125,
+    "bagOrder": 2,
+    "name": "술 약속"
+  },
+  {
+    "id": 126,
+    "bagOrder": 4,
+    "name": "데이트"
+  },
+  {
+    "id": 127,
+    "bagOrder": 4,
+    "name": "본가"
+  }
+]

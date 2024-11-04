@@ -36,6 +36,7 @@ export const colors = {
 
   PRIMARY: '#B22222',
   SELECTED_BLUE: '#E1EBFF',
+  ACCENT_BLUE: '#007FFF',
 
   ERROR: '#FF0000',
 };

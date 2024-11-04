@@ -13,29 +13,7 @@ import {
   TabMyFocusedIcon,
 } from '@/assets/icons';
 import { View, StyleSheet } from 'react-native';
-import { CompositeNavigationProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-
-type MainNavigationsType =
-  (typeof mainNavigations)[keyof typeof mainNavigations];
-
-export type RootParamList = {
-  Lost: undefined;
-  Map: undefined;
-  Bag: undefined;
-  Notification: undefined;
-  My: undefined;
-};
-
-type NavigationProps = CompositeNavigationProp<
-  BottomTabNavigationProp<Record<MainNavigationsType, undefined>>,
-  StackNavigationProp<RootParamList>
->;
-import {
-  getFocusedRouteNameFromRoute,
-  useNavigation,
-} from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { colors, mainNavigations } from '@/constants';
 import MapMainScreen from '@/screens/map/MapMainScreen';
 import ThingsMainScreen from '@/screens/bag/BagMainScreen';
@@ -45,108 +23,59 @@ import LostStackNavigator from '@/navigations/stack/LostStackNavigator';
 import BagStackNavigator from '../stack/BagStackNavigator';
 
 const Tab = createBottomTabNavigator();
-// #todo: 현재 screen을 바로 연결해뒀지만 기능 개발 시 stack navigator 연결 필요
+
 const Navbar = () => {
-  const navigation = useNavigation<NavigationProps>();
   return (
     <View style={styles.container}>
       <Tab.Navigator
         initialRouteName={mainNavigations.BAG}
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let Icon;
-            switch (route.name) {
-              case mainNavigations.LOST:
-                Icon = focused ? TabLostFocusedIcon : TabLostIcon;
-                break;
-              case mainNavigations.MAP:
-                Icon = focused ? TabMapFocusedIcon : TabMapIcon;
-                break;
-              case mainNavigations.BAG:
-                Icon = focused ? TabBagFocusedIcon : TabBagIcon;
-                break;
-              case mainNavigations.NOTI:
-                Icon = focused ? TabNotiFocusedIcon : TabNotiIcon;
-                break;
-              case mainNavigations.MY:
-                Icon = focused ? TabMyFocusedIcon : TabMyIcon;
-                break;
-              default:
-                Icon = TabBagIcon;
-            }
-            return <Icon />;
-          },
-          tabBarStyle: styles.tabBarStyle,
-          tabBarShowLabel: false,
-          tabBarHideOnKeyboard: true,
-          keyboardHidesTabBar: true,
-          headerShown: false,
-        })}>
+        screenOptions={({ route }) => {
+          // `getFocusedRouteNameFromRoute`를 사용하여 하위 경로의 이름을 가져옵니다.
+          const routeName = getFocusedRouteNameFromRoute(route);
+
+          return {
+            tabBarIcon: ({ focused }) => {
+              let Icon;
+              switch (route.name) {
+                case mainNavigations.LOST:
+                  Icon = focused ? TabLostFocusedIcon : TabLostIcon;
+                  break;
+                case mainNavigations.MAP:
+                  Icon = focused ? TabMapFocusedIcon : TabMapIcon;
+                  break;
+                case mainNavigations.BAG:
+                  Icon = focused ? TabBagFocusedIcon : TabBagIcon;
+                  break;
+                case mainNavigations.NOTI:
+                  Icon = focused ? TabNotiFocusedIcon : TabNotiIcon;
+                  break;
+                case mainNavigations.MY:
+                  Icon = focused ? TabMyFocusedIcon : TabMyIcon;
+                  break;
+                default:
+                  Icon = TabBagIcon;
+              }
+              return <Icon />;
+            },
+            // `routeName`이 'PickupDetail'일 때만 탭 바 숨기기
+            tabBarStyle:
+              routeName === 'PickupDetail'
+                ? { display: 'none' }
+                : styles.tabBarStyle,
+            tabBarShowLabel: false,
+            tabBarHideOnKeyboard: true,
+            keyboardHidesTabBar: true,
+            headerShown: false,
+          };
+        }}>
         <Tab.Screen
           name={mainNavigations.LOST}
           component={LostStackNavigator}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: mainNavigations.LOST }],
-              });
-            },
-          }}
         />
-        <Tab.Screen
-          name={mainNavigations.MAP}
-          component={MapMainScreen}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: mainNavigations.MAP }],
-              });
-            },
-          }}
-        />
-        <Tab.Screen
-          name={mainNavigations.BAG}
-          component={BagStackNavigator}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: mainNavigations.BAG }],
-              });
-            },
-          }}
-        />
-        <Tab.Screen
-          name={mainNavigations.NOTI}
-          component={NotiMainScreen}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: mainNavigations.NOTI }],
-              });
-            },
-          }}
-        />
-        <Tab.Screen
-          name={mainNavigations.MY}
-          component={MyMainScreen}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: mainNavigations.MY }],
-              });
-            },
-          }}
-        />
+        <Tab.Screen name={mainNavigations.MAP} component={MapMainScreen} />
+        <Tab.Screen name={mainNavigations.BAG} component={BagStackNavigator} />
+        <Tab.Screen name={mainNavigations.NOTI} component={NotiMainScreen} />
+        <Tab.Screen name={mainNavigations.MY} component={MyMainScreen} />
       </Tab.Navigator>
     </View>
   );

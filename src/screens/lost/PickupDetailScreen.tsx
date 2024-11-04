@@ -11,6 +11,8 @@ import InfoSectionBox from '@/components/lost/InfoSectionBox';
 import InfoIcon from '@/assets/icons/info.svg';
 import SimpleMarkIcon from '@/assets/icons/simple-marker.svg';
 import CalendarIcon from '@/assets/icons/calendar.svg';
+import CommentSectionBox from '@/components/lost/CommentSectionBox';
+import CommentInputBox from '@/components/lost/CommentInputBox';
 
 type PickupDetailScreenRouteProp = RouteProp<
   LostStackParamList,
@@ -83,7 +85,9 @@ const PickupDetailScreen = ({ route }: PickupDetailScreenProps) => {
           subtitle='습득 날짜'
           content='2021.09.01 20:49'
         />
+        <CommentSectionBox />
       </ScollContainer>
+      <CommentInputBox />
     </Container>
   );
 };

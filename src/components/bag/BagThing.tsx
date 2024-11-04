@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import { BagThingItem } from './BagThings';
@@ -6,6 +6,7 @@ import { DeleteBagIcon } from '@/assets/icons';
 import CustomText from '../common/CustomText';
 import useBagStore from '@/store/useBagStore';
 import DeleteButton from './DeleteButton';
+import { responsive } from '@/utils';
 
 const BagThing = ({ item }: { item: BagThingItem }) => {
   const mode = useBagStore((state) => state.mode);
@@ -23,15 +24,16 @@ const BagThing = ({ item }: { item: BagThingItem }) => {
     <StyleView>
       {mode === 2 && <DeleteButton onPressDelete={onPressDelete} />}
       <StyleItemIcon onLongPress={onLongPress} color={color}>
-        <Text style={{ fontSize: 36 }}>{item.emoticon}</Text>
+        <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
       </StyleItemIcon>
-      <CustomText
-        style={{
-          fontSize: 16,
-          marginTop: 5,
-        }}>
-        {item.name}
-      </CustomText>
+      <View style={{ marginTop: 5, height: 28 }}>
+        <CustomText
+          style={{
+            fontSize: item.name.length > 4 ? 11 : 14,
+          }}>
+          {item.name}
+        </CustomText>
+      </View>
     </StyleView>
   );
 };
@@ -40,12 +42,14 @@ export default BagThing;
 const StyleView = styled.View`
   justify-content: center;
   align-items: center;
-  width: 20%;
-  padding: 5px;
+  width: ${responsive(74)}px;
+  padding-horizontal: 3px;
+  margin-top: 3px;
 `;
 
 const StyleItemIcon = styled.TouchableOpacity<{ color: string }>`
   border-radius: 20px;
+  background-color: ${colors.WHITE};
   padding: 5px;
   border-width: 2px;
   border-style: dashed;

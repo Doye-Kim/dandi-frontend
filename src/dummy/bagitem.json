@@ -39,16 +39,7 @@
     {
       "itemId": 5,
       "itemOrder": 5,
-      "name": "책3",
-      "emoticon": "📖",
-      "colorKey": 2,
-      "createdAt": "2024-10-21T09:00:00",
-      "updatedAt": "2024-10-23T09:30:00"
-    },
-    {
-      "itemId": 6,
-      "itemOrder": 6,
-      "name": "왜 안 떠",
+      "name": "일이삼사오육칠팔구십",
       "emoticon": "📖",
       "colorKey": 2,
       "createdAt": "2024-10-21T09:00:00",

@@ -8,13 +8,13 @@ import bag from '@/dummy/bag.json';
 import useBagStore from '@/store/useBagStore';
 
 // #todo: api/bag.ts 으로 넘길 것
-interface BagItem {
+export interface BagItem {
   id: number;
   bagOrder: number;
   name: string;
 }
 
-const BagList = ({
+const MainBagList = ({
   selectBagId,
   setSelectBagId,
 }: {
@@ -60,13 +60,13 @@ const BagList = ({
   );
 };
 
-export default BagList;
+export default MainBagList;
 
 const StyleBagContainer = styled.TouchableOpacity`
   background-color: ${colors.GRAY_300};
-  border-radius: ${responsive(15)}px;
+  border-radius: ${responsive(10)}px;
   padding-horizontal: ${responsive(15)}px;
-  padding-vertical: ${responsiveVertical(10)}px;
+  padding-vertical: ${responsiveVertical(7)}px;
   margin-right: ${responsive(10)}px;
 `;
 const SelectBagContainer = styled(StyleBagContainer)`

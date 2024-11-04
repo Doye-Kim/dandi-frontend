@@ -10,7 +10,7 @@ export interface BagThingItem {
   emoticon: string;
   colorKey: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 const BagThings = ({ bagId }: { bagId: number | undefined }) => {

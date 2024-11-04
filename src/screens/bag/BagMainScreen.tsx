@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import BagHeader from '@/components/bag/BagHeader';
-import { colors } from '@/constants';
-import { responsive } from '@/utils';
+import { bagNavigations, colors } from '@/constants';
+import { responsive, responsiveVertical } from '@/utils';
 import { FolderIcon } from '@/assets/icons';
-import BagList from '@/components/bag/BagList';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
+import BagHeader from '@/components/bag/BagHeader';
+import MainBagList from '@/components/bag/MainBagList';
 import BagActionBar from '@/components/bag/BagActionBar';
 import BagThings from '@/components/bag/BagThings';
 import BagDrawer from '@/components/bag/BagDrawer';
 
-const BagMainScreen = () => {
+export type BagScreenProps = {
+  navigation: StackNavigationProp<
+    BagStackParamList,
+    typeof bagNavigations.BAG_MAIN
+  >;
+};
+const BagMainScreen = ({ navigation }: BagScreenProps) => {
   const [selectBagId, setSelectBagId] = useState<number | undefined>();
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <BagHeader />
       <StyleBagListContainer>
-        <BagList selectBagId={selectBagId} setSelectBagId={setSelectBagId} />
-        <StyleFolderContainer>
+        <MainBagList
+          selectBagId={selectBagId}
+          setSelectBagId={setSelectBagId}
+        />
+        <StyleFolderContainer
+          onPress={() => navigation.navigate(bagNavigations.BAG_LIST)}>
           <FolderIcon width={25} height={25} />
         </StyleFolderContainer>
       </StyleBagListContainer>
@@ -43,6 +55,7 @@ const StyleBagListContainer = styled.View`
   flex-direction: row;
   align-items: center;
   margin-horizontal: ${responsive(10)}px;
+  margin-top: ${responsiveVertical(10)}px;
 `;
 
 const Divider = styled.View`

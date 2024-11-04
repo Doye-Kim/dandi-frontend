@@ -30,6 +30,8 @@ export { default as PlusThingsIcon } from './plus-thing.svg';
 export { default as RefreshIcon } from './refresh.svg';
 export { default as BagTrashIcon } from './bag-trash.svg';
 export { default as DeleteBagIcon } from './delete-bag.svg';
+export { default as AddFolderIcon } from './add-folder.svg';
+export { default as BagBurgerIcon } from './bag-burger.svg';
 
 export { default as CalendarIcon } from './calendar.svg';
 export { default as CommentIcon } from './comment.svg';

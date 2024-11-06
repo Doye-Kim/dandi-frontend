@@ -1,32 +1,41 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+// BagThing.tsx
+import { useState } from 'react';
+import { Text, View } from 'react-native';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import { BagThingItem } from './BagThings';
-import { DeleteBagIcon } from '@/assets/icons';
+import { BagThingItem, BagThingItemKey } from './BagThings';
+import { responsive } from '@/utils';
 import CustomText from '../common/CustomText';
 import useBagStore from '@/store/useBagStore';
 import DeleteButton from './DeleteButton';
-import { responsive } from '@/utils';
 
-const BagThing = ({ item }: { item: BagThingItem }) => {
-  const mode = useBagStore((state) => state.mode);
-  const { setMode } = useBagStore();
+const BagThing = ({
+  item,
+  drag,
+  onLongPress,
+}: {
+  item: BagThingItem | BagThingItemKey;
+  drag?: () => void;
+  onLongPress?: () => void;
+}) => {
+  const editMode = useBagStore((state) => state.editMode);
   const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
   const onPressDelete = () => {
     console.log('delete', item.itemId);
   };
 
-  const onLongPress = () => {
-    if (mode !== 2) setMode(2);
-    // #todo: 편집 모드일 땐 드래그
+  const [isOpenActionModal, setIsOpenACtionModal] = useState(false);
+  const handleLongPress = () => {
+    if (editMode && drag) drag();
+    if (onLongPress) onLongPress();
   };
   return (
     <StyleView>
-      {mode === 2 && <DeleteButton onPressDelete={onPressDelete} />}
-      <StyleItemIcon onLongPress={onLongPress} color={color}>
+      {editMode && <DeleteButton onPressDelete={onPressDelete} />}
+      <StyleItemIcon color={color} onLongPress={drag && handleLongPress}>
         <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
       </StyleItemIcon>
-      <View style={{ marginTop: 5, height: 28 }}>
+      <View style={{ marginTop: 5, height: 28, justifyContent: 'center' }}>
         <CustomText
           style={{
             fontSize: item.name.length > 4 ? 11 : 14,
@@ -42,9 +51,8 @@ export default BagThing;
 const StyleView = styled.View`
   justify-content: center;
   align-items: center;
-  width: ${responsive(74)}px;
+  width: ${responsive(352 / 5)}px;
   padding-horizontal: 3px;
-  margin-top: 3px;
 `;
 
 const StyleItemIcon = styled.TouchableOpacity<{ color: string }>`

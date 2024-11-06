@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import { bagNavigations, colors } from '@/constants';
@@ -19,16 +19,11 @@ export type BagScreenProps = {
   >;
 };
 const BagMainScreen = ({ navigation }: BagScreenProps) => {
-  const [selectBagId, setSelectBagId] = useState<number | undefined>();
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <BagHeader />
       <StyleBagListContainer>
-        <MainBagList
-          selectBagId={selectBagId}
-          setSelectBagId={setSelectBagId}
-        />
+        <MainBagList />
         <StyleFolderContainer
           onPress={() => navigation.navigate(bagNavigations.BAG_LIST)}>
           <FolderIcon width={25} height={25} />
@@ -36,8 +31,8 @@ const BagMainScreen = ({ navigation }: BagScreenProps) => {
       </StyleBagListContainer>
       <Divider />
       <BagActionBar />
-      <BagThings bagId={selectBagId} />
-      <BagDrawer bagId={selectBagId} />
+      <BagThings />
+      <BagDrawer />
     </SafeAreaView>
   );
 };

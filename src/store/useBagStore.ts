@@ -1,19 +1,28 @@
 import { create } from 'zustand';
 
-// mode 1 => basic mode
-// mode 2 => edit mode
-// mode 3 => custom bag mode
 interface BagState {
-  mode: number;
-  setMode: (mode: number) => void;
+  editMode: boolean;
+  selectBagId: number;
+  defaultBagId: number;
+  setEditMode: (mode: boolean) => void;
+  setSelectBagId: (selectBagId: number) => void;
+  setDefaultBagId: (defaultBagId: number) => void;
   reset: () => void;
 }
 const useBagStore = create<BagState>((set) => ({
-  mode: 1,
-  setMode: (mode: number) => {
-    set({ mode });
+  editMode: false,
+  selectBagId: 0,
+  defaultBagId: 0,
+  setEditMode: (editMode: boolean) => {
+    set({ editMode });
   },
-  reset: () => set({ mode: 1 }),
+  setSelectBagId: (selectBagId: number) => {
+    set({ selectBagId });
+  },
+  setDefaultBagId: (defaultBagId: number) => {
+    set({ defaultBagId });
+  },
+  reset: () => set({ editMode: false, selectBagId: 0, defaultBagId: 0 }),
 }));
 
 export default useBagStore;

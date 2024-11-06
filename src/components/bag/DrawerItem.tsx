@@ -13,8 +13,8 @@ export interface BagDrawerItem {
   created_at: string;
 }
 const DrawerItem = ({ item }: { item: BagDrawerItem }) => {
-  const mode = useBagStore((state) => state.mode);
-  const { setMode } = useBagStore();
+  const editMode = useBagStore((state) => state.editMode);
+  const { setEditMode } = useBagStore();
   const backColor =
     colors[`THINGS_BACK_${item.colorKey}` as keyof typeof colors];
   const textColor =
@@ -25,12 +25,12 @@ const DrawerItem = ({ item }: { item: BagDrawerItem }) => {
   };
 
   const onLongPress = () => {
-    if (mode !== 2) setMode(2);
+    if (!editMode) setEditMode(true);
     // #todo: 편집 모드일 땐 드래그
   };
   return (
     <View>
-      {mode === 2 && <DeleteButton onPressDelete={onPressDelete} />}
+      {editMode && <DeleteButton onPressDelete={onPressDelete} />}
       <TouchableOpacity
         key={item.id}
         onLongPress={onLongPress}

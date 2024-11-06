@@ -14,29 +14,28 @@ export interface BagItem {
   name: string;
 }
 
-const MainBagList = ({
-  selectBagId,
-  setSelectBagId,
-}: {
-  selectBagId: number | undefined;
-  setSelectBagId: (selectBagId: number | undefined) => void;
-}) => {
+const MainBagList = () => {
   const [bagList, setBagList] = useState<BagItem[]>();
-  const [defaultId, setDefaultId] = useState<number>();
-  const { mode, setMode } = useBagStore();
+  const {
+    editMode,
+    selectBagId,
+    defaultBagId,
+    setEditMode,
+    setSelectBagId,
+    setDefaultBagId,
+  } = useBagStore();
+
   useEffect(() => {
     const sortedBagList = [...bag].sort((a, b) => a.bagOrder - b.bagOrder);
     setBagList(sortedBagList);
     setSelectBagId(sortedBagList[0].id);
-    setDefaultId(sortedBagList[0].id);
+    setDefaultBagId(sortedBagList[0].id);
   }, []);
 
   // #todo: 편집 모드일 때 다른 가방을 누르면 모달으로 알림, 변경 사항을 취소하고 돌아가시겠습니까? 뭐 이런 거
   useEffect(() => {
-    if (mode !== 3 && selectBagId !== defaultId) {
-      setMode(3);
-    } else if (mode !== 1 && selectBagId === defaultId) {
-      setMode(1);
+    if (editMode) {
+      console.log('변경을 취소하고 돌아가시겟냐는 모달');
     }
   }, [selectBagId]);
 

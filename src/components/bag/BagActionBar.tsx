@@ -4,12 +4,20 @@ import { colors } from '@/constants';
 import CustomText from '../common/CustomText';
 import { responsive } from '@/utils';
 import useBagStore from '@/store/useBagStore';
+import { useEffect, useState } from 'react';
 
 const BagActionBar = () => {
-  const mode = useBagStore((state) => state.mode);
+  const editMode = useBagStore((state) => state.editMode);
+  const selectBagId = useBagStore((state) => state.selectBagId);
+  const defaultBagId = useBagStore((state) => state.defaultBagId);
+  const [isDefault, setIsDefault] = useState(selectBagId === defaultBagId);
+
+  useEffect(() => {
+    setIsDefault(selectBagId === defaultBagId);
+  }, [selectBagId, defaultBagId]);
   return (
-    <StyleBarContainer mode={mode}>
-      {mode === 3 && (
+    <StyleBarContainer editMode={editMode} isDefault={isDefault}>
+      {!editMode && selectBagId !== defaultBagId && (
         <ButtonContainer>
           <RefreshIcon width={15} height={15} />
           <CustomText
@@ -19,7 +27,7 @@ const BagActionBar = () => {
         </ButtonContainer>
       )}
 
-      {mode === 2 && (
+      {editMode && (
         <ButtonContainer>
           <BagTrashIcon width={15} height={15} />
           <CustomText
@@ -41,9 +49,13 @@ const BagActionBar = () => {
 
 export default BagActionBar;
 
-const StyleBarContainer = styled.View<{ mode: number }>`
+const StyleBarContainer = styled.View<{
+  editMode: boolean;
+  isDefault: boolean;
+}>`
   flex-direction: row;
-  justify-content: ${({ mode }) => (mode === 1 ? 'flex-end' : 'space-between')};
+  justify-content: ${({ editMode, isDefault }) =>
+    editMode || !isDefault ? 'space-between' : 'flex-end'};
   align-items: center;
   padding: ${responsive(10)}px;
 `;

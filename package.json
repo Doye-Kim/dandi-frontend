@@ -25,6 +25,7 @@
     "react-native-date-picker": "^5.0.7",
     "react-native-dotenv": "^3.4.11",
     "react-native-draggable-flatlist": "^4.0.1",
+    "react-native-draggable-grid": "^2.2.1",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-geocoding": "^0.5.0",
     "react-native-gesture-handler": "^2.20.1",

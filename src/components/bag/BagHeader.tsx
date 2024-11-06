@@ -5,13 +5,10 @@ import HeaderText from '../common/HeaderText';
 import useBagStore from '@/store/useBagStore';
 
 const BagHeader = () => {
-  const { mode, setMode } = useBagStore();
+  const { editMode, setEditMode } = useBagStore();
   const onPress = () => {
-    console.log('press', mode);
-    if (mode !== 2) setMode(2);
-    // #todo: 편집 완료 처리
-    // 나만의 가방 편집 완료 시 setMode(3) 해야 함
-    else setMode(1);
+    if (!editMode) setEditMode(true);
+    else setEditMode(false);
   };
   return (
     <StyledHeader>
@@ -23,7 +20,7 @@ const BagHeader = () => {
           style={{
             fontSize: 15,
           }}>
-          {mode === 1 || mode === 3 ? '편집' : '완료'}
+          {editMode ? '완료' : '편집'}
         </CustomText>
       </TouchableOpacity>
     </StyledHeader>

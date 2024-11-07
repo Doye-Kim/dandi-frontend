@@ -19,9 +19,9 @@ const BagActionBar = () => {
     <StyleBarContainer editMode={editMode} isDefault={isDefault}>
       {!editMode && selectBagId !== defaultBagId && (
         <ButtonContainer>
-          <RefreshIcon width={15} height={15} />
+          <RefreshIcon width={12} height={12} />
           <CustomText
-            style={{ color: colors.GRAY_700, fontSize: 15, marginLeft: 5 }}>
+            style={{ color: colors.GRAY_700, fontSize: 12, marginLeft: 5 }}>
             현재 가방에 적용
           </CustomText>
         </ButtonContainer>
@@ -29,17 +29,17 @@ const BagActionBar = () => {
 
       {editMode && (
         <ButtonContainer>
-          <BagTrashIcon width={15} height={15} />
+          <BagTrashIcon width={12} height={12} />
           <CustomText
-            style={{ color: colors.GRAY_700, fontSize: 15, marginLeft: 5 }}>
+            style={{ color: colors.GRAY_700, fontSize: 12, marginLeft: 5 }}>
             모두 서랍으로 이동
           </CustomText>
         </ButtonContainer>
       )}
 
       <ButtonContainer>
-        <PlusThingsIcon width={20} height={20} />
-        <CustomText style={{ color: colors.PRIMARY, fontSize: 15 }}>
+        <PlusThingsIcon width={15} height={15} />
+        <CustomText style={{ color: colors.PRIMARY, fontSize: 12 }}>
           추가하기
         </CustomText>
       </ButtonContainer>
@@ -64,4 +64,5 @@ const ButtonContainer = styled.TouchableOpacity`
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
+  margin: 5px;
 `;

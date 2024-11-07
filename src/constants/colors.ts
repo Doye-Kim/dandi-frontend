@@ -38,5 +38,9 @@ export const colors = {
   SELECTED_BLUE: '#E1EBFF',
   ACCENT_BLUE: '#007FFF',
 
+  BEIGE_300: '#E1D1B8',
+  BEIGE_500: '#8B5843',
+  RED_DELETE: '#E84A4A',
+
   ERROR: '#FF0000',
 };

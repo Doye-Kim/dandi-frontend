@@ -1,11 +1,21 @@
 import Toast from 'react-native-toast-message';
 import RootNavigator from './src/navigations/RootNavigator';
-import {NavigationContainer} from '@react-navigation/native';
-import {Provider as PaperProvider} from 'react-native-paper';
-import {View, StyleSheet} from 'react-native';
-import {colors} from '@/constants';
+import { NavigationContainer } from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { View, StyleSheet, Alert } from 'react-native';
+import { colors } from '@/constants';
+import { useCallback, useEffect } from 'react';
 
 const App = () => {
+  const getFcmToken = useCallback(async () => {
+    const data = await messaging().getToken();
+    console.log('fcm', data);
+    return data;
+  }, []);
+  useEffect(() => {
+    getFcmToken();
+  }, []);
   return (
     <PaperProvider>
       <View style={styles.container}>

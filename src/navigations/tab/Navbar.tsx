@@ -16,11 +16,10 @@ import { View, StyleSheet } from 'react-native';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { colors, mainNavigations } from '@/constants';
 import MapMainScreen from '@/screens/map/MapMainScreen';
-import ThingsMainScreen from '@/screens/bag/BagMainScreen';
-import MyMainScreen from '@/screens/my/MyMainScreen';
 import NotiMainScreen from '@/screens/noti/NotiMainScreen';
 import LostStackNavigator from '@/navigations/stack/LostStackNavigator';
 import BagStackNavigator from '../stack/BagStackNavigator';
+import MyStackNavigator from '../stack/MyStackNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -75,7 +74,7 @@ const Navbar = () => {
         <Tab.Screen name={mainNavigations.MAP} component={MapMainScreen} />
         <Tab.Screen name={mainNavigations.BAG} component={BagStackNavigator} />
         <Tab.Screen name={mainNavigations.NOTI} component={NotiMainScreen} />
-        <Tab.Screen name={mainNavigations.MY} component={MyMainScreen} />
+        <Tab.Screen name={mainNavigations.MY} component={MyStackNavigator} />
       </Tab.Navigator>
     </View>
   );

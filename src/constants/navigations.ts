@@ -27,4 +27,16 @@ const lostNavigations = {
   PICKUP_DETAIL: 'PickupDetail',
 } as const;
 
-export { mainNavigations, authNavigations, bagNavigations, lostNavigations };
+const myNavigations = {
+  MY_MAIN: 'MyMain',
+  PASSWORD_UPDATE: 'PasswordUpdate',
+  MY_NOTI: 'MyNoti',
+} as const;
+
+export {
+  mainNavigations,
+  authNavigations,
+  bagNavigations,
+  lostNavigations,
+  myNavigations,
+};

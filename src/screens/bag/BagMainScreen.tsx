@@ -23,46 +23,42 @@ const BagMainScreen = ({ navigation }: BagScreenProps) => {
   const [isOpenDrawer, setIsOpenDrawer] = React.useState(false);
 
   const rotation = useRef(new Animated.Value(0)).current;
-  const decreaseFactor = useRef(30);
+  const decreaseFactor = useRef(5);
 
   useEffect(() => {
     const animate = () => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(rotation, {
-            toValue: 1,
-            duration: 100,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          Animated.timing(rotation, {
-            toValue: -1,
-            duration: 100,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          Animated.timing(rotation, {
-            toValue: 1,
-            duration: 100,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          Animated.timing(rotation, {
-            toValue: -1,
-            duration: 100,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          Animated.timing(rotation, {
-            toValue: 0,
-            duration: 100,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-          // 30초애 한 번 애니메이션
-          Animated.delay(30000),
-        ]),
-      ).start(() => {
+      Animated.sequence([
+        Animated.timing(rotation, {
+          toValue: 1,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotation, {
+          toValue: -1,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotation, {
+          toValue: 1,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotation, {
+          toValue: -1,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotation, {
+          toValue: 0,
+          duration: 100,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
         decreaseFactor.current = Math.max(5, decreaseFactor.current * 0.9);
       });
     };
@@ -111,8 +107,6 @@ const BagMainScreen = ({ navigation }: BagScreenProps) => {
 };
 
 export default BagMainScreen;
-
-// Styled
 
 const StyleFolderContainer = styled.TouchableOpacity`
   padding: ${responsive(5)}px;

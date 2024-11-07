@@ -1,6 +1,5 @@
-import { TouchableOpacity } from 'react-native';
-import CustomText from '../common/CustomText';
 import styled from 'styled-components/native';
+import CustomText from '../common/CustomText';
 import { responsive, responsiveVertical } from '@/utils';
 import { colors } from '@/constants';
 

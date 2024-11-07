@@ -3,7 +3,7 @@ import { Animated, Easing, Text } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
 import { BlurView } from '@react-native-community/blur';
-import { colors } from '@/constants';
+import { bagNavigations, colors } from '@/constants';
 import {
   BagThingItemKey,
   StyleView,
@@ -12,9 +12,19 @@ import {
 } from './BagThings';
 import { DoubleAngleIcon, SparkleIcon, TrashRedIcon } from '@/assets/icons';
 import CustomText from '../common/CustomText';
+import { useNavigation } from '@react-navigation/native';
+import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
+import { StackNavigationProp } from '@react-navigation/stack';
+type BagNavigationProp = StackNavigationProp<
+  BagStackParamList,
+  typeof bagNavigations.BAG_MAIN
+>;
 
 const BagThing = ({ item }: { item: BagThingItemKey }) => {
   const [isOpenActionModal, setIsOpenActionModal] = useState<boolean>(false);
+  const navigation = useNavigation<BagNavigationProp>();
+
+  const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
 
   // 애니메이션
   const bounceAnim = useRef(new Animated.Value(1)).current;
@@ -71,8 +81,10 @@ const BagThing = ({ item }: { item: BagThingItemKey }) => {
     }
   })();
 
-  const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
-
+  const handlePressEdit = () => {
+    setIsOpenActionModal(false);
+    navigation.navigate(bagNavigations.BAG_ITEM, { item });
+  };
   return (
     <>
       <StyleTouchable onLongPress={handleLongPress}>
@@ -92,11 +104,11 @@ const BagThing = ({ item }: { item: BagThingItemKey }) => {
       </StyleTouchable>
       {isOpenActionModal && (
         <Portal>
-          <StyledBlurBackground />
+          {/* <StyledBlurBackground /> */}
           <Modal
             visible={isOpenActionModal}
             onDismiss={() => setIsOpenActionModal(false)}
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
             contentContainerStyle={{
               position: 'absolute',
               top: itemTop,
@@ -114,7 +126,7 @@ const BagThing = ({ item }: { item: BagThingItemKey }) => {
                 <StyleText>서랍으로 이동</StyleText>
                 <DoubleAngleIcon width={15} height={15} />
               </StyledTouchableOpacityIng>
-              <StyledTouchableOpacityIng>
+              <StyledTouchableOpacityIng onPress={handlePressEdit}>
                 <StyleText>소지품 수정</StyleText>
                 <SparkleIcon width={15} height={15} />
               </StyledTouchableOpacityIng>

@@ -1,12 +1,13 @@
+import { useEffect, useState } from 'react';
 import styled from 'styled-components/native';
 import { BagTrashIcon, PlusThingsIcon, RefreshIcon } from '@/assets/icons';
-import { colors } from '@/constants';
-import CustomText from '../common/CustomText';
+import { bagNavigations, colors } from '@/constants';
+import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import { responsive } from '@/utils';
+import CustomText from '../common/CustomText';
 import useBagStore from '@/store/useBagStore';
-import { useEffect, useState } from 'react';
 
-const BagActionBar = () => {
+const BagActionBar = ({ navigation }: BagScreenProps) => {
   const editMode = useBagStore((state) => state.editMode);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
@@ -15,6 +16,9 @@ const BagActionBar = () => {
   useEffect(() => {
     setIsDefault(selectBagId === defaultBagId);
   }, [selectBagId, defaultBagId]);
+  const handlePressAdd = () => {
+    navigation.navigate(bagNavigations.BAG_ITEM, {});
+  };
   return (
     <StyleBarContainer editMode={editMode} isDefault={isDefault}>
       {!editMode && selectBagId !== defaultBagId && (
@@ -37,7 +41,7 @@ const BagActionBar = () => {
         </ButtonContainer>
       )}
 
-      <ButtonContainer>
+      <ButtonContainer onPress={handlePressAdd}>
         <PlusThingsIcon width={15} height={15} />
         <CustomText style={{ color: colors.PRIMARY, fontSize: 12 }}>
           추가하기

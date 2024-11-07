@@ -1,5 +1,5 @@
-import { colors } from '@/constants';
 import { TouchableOpacity, View } from 'react-native';
+import { colors } from '@/constants';
 import CustomText from '../common/CustomText';
 import DeleteButton from './DeleteButton';
 import useBagStore from '@/store/useBagStore';

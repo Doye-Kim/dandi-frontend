@@ -19,6 +19,7 @@ const authNavigations = {
 const bagNavigations = {
   BAG_MAIN: 'BagMain',
   BAG_LIST: 'BagList',
+  BAG_ITEM: 'BagItem',
 } as const;
 
 const lostNavigations = {

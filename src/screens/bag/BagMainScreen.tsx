@@ -93,7 +93,7 @@ const BagMainScreen = ({ navigation }: BagScreenProps) => {
         </StyleFolderContainer>
       </StyleBagListContainer>
       <Divider />
-      <BagActionBar />
+      <BagActionBar navigation={navigation} />
       <BagThings />
       <AnimatedTouchableOpacity
         onPress={handlePressDrawer}

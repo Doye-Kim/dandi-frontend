@@ -1,5 +1,5 @@
-import { DeleteBagIcon } from '@/assets/icons';
 import { TouchableOpacity } from 'react-native';
+import { DeleteBagIcon } from '@/assets/icons';
 
 const DeleteButton = ({ onPressDelete }: { onPressDelete: () => void }) => {
   return (

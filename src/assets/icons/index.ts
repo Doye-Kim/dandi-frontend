@@ -35,6 +35,7 @@ export { default as BagBurgerIcon } from './bag-burger.svg';
 export { default as DrawerIcon } from './drawer.svg';
 export { default as DoubleAngleIcon } from './double-angle.svg';
 export { default as TrashRedIcon } from './trash-red.svg';
+export { default as DropdownIcon } from './dropdown.svg';
 
 // lost
 export { default as CalendarIcon } from './calendar.svg';

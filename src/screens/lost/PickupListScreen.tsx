@@ -1,12 +1,15 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
+import { responsive } from '@/utils';
+import { RegisterIcon } from '@/assets/icons';
 import AlertList from '@/components/lost/AlertList';
 import ListOptopmModal from '@/components/lost/ListOptionModal';
 import PickupQuizModal from '@/components/lost/PickupQuizModal';
+import ChoiceDropdownModal from '@/components/lost/ChoiceDropdownModal';
 
 type PickupListScreenNavigationProp = StackNavigationProp<
   LostStackParamList,
@@ -60,7 +63,35 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
       title: '5. 현재 위치에 습득물이 등록됐어요!',
     },
   ];
-  // 선택 모드 지정 함수
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <ChoiceDropdownModal
+          isSelectMode={selectMode}
+          handleSelect={toggleSelectMode}
+          options={[
+            {
+              label: '습득물 목록',
+              onPress: () => navigation.navigate('PickupList'),
+            },
+            {
+              label: 'SOS 목록',
+              onPress: () => navigation.navigate('SOSList'),
+            },
+          ]}
+        />
+      ),
+    });
+  }, [navigation, selectMode]);
+
+  // 선택 모드 전환 함수(버튼 클릭)
+  const toggleSelectMode = () => {
+    setSelectMode((prev) => !prev);
+    setSelected([]); // 선택 초기화
+  };
+
+  // 선택 모드 지정 함수(LongPress)
   const handleSelectMode = (id: number) => {
     setSelectMode(true);
     setSelected([id]);
@@ -114,6 +145,9 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
         onClose={() => setQuizModalVisible(false)}
         onQuizSuccess={handleQuizSuccess}
       />
+      <RegisterIconBox onPress={() => navigation.navigate('PickupRegister')}>
+        <RegisterIcon width={responsive(48)} height={responsive(48)} />
+      </RegisterIconBox>
     </Container>
   );
 };
@@ -123,4 +157,10 @@ export default PickupListScreen;
 const Container = styled.SafeAreaView`
   flex: 1;
   background-color: ${colors.WHITE};
+`;
+
+const RegisterIconBox = styled.TouchableOpacity`
+  position: absolute;
+  right: ${responsive(20)}px;
+  bottom: ${responsive(20)}px;
 `;

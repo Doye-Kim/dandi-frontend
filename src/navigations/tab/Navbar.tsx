@@ -22,6 +22,12 @@ import BagStackNavigator from '../stack/BagStackNavigator';
 import MyStackNavigator from '../stack/MyStackNavigator';
 
 const Tab = createBottomTabNavigator();
+const NeedTabBarScreens = [
+  'PickupList',
+  'SOSList',
+  'BagMain',
+  mainNavigations.MAP,
+];
 
 const Navbar = () => {
   return (
@@ -29,7 +35,7 @@ const Navbar = () => {
       <Tab.Navigator
         initialRouteName={mainNavigations.BAG}
         screenOptions={({ route }) => {
-          // `getFocusedRouteNameFromRoute`를 사용하여 하위 경로의 이름을 가져옵니다.
+          // 현재 화면 이름 가져오기
           const routeName = getFocusedRouteNameFromRoute(route);
 
           return {
@@ -56,9 +62,8 @@ const Navbar = () => {
               }
               return <Icon />;
             },
-            // `routeName`이 'PickupDetail'일 때만 탭 바 숨기기
             tabBarStyle:
-              routeName === 'PickupDetail'
+              routeName && !NeedTabBarScreens.includes(routeName)
                 ? { display: 'none' }
                 : styles.tabBarStyle,
             tabBarShowLabel: false,

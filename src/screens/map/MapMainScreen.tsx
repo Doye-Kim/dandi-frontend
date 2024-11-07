@@ -65,9 +65,9 @@ const MapMainScreen = () => {
   const convertRouteArray = (
     input: ResponseRouteListItem[],
   ): UseRouteListItem[] => {
-    return input.map(route => ({
+    return input.map((route) => ({
       ...route,
-      track: route.track.map(point => ({
+      track: route.track.map((point) => ({
         latitude: point.lat,
         longitude: point.lon,
       })),
@@ -77,7 +77,7 @@ const MapMainScreen = () => {
   const convertRouteObject = (input: ResponseRouteItem): UseRouteItem => {
     return {
       ...input,
-      track: input.track.map(point => ({
+      track: input.track.map((point) => ({
         latitude: point.lat,
         longitude: point.lon,
       })),
@@ -92,7 +92,7 @@ const MapMainScreen = () => {
       convertedData = convertedData = convertRouteObject(route) as UseRouteItem;
 
     const allCoordinates = Array.isArray(convertedData)
-      ? convertedData.flatMap(route => route.track)
+      ? convertedData.flatMap((route) => route.track)
       : convertedData.track;
 
     setData(convertedData);
@@ -111,7 +111,7 @@ const MapMainScreen = () => {
 
   const onPressToggle = () => {
     if (Array.isArray(data)) setRouteId(data[data.length - 1].id);
-    setIsMain(prev => !prev);
+    setIsMain((prev) => !prev);
   };
 
   const onPressMarker = (id: number) => {

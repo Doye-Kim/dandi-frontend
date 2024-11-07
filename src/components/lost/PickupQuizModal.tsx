@@ -129,7 +129,7 @@ const Overlay = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5); // 배경을 반투명하게 설정
+  background-color: rgba(0, 0, 0, 0.5);
 `;
 
 const Container = styled.View`

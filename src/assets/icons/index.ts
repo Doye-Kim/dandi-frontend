@@ -44,3 +44,7 @@ export { default as InfoIcon } from './info.svg';
 export { default as SimpleMarkerIcon } from './simple-marker.svg';
 export { default as TrashBinIcon } from './trash-bin.svg';
 export { default as InputButtonIcon } from './input-button.svg';
+export { default as ArrowDownIcon } from './arrow-down.svg';
+export { default as CameraIcon } from './camera.svg';
+export { default as WarningIcon } from './warning.svg';
+export { default as RegisterIcon } from './register-button.svg';

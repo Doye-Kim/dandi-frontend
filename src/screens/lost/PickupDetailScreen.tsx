@@ -6,11 +6,11 @@ import styled from 'styled-components/native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils/common';
+import InfoIcon from '@/assets/icons/info.svg';
+import CalendarIcon from '@/assets/icons/calendar.svg';
+import SimpleMarkIcon from '@/assets/icons/simple-marker.svg';
 import PhotoBox from '@/components/lost/PhotoBox';
 import InfoSectionBox from '@/components/lost/InfoSectionBox';
-import InfoIcon from '@/assets/icons/info.svg';
-import SimpleMarkIcon from '@/assets/icons/simple-marker.svg';
-import CalendarIcon from '@/assets/icons/calendar.svg';
 import CommentSectionBox from '@/components/lost/CommentSectionBox';
 import CommentInputBox from '@/components/lost/CommentInputBox';
 

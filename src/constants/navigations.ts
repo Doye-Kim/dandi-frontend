@@ -24,7 +24,12 @@ const bagNavigations = {
 
 const lostNavigations = {
   PICKUP_LIST: 'PickupList',
+  PICKUP_REGISTER: 'PickupRegister',
   PICKUP_DETAIL: 'PickupDetail',
+  SOS_LIST: 'SOSList',
+  SOS_REGISTER: 'SOSRegister',
+  ROUTE_SELECTION: 'RouteSelection',
+  SOS_DETAIL: 'SOSDetail',
 } as const;
 
 const myNavigations = {

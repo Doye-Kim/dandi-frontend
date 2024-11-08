@@ -10,7 +10,6 @@ const authNavigations = {
   AUTH_HOME: 'AuthHome',
   AUTH_EMAIL: 'AuthEmail',
   AUTH_PASSWORD: 'AuthPassword',
-  AUTH_PHONE: 'AuthPhone',
   AUTH_NAME: 'AuthName',
   EMAIL_CHECK: 'EmailCheck',
   LOGIN: 'Login',

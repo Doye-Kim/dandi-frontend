@@ -1,11 +1,14 @@
+import { useCallback } from 'react';
 import { Text, View } from 'react-native';
-import styled from 'styled-components/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import styled from 'styled-components/native';
 import { LogoIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
 import { responsive } from '@/utils';
 import AuthButton from '@/components/auth/AuthButton';
+import useAuthStore from '@/store/useAuthStore';
 
 export type AuthHomeScreenProps = {
   navigation: StackNavigationProp<
@@ -15,6 +18,13 @@ export type AuthHomeScreenProps = {
 };
 
 const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
+  const { resetAuthInfo } = useAuthStore();
+  useFocusEffect(
+    useCallback(() => {
+      resetAuthInfo();
+    }, []),
+  );
+
   const onPressJoin = () => {
     navigation.navigate(authNavigations.AUTH_EMAIL);
   };
@@ -34,8 +44,8 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
           단디
         </Text>
       </View>
-      <AuthButton title="로그인" onPress={onPressLogin} style="gray" />
-      <AuthButton title="회원가입" onPress={onPressJoin} style="enable" />
+      <AuthButton title='로그인' onPress={onPressLogin} style='gray' />
+      <AuthButton title='회원가입' onPress={onPressJoin} style='enable' />
     </StyledSafeAreaView>
   );
 };

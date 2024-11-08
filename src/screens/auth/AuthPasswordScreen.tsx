@@ -8,25 +8,29 @@ import AuthButton from '@/components/auth/AuthButton';
 import InputField from '@/components/auth/InputField';
 import useForm from '@/hooks/useForm';
 import { TitleText } from '@/styles';
+import useAuthStore from '@/store/useAuthStore';
 
 const AuthPasswordScreen = ({ navigation }: AuthHomeScreenProps) => {
+  const password = useAuthStore((state) => state.password);
+  const { setPassword } = useAuthStore();
   const passwordRef = useRef<TextInput | null>(null);
   const passwordConfirmRef = useRef<TextInput | null>(null);
 
   const checkPassword = useForm({
-    initialValue: { password: '' },
+    initialValue: { password: password },
     validate: validatePassword,
   });
 
   const checkPasswordConfirm = useForm({
     initialValue: {
       password: checkPassword.values.password,
-      passwordConfirm: '',
+      passwordConfirm: password,
     },
     validate: validatePasswordConfirm,
   });
 
   const onPress = () => {
+    setPassword(checkPasswordConfirm.getTextInputProps('password').value);
     navigation.navigate(authNavigations.AUTH_NAME);
   };
 
@@ -46,22 +50,22 @@ const AuthPasswordScreen = ({ navigation }: AuthHomeScreenProps) => {
       <TitleText>로그인에 사용할 비밀번호를 {'\n'}입력해 주세요</TitleText>
       <InputField
         ref={passwordRef}
-        placeholder="비밀번호를 입력해 주세요"
+        placeholder='비밀번호를 입력해 주세요'
         error={checkPasswordConfirm.errors.password}
         touched={checkPasswordConfirm.touched.password}
         secureTextEntry={true}
-        returnKeyType="next"
+        returnKeyType='next'
         blurOnSubmit={false}
         onSubmitEditing={() => passwordConfirmRef.current?.focus()}
         {...checkPasswordConfirm.getTextInputProps('password')}
       />
       <InputField
         ref={passwordConfirmRef}
-        placeholder="비밀번호를 한 번 더 입력해 주세요"
+        placeholder='비밀번호를 한 번 더 입력해 주세요'
         error={checkPasswordConfirm.errors.passwordConfirm}
         touched={checkPasswordConfirm.touched.passwordConfirm}
         secureTextEntry={true}
-        returnKeyType="join"
+        returnKeyType='join'
         blurOnSubmit={true}
         onSubmitEditing={() => {
           if (
@@ -74,7 +78,7 @@ const AuthPasswordScreen = ({ navigation }: AuthHomeScreenProps) => {
         {...checkPasswordConfirm.getTextInputProps('passwordConfirm')}
       />
       <AuthButton
-        title="다음"
+        title='다음'
         onPress={onPress}
         style={
           checkPasswordConfirm.errors.passwordConfirm ||

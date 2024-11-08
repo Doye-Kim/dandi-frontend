@@ -8,14 +8,6 @@ import { colors } from '@/constants';
 import { useCallback, useEffect } from 'react';
 
 const App = () => {
-  const getFcmToken = useCallback(async () => {
-    const data = await messaging().getToken();
-    console.log('fcm', data);
-    return data;
-  }, []);
-  useEffect(() => {
-    getFcmToken();
-  }, []);
   return (
     <PaperProvider>
       <View style={styles.container}>

@@ -8,13 +8,17 @@ import InputField from '@/components/auth/InputField';
 import useForm from '@/hooks/useForm';
 import AuthButton from '@/components/auth/AuthButton';
 import { TitleText } from '@/styles';
+import useAuthStore from '@/store/useAuthStore';
 
 const AuthEmailScreen = ({ navigation }: AuthHomeScreenProps) => {
-  const onPress = () => {
+  const email = useAuthStore((state) => state.email);
+  const { setEmail } = useAuthStore();
+  const handlePressConfirm = () => {
+    setEmail(checkEmail.getTextInputProps('email').value);
     navigation.navigate(authNavigations.AUTH_PASSWORD);
   };
   const checkEmail = useForm({
-    initialValue: { email: '' },
+    initialValue: { email: email },
     validate: validateEmail,
   });
 
@@ -36,22 +40,22 @@ const AuthEmailScreen = ({ navigation }: AuthHomeScreenProps) => {
       <TitleText>로그인에 사용할 이메일을 {'\n'}입력해 주세요</TitleText>
       <InputField
         ref={emailRef}
-        placeholder="이메일을 입력해주세요"
+        placeholder='이메일을 입력해주세요'
         error={checkEmail.errors.email}
         touched={checkEmail.touched.email}
-        returnKeyType="join"
+        returnKeyType='join'
         blurOnSubmit={false}
-        keyboardType="email-address"
+        keyboardType='email-address'
         onSubmitEditing={() => {
           if (!checkEmail.errors.email) {
-            onPress();
+            handlePressConfirm();
           }
         }}
         {...checkEmail.getTextInputProps('email')}
       />
       <AuthButton
-        title="다음"
-        onPress={onPress}
+        title='다음'
+        onPress={handlePressConfirm}
         style={checkEmail.errors.email ? 'disable' : 'enable'}
       />
     </SafeAreaView>

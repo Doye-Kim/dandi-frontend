@@ -4,7 +4,6 @@ import { authNavigations, colors } from '@/constants';
 import AuthHomeScreen from '@/screens/auth/AuthHomeScreen';
 import AuthEmailScreen from '@/screens/auth/AuthEmailScreen';
 import AuthPasswordScreen from '@/screens/auth/AuthPasswordScreen';
-import AuthPhoneScreen from '@/screens/auth/AuthPhoneScreen';
 import AuthNameScreen from '@/screens/auth/AuthNameScreen';
 import EmailCheckScreen from '@/screens/auth/EmailCheckScreen';
 import LoginScreen from '@/screens/auth/LoginScreen';
@@ -12,7 +11,6 @@ import LoginScreen from '@/screens/auth/LoginScreen';
 export type AuthStackParamList = {
   [authNavigations.AUTH_HOME]: undefined;
   [authNavigations.AUTH_EMAIL]: undefined;
-  [authNavigations.AUTH_PHONE]: undefined;
   [authNavigations.AUTH_PASSWORD]: undefined;
   [authNavigations.AUTH_NAME]: undefined;
   [authNavigations.EMAIL_CHECK]: undefined;
@@ -39,8 +37,7 @@ function AuthStackNavigator() {
           marginLeft: 0,
         },
         headerTintColor: colors.BLACK,
-      }}
-    >
+      }}>
       <Stack.Screen
         name={authNavigations.AUTH_HOME}
         component={AuthHomeScreen}
@@ -59,13 +56,6 @@ function AuthStackNavigator() {
       <Stack.Screen
         name={authNavigations.AUTH_PASSWORD}
         component={AuthPasswordScreen}
-        options={{
-          headerTitle: ' ',
-        }}
-      />
-      <Stack.Screen
-        name={authNavigations.AUTH_PHONE}
-        component={AuthPhoneScreen}
         options={{
           headerTitle: ' ',
         }}

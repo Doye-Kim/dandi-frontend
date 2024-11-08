@@ -24,34 +24,34 @@ export interface UpdatePasswordProps extends UpdatePasswordVerifyProps {
 }
 
 const join = async (userData: JoinProps) => {
-  const data = await axiosInstance.post('/auth', userData);
+  const { data } = await axiosInstance.post('/auth', userData);
   return data;
 };
 
 const postJoinLink = async (email: string) => {
-  const data = await axiosInstance.post('/auth/email', { email });
+  const { data } = await axiosInstance.post('/auth/email', { email });
   return data;
 };
 
 const postJoinVerify = async (email: string) => {
-  const data = await axiosInstance.post('/auth/verify', { email });
+  const { data } = await axiosInstance.post('/auth/verify', { email });
   return data;
 };
 
 const postPasswordUpdateVerify = async (email: string) => {
-  const data = await axiosInstance.post('/auth/password', { email });
+  const { data } = await axiosInstance.post('/auth/password', { email });
   return data;
 };
 
 const postPasswordUpdateVerification = async (
   passwordData: UpdatePasswordVerifyProps,
 ) => {
-  const data = await axiosInstance.post('/auth/verification', passwordData);
+  const { data } = await axiosInstance.post('/auth/verification', passwordData);
   return data;
 };
 
 const patchPasswordUpdate = async (passwordData: UpdatePasswordProps) => {
-  const data = await axiosInstance.patch('/auth/password', passwordData);
+  const { data } = await axiosInstance.patch('/auth/password', passwordData);
   return data;
 };
 
@@ -68,23 +68,23 @@ const login = async (userData: LoginProps, fcmCode: string) => {
 };
 
 const getUserInfo = async () => {
-  const data = await axiosInstance.get('/auth');
+  const { data } = await axiosInstance.get('/auth');
   console.log(data);
   return data;
 };
 
 const putFCM = async (fcmCode: string) => {
-  const data = await axiosInstance.put('/member/fcm', { fcmCode });
+  const { data } = await axiosInstance.put('/member/fcm', { fcmCode });
   return data;
 };
 
 const refreshAuth = async () => {
-  const data = await axiosInstance.put('/auth/refresh');
+  const { data } = await axiosInstance.put('/auth/refresh');
   return data;
 };
 
 const logout = async () => {
-  const data = await axiosInstance.put('/auth/logout');
+  const { data } = await axiosInstance.put('/auth/logout');
   return data;
 };
 

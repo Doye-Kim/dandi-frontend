@@ -1,21 +1,16 @@
 import { useState, useEffect } from 'react';
 import { FlatList } from 'react-native';
+import Toast from 'react-native-toast-message';
 import styled from 'styled-components/native';
+import axios from 'axios';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils';
+import { BagProps, getBags } from '@/api/bag';
 import CustomText from '../common/CustomText';
-import bag from '@/dummy/bag.json';
 import useBagStore from '@/store/useBagStore';
 
-// #todo: api/bag.ts 으로 넘길 것
-export interface BagItem {
-  id: number;
-  bagOrder: number;
-  name: string;
-}
-
 const MainBagList = () => {
-  const [bagList, setBagList] = useState<BagItem[]>();
+  const [bagList, setBagList] = useState<BagProps[]>();
   const {
     editMode,
     selectBagId,
@@ -25,11 +20,25 @@ const MainBagList = () => {
     setDefaultBagId,
   } = useBagStore();
 
+  const getBagList = async () => {
+    try {
+      const data = await getBags();
+      console.log('getBags', data);
+      const sortedBagList = data.sort((a, b) => a.bagOrder - b.bagOrder);
+      setBagList(sortedBagList);
+      setSelectBagId(sortedBagList[0].id);
+      setDefaultBagId(sortedBagList[0].id);
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: axios.isAxiosError(err)
+          ? err.message
+          : '가방 목록을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
+      });
+    }
+  };
   useEffect(() => {
-    const sortedBagList = [...bag].sort((a, b) => a.bagOrder - b.bagOrder);
-    setBagList(sortedBagList);
-    setSelectBagId(sortedBagList[0].id);
-    setDefaultBagId(sortedBagList[0].id);
+    getBagList();
   }, []);
 
   // #todo: 편집 모드일 때 다른 가방을 누르면 모달으로 알림, 변경 사항을 취소하고 돌아가시겠습니까? 뭐 이런 거

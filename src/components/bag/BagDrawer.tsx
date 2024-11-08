@@ -1,100 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
+import axios from 'axios';
 import styled from 'styled-components/native';
+import Toast from 'react-native-toast-message';
 import DraggableGrid from 'react-native-draggable-grid';
 import { colors } from '@/constants';
 import { responsive } from '@/utils';
 import { CheckIcon } from '@/assets/icons';
-import { BagThingItem, BagThingItemKey, StyleItemIcon } from './BagThings';
+import { ItemKeyProps, StyleItemIcon } from './BagThings';
+import { getDrawerItems } from '@/api/bag';
 import CustomText from '../common/CustomText';
 import useBagStore from '@/store/useBagStore';
 import DeleteButton from './DeleteButton';
 
-const data: BagThingItem[] | [] = [
-  {
-    itemId: 10,
-    itemOrder: 3,
-    name: '지갑',
-    emoticon: '💼',
-    colorKey: 1,
-    createdAt: '2024-10-20T10:00:00',
-    updatedAt: '2024-10-22T08:00:00',
-  },
-  {
-    itemId: 12,
-    itemOrder: 1,
-    name: '여권',
-    emoticon: '🛂',
-    colorKey: 2,
-    createdAt: '2024-10-20T11:00:00',
-    updatedAt: '2024-10-22T08:30:00',
-  },
-  {
-    itemId: 13,
-    itemOrder: 4,
-    name: '책',
-    emoticon: '📖',
-    colorKey: 3,
-    createdAt: '2024-10-21T09:00:00',
-    updatedAt: '2024-10-23T09:30:00',
-  },
-  {
-    itemId: 14,
-    itemOrder: 2,
-    name: '책2',
-    emoticon: '📖',
-    colorKey: 4,
-    createdAt: '2024-10-21T09:00:00',
-    updatedAt: '2024-10-23T09:30:00',
-  },
-  {
-    itemId: 15,
-    itemOrder: 5,
-    name: '일이삼사오육칠팔구십',
-    emoticon: '📖',
-    colorKey: 5,
-    createdAt: '2024-10-21T09:00:00',
-    updatedAt: '2024-10-23T09:30:00',
-  },
-  {
-    itemId: 16,
-    itemOrder: 6,
-    name: '일이삼사오육칠팔구십',
-    emoticon: '📖',
-    colorKey: 6,
-    createdAt: '2024-10-21T09:00:00',
-    updatedAt: '2024-10-23T09:30:00',
-  },
-  {
-    itemId: 17,
-    itemOrder: 6,
-    name: '꺄륵',
-    emoticon: '💼',
-    colorKey: 6,
-    createdAt: '2024-10-21T09:00:00',
-    updatedAt: '2024-10-23T09:30:00',
-  },
-];
-
 const BagDrawer = () => {
   const editMode = useBagStore((state) => state.editMode);
   const { addMultipleItems } = useBagStore();
-  const [drawerItems, setDrawerItems] = useState<BagThingItemKey[]>([]);
-  const [selectItems, setSelectItems] = useState<BagThingItemKey[]>([]);
-  // data가 있을 때만 한 번 초기화
-  useEffect(() => {
-    if (data && data.length > 0) {
+  const selectBagId = useBagStore((state) => state.selectBagId);
+  const defaultBagId = useBagStore((state) => state.defaultBagId);
+  const [drawerItems, setDrawerItems] = useState<ItemKeyProps[]>([]);
+  const [selectItems, setSelectItems] = useState<ItemKeyProps[]>([]);
+
+  const getDrawerItemList = async () => {
+    try {
+      const data = await getDrawerItems(
+        selectBagId === -1 ? defaultBagId : selectBagId,
+      );
       setDrawerItems(
         data
           .sort((a, b) => a.itemOrder - b.itemOrder)
           .map((item) => ({
             ...item,
             key: `bag-${item.itemId}`,
-            disabledDrag: !editMode, // 초기화 시에는 editMode에 따라 설정
+            disabledDrag: !editMode,
           })),
       );
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: axios.isAxiosError(err)
+          ? err.message
+          : '서랍 소지품을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
+      });
     }
-  }, [data]);
+  };
+  useEffect(() => {
+    getDrawerItemList();
+  }, []);
 
   useEffect(() => {
     setDrawerItems((prevItems) =>
@@ -105,8 +57,8 @@ const BagDrawer = () => {
     );
   }, [editMode]);
 
-  const handlePress = (item: BagThingItemKey) => {
-    setSelectItems((prevItems: BagThingItemKey[]) => {
+  const handlePress = (item: ItemKeyProps) => {
+    setSelectItems((prevItems: ItemKeyProps[]) => {
       const itemExists = prevItems.includes(item);
 
       if (itemExists) {
@@ -136,7 +88,7 @@ const BagDrawer = () => {
     });
   };
 
-  const renderItem = (item: BagThingItemKey) => {
+  const renderItem = (item: ItemKeyProps) => {
     const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
     const isSelected = selectItems.includes(item);
 

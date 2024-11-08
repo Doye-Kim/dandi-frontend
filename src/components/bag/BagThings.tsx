@@ -1,81 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
-import styled from 'styled-components/native';
 import { DraggableGrid } from 'react-native-draggable-grid';
+import styled from 'styled-components/native';
+import Toast from 'react-native-toast-message';
+import axios from 'axios';
 import { colors } from '@/constants';
 import { responsive } from '@/utils';
+import { ItemProps, getBagItems } from '@/api/bag';
 import useBagStore from '@/store/useBagStore';
 import DeleteButton from './DeleteButton';
 import CustomText from '../common/CustomText';
 import BagThing from './BagThing';
 
-const data: BagThingItem[] | [] = [
-  // {
-  //   itemId: 1,
-  //   itemOrder: 3,
-  //   name: '지갑',
-  //   emoticon: '💼',
-  //   colorKey: 1,
-  //   createdAt: '2024-10-20T10:00:00',
-  //   updatedAt: '2024-10-22T08:00:00',
-  // },
-  // {
-  //   itemId: 2,
-  //   itemOrder: 1,
-  //   name: '여권',
-  //   emoticon: '🛂',
-  //   colorKey: 2,
-  //   createdAt: '2024-10-20T11:00:00',
-  //   updatedAt: '2024-10-22T08:30:00',
-  // },
-  // {
-  //   itemId: 3,
-  //   itemOrder: 4,
-  //   name: '책',
-  //   emoticon: '📖',
-  //   colorKey: 3,
-  //   createdAt: '2024-10-21T09:00:00',
-  //   updatedAt: '2024-10-23T09:30:00',
-  // },
-  // {
-  //   itemId: 4,
-  //   itemOrder: 2,
-  //   name: '책2',
-  //   emoticon: '📖',
-  //   colorKey: 4,
-  //   createdAt: '2024-10-21T09:00:00',
-  //   updatedAt: '2024-10-23T09:30:00',
-  // },
-  // {
-  //   itemId: 5,
-  //   itemOrder: 5,
-  //   name: '일이삼사오육칠팔구십',
-  //   emoticon: '📖',
-  //   colorKey: 5,
-  //   createdAt: '2024-10-21T09:00:00',
-  //   updatedAt: '2024-10-23T09:30:00',
-  // },
-  // {
-  //   itemId: 6,
-  //   itemOrder: 6,
-  //   name: '일이삼사오육칠팔구십',
-  //   emoticon: '📖',
-  //   colorKey: 6,
-  //   createdAt: '2024-10-21T09:00:00',
-  //   updatedAt: '2024-10-23T09:30:00',
-  // },
-];
-export interface BagThingItem {
-  itemId: number;
-  itemOrder: number;
-  name: string;
-  emoticon: string;
-  colorKey: number;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-export interface BagThingItemKey extends BagThingItem {
+export interface ItemKeyProps extends ItemProps {
   key: string;
   disabledDrag: boolean;
 }
@@ -83,28 +20,48 @@ export interface BagThingItemKey extends BagThingItem {
 const BagThings = () => {
   const editMode = useBagStore((state) => state.editMode);
   const bagItems = useBagStore((state) => state.bagItems);
+  const selectBagId = useBagStore((state) => state.selectBagId);
+  const defaultBagId = useBagStore((state) => state.defaultBagId);
   const { setBagItems, updateDisabledDrag } = useBagStore();
 
+  const getBagItemList = async () => {
+    try {
+      const data = await getBagItems(
+        selectBagId === -1 ? defaultBagId : selectBagId,
+      );
+      console.log('getBagItems', data);
+      setBagItems(
+        data
+          .sort((a, b) => a.itemOrder - b.itemOrder)
+          .map((item) => ({
+            ...item,
+            key: `bag-${item.itemId}`,
+            disabledDrag: !editMode,
+          })),
+      );
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: axios.isAxiosError(err)
+          ? err.message
+          : '가방 소지품 목록을 불러오는 데 문제가 생겼어요.  다시 시도해 주세요',
+      });
+    }
+  };
+
   useEffect(() => {
-    setBagItems(
-      data
-        .sort((a, b) => a.itemOrder - b.itemOrder)
-        .map((item) => ({
-          ...item,
-          key: `bag-${item.itemId}`,
-          disabledDrag: !editMode,
-        })),
-    );
+    getBagItemList();
   }, []);
 
   useEffect(() => {
     updateDisabledDrag(!editMode);
   }, [editMode]);
+
   const onPressDelete = () => {
     console.log('delete');
   };
 
-  const renderItem = (item: BagThingItemKey) => {
+  const renderItem = (item: ItemKeyProps) => {
     const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
 
     return !item.disabledDrag ? (

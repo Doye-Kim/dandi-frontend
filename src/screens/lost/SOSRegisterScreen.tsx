@@ -1,11 +1,13 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { KeyboardAvoidingView, ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
+import DatePicker from 'react-native-date-picker';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils';
+import { convertDateTimeFormat } from '@/utils/date';
 import { CameraIcon } from '@/assets/icons';
 import { WarningIcon } from '@/assets/icons';
 import { CalendarIcon } from '@/assets/icons';
@@ -26,13 +28,19 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
   const [explain, setExplain] = useState('');
   const [location, setLocation] = useState('');
   const [keepLocation, setKeepLocation] = useState('');
+  const [datetime, setDatetime] = useState<Date>(new Date());
+  const [isDatetimeOpen, setIsDatetimeOpen] = useState<boolean>(false);
+  const selectedDatetime = useMemo(
+    () => convertDateTimeFormat(datetime),
+    [datetime],
+  );
 
+  // 경로 선택 화면 이동 함수
   const goToRouteSelection = () => {
     navigation.navigate('RouteSelection');
     console.log('경로 선택 버튼 클릭');
   };
-  // todo: 화면 구성, 스타일 적용
-  // todo: 카메라 사진 변경
+
   return (
     <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -52,6 +60,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
               <ExplainInput
                 multiline
                 placeholder='분실물에 대한 설명을 적어주세요!'
+                onChangeText={setExplain}
                 style={{
                   fontFamily: 'OAGothic-Medium',
                   textAlignVertical: 'top',
@@ -63,6 +72,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
               <KeepExplainInput
                 multiline
                 placeholder='물건을 분실한 장소에 대해 적어주세요!'
+                onChangeText={setLocation}
                 style={{
                   fontFamily: 'OAGothic-Medium',
                   textAlignVertical: 'top',
@@ -71,11 +81,27 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
             </KeepExplainBox>
             <DatetimeBox>
               <LabelText>분실 날짜</LabelText>
-              <SelectedText>2024.10.24 16:20</SelectedText>
-              <IconButton>
+              <SelectedText>{selectedDatetime}</SelectedText>
+              <IconButton onPress={() => setIsDatetimeOpen(true)}>
                 <CalendarIcon width={24} height={24} />
               </IconButton>
             </DatetimeBox>
+            {/* 날짜 선택 모달 */}
+            <DatePicker
+              modal
+              open={isDatetimeOpen}
+              date={datetime}
+              mode='datetime'
+              maximumDate={new Date()}
+              locale='ko'
+              onConfirm={(date) => {
+                setIsDatetimeOpen(false);
+                setDatetime(date);
+              }}
+              onCancel={() => {
+                setIsDatetimeOpen(false);
+              }}
+            />
             <RegisterButton>
               <CustomButton
                 title='경로 선택'
@@ -100,6 +126,11 @@ const Container = styled.SafeAreaView`
 `;
 
 const CameraBox = styled.TouchableOpacity`
+  width: 88%;
+  padding-horizontal: ${responsive(20)}px;
+  align-items: center;
+  border: 1px dashed ${colors.GRAY_400};
+  border-radius: 10px;
   margin-top: ${responsiveVertical(8)}px;
   margin-bottom: ${responsiveVertical(8)}px;
 `;

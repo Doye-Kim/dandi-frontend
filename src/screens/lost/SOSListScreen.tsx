@@ -95,9 +95,11 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
         goToDetail={(id) => navigation.navigate('SOSDetail', { id: id })}
       />
       <ListOptopmModal isVisible={selectMode} onDelete={deleteAlert} />
-      <RegisterIconBox onPress={() => navigation.navigate('SOSRegister')}>
-        <RegisterIcon width={responsive(48)} height={responsive(48)} />
-      </RegisterIconBox>
+      {!selectMode && (
+        <RegisterIconBox onPress={() => navigation.navigate('SOSRegister')}>
+          <RegisterIcon width={responsive(48)} height={responsive(48)} />
+        </RegisterIconBox>
+      )}
     </Container>
   );
 };

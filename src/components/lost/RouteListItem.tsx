@@ -5,14 +5,20 @@ import CustomText from '@/components/common/CustomText';
 import { colors } from '@/constants';
 import { responsive } from '@/utils';
 
-const RouteListItem = () => {
+interface RouteListItemProps {
+  handleLongPress: () => void;
+}
+
+const RouteListItem = ({ handleLongPress }: RouteListItemProps) => {
   return (
     <Container>
-      <RouteBox>
-        <RouteText>경상남도 거제시 중곡로 42</RouteText>
-        <RouteText>- 부산광역시 강서구 녹산산단로 72</RouteText>
-      </RouteBox>
-      <TimeText>18:30 - 20:00</TimeText>
+      <RouteCardBox onLongPress={handleLongPress}>
+        <RouteBox>
+          <RouteText>경상남도 거제시 중곡로 42</RouteText>
+          <RouteText>- 부산광역시 강서구 녹산산단로 72</RouteText>
+        </RouteBox>
+        <TimeText>18:30 - 20:00</TimeText>
+      </RouteCardBox>
     </Container>
   );
 };
@@ -22,8 +28,14 @@ export default RouteListItem;
 const Container = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  padding: ${responsive(16)}px;
+  padding: ${responsive(14)}px;
   background-color: ${colors.GRAY_300};
+`;
+
+const RouteCardBox = styled.TouchableOpacity`
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const RouteBox = styled.View``;

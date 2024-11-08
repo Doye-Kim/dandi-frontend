@@ -69,6 +69,7 @@ const PickupRegisterScreen = () => {
                 <SimpleMarkerIcon width={24} height={24} />
               </IconButton>
             </LocationBox>
+            {/* 위치 선택 모달 */}
             <PickupMapModal
               visible={isMapModalVisible}
               onClose={() => setIsMapModalVisible(false)}
@@ -95,6 +96,7 @@ const PickupRegisterScreen = () => {
                 <CalendarIcon width={24} height={24} />
               </IconButton>
             </DatetimeBox>
+            {/* 날짜 선택 모달 */}
             <DatePicker
               modal
               open={isDatetimeOpen}

@@ -5,9 +5,11 @@ import InputField from '@/components/auth/InputField';
 import AuthButton from '@/components/auth/AuthButton';
 import useForm from '@/hooks/useForm';
 import useUserStore from '@/store/useUserStore';
-import { login, putFCM } from '@/api/auth';
+import { getUserInfo, login } from '@/api/auth';
 import Toast from 'react-native-toast-message';
 import messaging from '@react-native-firebase/messaging';
+import { AxiosError } from 'axios';
+import { setEncryptStorage } from '@/utils/encryptedStorage';
 
 const LoginScreen = () => {
   const { setIsLogin } = useUserStore();
@@ -30,29 +32,43 @@ const LoginScreen = () => {
     return data;
   }, []);
 
+  interface ErrorResponse {
+    message: string;
+  }
+
   const handleLogin = async () => {
-    console.log('handle Login');
     const userData = {
       email: checkEmail.getTextInputProps('email').value,
       password: checkPassword.getTextInputProps('password').value,
     };
+    const fcmCode = await getFcmToken();
     try {
-      await login(userData);
+      await login(userData, fcmCode);
       console.log(userData);
-      await putFCM(await getFcmToken());
       setIsLogin(true);
       Toast.show({
         type: 'success',
         text1: '로그인 성공!',
       });
+      await getUserData();
     } catch (err) {
-      console.log(err);
+      const error = err as AxiosError<ErrorResponse>;
+      console.log(error);
       Toast.show({
         type: 'error',
-        text1: err.response.message
-          ? err.response.message
+        text1: error.response?.data?.message
+          ? error.response.data.message
           : '알 수 없는 에러가 발생했습니다. 다시 시도해 주세요',
       });
+    }
+  };
+
+  const getUserData = async () => {
+    try {
+      const data = await getUserInfo();
+      setEncryptStorage('user', data);
+    } catch (err) {
+      console.log(err);
     }
   };
   const onPressLogin = () => {

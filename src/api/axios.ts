@@ -5,4 +5,35 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// 요청 인터셉터 설정: 요청의 헤더를 콘솔에 출력
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log('Request URL:', config.url);
+    console.log('Request Method:', config.method);
+    console.log('Request Headers:', config.headers);
+    console.log('Request Body:', config.data);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      console.log('Error Status:', error.response.status);
+      console.log('Error Data:', error.response.data);
+      console.log('Error URL:', error.config.url);
+      console.log('Error Method:', error.config.method);
+    } else {
+      console.error('Network Error:', error.message);
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default axiosInstance;

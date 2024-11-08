@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { SafeAreaView, TextInput, View } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { authNavigations, colors } from '@/constants';
@@ -10,8 +10,10 @@ import InputField from '@/components/auth/InputField';
 import { TitleText } from '@/styles';
 import useAuthStore from '@/store/useAuthStore';
 import { join } from '@/api/auth';
+import LoadingScreen from '../LoadingScreen';
 
 const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { email, password, nickname, setNickname } = useAuthStore();
   const nameRef = useRef<TextInput | null>(null);
   const checkName = useForm({
@@ -20,6 +22,7 @@ const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
   });
 
   const handleJoin = async () => {
+    setIsLoading(true);
     const userData = {
       email,
       password,
@@ -29,6 +32,7 @@ const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
     try {
       const { data } = await join(userData);
       console.log(data);
+      setIsLoading(false);
       navigation.navigate(authNavigations.EMAIL_CHECK);
     } catch (err) {
       console.log(err);
@@ -40,35 +44,41 @@ const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, marginHorizontal: responsive(10) }}>
-      <View style={{ alignItems: 'center' }}>
-        <ProgressBar
-          progress={0.75}
-          color={colors.GRAY_700}
-          style={{
-            backgroundColor: colors.GRAY_300,
-            height: 2,
-            width: responsive(352),
-          }}
-        />
-      </View>
-      <TitleText>사용하실 닉네임을{'\n'}입력해 주세요</TitleText>
-      <InputField
-        ref={nameRef}
-        placeholder='닉네임을 입력해주세요'
-        error={checkName.errors.name}
-        touched={checkName.touched.name}
-        returnKeyType='join'
-        blurOnSubmit={false}
-        keyboardType='email-address'
-        {...checkName.getTextInputProps('name')}
-      />
-      <AuthButton
-        title='다음'
-        onPress={onPress}
-        style={checkName.errors.name ? 'disable' : 'enable'}
-      />
-    </SafeAreaView>
+    <>
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <SafeAreaView style={{ flex: 1, marginHorizontal: responsive(10) }}>
+          <View style={{ alignItems: 'center' }}>
+            <ProgressBar
+              progress={0.75}
+              color={colors.GRAY_700}
+              style={{
+                backgroundColor: colors.GRAY_300,
+                height: 2,
+                width: responsive(352),
+              }}
+            />
+          </View>
+          <TitleText>사용하실 닉네임을{'\n'}입력해 주세요</TitleText>
+          <InputField
+            ref={nameRef}
+            placeholder='닉네임을 입력해주세요'
+            error={checkName.errors.name}
+            touched={checkName.touched.name}
+            returnKeyType='join'
+            blurOnSubmit={false}
+            keyboardType='email-address'
+            {...checkName.getTextInputProps('name')}
+          />
+          <AuthButton
+            title='다음'
+            onPress={onPress}
+            style={checkName.errors.name ? 'disable' : 'enable'}
+          />
+        </SafeAreaView>
+      )}
+    </>
   );
 };
 

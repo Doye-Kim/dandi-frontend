@@ -1,8 +1,9 @@
+import BackgroundTimer from 'react-native-background-timer';
 import axiosInstance from './axios';
-import { setHeader } from '@/utils/axios';
+import { setHeader, removeHeader } from '@/utils/axios';
 import { setEncryptStorage } from '@/utils/encryptedStorage';
 
-const JWT_EXPIRRY_TIME = 1800 * 1000; //accessToken 만료시간-> 밀리초
+const JWT_EXPIRRY_TIME = 24 * 60 * 60 * 1000; //accessToken 만료시간-> 밀리초
 
 export interface LoginProps {
   email: string;
@@ -54,22 +55,26 @@ const patchPasswordUpdate = async (passwordData: UpdatePasswordProps) => {
   return data;
 };
 
-const login = async (userData: LoginProps) => {
+const login = async (userData: LoginProps, fcmCode: string) => {
+  removeHeader('Authorization');
   const { data, headers } = await axiosInstance.post('/auth/login', userData);
-  console.log(headers);
   const accessToken = headers.authorization;
-  // console.log(accessToken);
-  if (accessToken) {
-    setAccessToken(accessToken);
-  }
 
+  if (accessToken) {
+    await setAccessToken(accessToken);
+    await putFCM(fcmCode);
+  }
   return data;
 };
 
-// 헤더로 보냄
-const putFCM = async (fcmToken: string) => {
-  setHeader('fcmCode', fcmToken);
-  const data = await axiosInstance.post('/member/fcm');
+const getUserInfo = async () => {
+  const data = await axiosInstance.get('/auth');
+  console.log(data);
+  return data;
+};
+
+const putFCM = async (fcmCode: string) => {
+  const data = await axiosInstance.put('/member/fcm', { fcmCode });
   return data;
 };
 
@@ -86,12 +91,13 @@ const logout = async () => {
 const setAccessToken = async (accessToken: string) => {
   try {
     await setEncryptStorage('accessToken', accessToken);
-    // console.log('token', accessToken);
     setHeader('Authorization', accessToken);
   } catch (err) {
     console.log(err);
   }
-  setTimeout(refreshAuth, JWT_EXPIRRY_TIME - 60000);
+  BackgroundTimer.setTimeout(() => {
+    refreshAuth();
+  }, JWT_EXPIRRY_TIME - 60000);
 };
 
 export {
@@ -105,4 +111,5 @@ export {
   refreshAuth,
   logout,
   putFCM,
+  getUserInfo,
 };

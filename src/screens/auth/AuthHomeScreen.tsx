@@ -6,9 +6,11 @@ import styled from 'styled-components/native';
 import { LogoIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
-import { responsive } from '@/utils';
+import { responsive, setHeader } from '@/utils';
 import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
+import axiosInstance from '@/api/axios';
+import useUserStore from '@/store/useUserStore';
 
 export type AuthHomeScreenProps = {
   navigation: StackNavigationProp<
@@ -24,12 +26,23 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       resetAuthInfo();
     }, []),
   );
+  const { setIsLogin } = useUserStore();
 
   const onPressJoin = () => {
     navigation.navigate(authNavigations.AUTH_EMAIL);
   };
   const onPressLogin = () => {
     navigation.navigate(authNavigations.LOGIN);
+  };
+
+  const onPressManager = async () => {
+    try {
+      const { data } = await axiosInstance.post('/auth/manager/jaedoo2');
+      setHeader('Authorization', data);
+      setIsLogin(true);
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <StyledSafeAreaView>
@@ -46,6 +59,11 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       </View>
       <AuthButton title='로그인' onPress={onPressLogin} style='gray' />
       <AuthButton title='회원가입' onPress={onPressJoin} style='enable' />
+      <AuthButton
+        title='관리자 로그인'
+        onPress={onPressManager}
+        style='enable'
+      />
     </StyledSafeAreaView>
   );
 };

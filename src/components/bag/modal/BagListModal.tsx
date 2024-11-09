@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils';
-import { BagItem } from './MainBagList';
-import HeaderText from '../common/HeaderText';
+import HeaderText from '../../common/HeaderText';
 import CustomModalButton from './CustomModalButton';
 import BagListModalItem from './BagListModalItem';
 
 import data from '@/dummy/bag.json';
+import { getBags } from '@/api/bag';
 
 interface BagListModalProps {
   visible: boolean;
@@ -26,12 +27,22 @@ const BagListModal = ({
   onClose,
   onConfirm,
 }: BagListModalProps) => {
-  const [bagData, setBagData] = useState<BagItem[]>();
+  const { data: bagList, error } = useQuery({
+    queryKey: ['bags'],
+    queryFn: getBags,
+    select: (data) => data.sort((a, b) => a.bagOrder - b.bagOrder),
+  });
 
   useEffect(() => {
-    const sortedData = data.sort((a, b) => a.bagOrder - b.bagOrder);
-    setBagData(sortedData);
-  }, []);
+    if (error) {
+      Toast.show({
+        type: 'error',
+        text1: error.message
+          ? error.message
+          : '가방 목록을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
+      });
+    }
+  }, [bagList, error]);
 
   const handlePressConfirm = () => {
     if (copyBagId === null) {
@@ -41,12 +52,13 @@ const BagListModal = ({
       });
     } else onConfirm();
   };
+
   return (
     <Portal>
       <StyledModal visible={visible} onDismiss={onClose}>
         <HeaderText>복사할 가방 선택</HeaderText>
         <FlatList
-          data={bagData}
+          data={bagList}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <BagListModalItem

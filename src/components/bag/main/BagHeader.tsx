@@ -1,7 +1,7 @@
 import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
-import CustomText from '../common/CustomText';
-import HeaderText from '../common/HeaderText';
+import CustomText from '../../common/CustomText';
+import HeaderText from '../../common/HeaderText';
 import useBagStore from '@/store/useBagStore';
 
 const BagHeader = () => {

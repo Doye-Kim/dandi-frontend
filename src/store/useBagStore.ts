@@ -1,4 +1,4 @@
-import { ItemKeyProps } from '@/components/bag/BagThings';
+import { ItemKeyProps } from '@/components/bag/main/BagThings';
 import { create } from 'zustand';
 
 interface BagState {

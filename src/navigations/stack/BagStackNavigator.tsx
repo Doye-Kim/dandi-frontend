@@ -1,4 +1,4 @@
-import { BagThingItemKey } from '@/components/bag/BagThings';
+import { ItemKeyProps } from '@/components/bag/main/BagThings';
 import { bagNavigations, colors } from '@/constants';
 import BagItemScreen from '@/screens/bag/BagItemScreen';
 import BagListScreen from '@/screens/bag/BagListScreen';
@@ -8,7 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 export type BagStackParamList = {
   [bagNavigations.BAG_MAIN]: undefined;
   [bagNavigations.BAG_LIST]: undefined;
-  [bagNavigations.BAG_ITEM]: { item?: BagThingItemKey };
+  [bagNavigations.BAG_ITEM]: { item?: ItemKeyProps };
 };
 
 const Stack = createStackNavigator<BagStackParamList>();

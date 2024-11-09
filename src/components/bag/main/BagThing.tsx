@@ -5,13 +5,13 @@ import styled from 'styled-components/native';
 import { BlurView } from '@react-native-community/blur';
 import { bagNavigations, colors } from '@/constants';
 import {
-  BagThingItemKey,
   StyleView,
   StyleItemIcon,
   StyleTouchable,
+  ItemKeyProps,
 } from './BagThings';
 import { DoubleAngleIcon, SparkleIcon, TrashRedIcon } from '@/assets/icons';
-import CustomText from '../common/CustomText';
+import CustomText from '../../common/CustomText';
 import { useNavigation } from '@react-navigation/native';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -20,7 +20,7 @@ type BagNavigationProp = StackNavigationProp<
   typeof bagNavigations.BAG_MAIN
 >;
 
-const BagThing = ({ item }: { item: BagThingItemKey }) => {
+const BagThing = ({ item }: { item: ItemKeyProps }) => {
   const [isOpenActionModal, setIsOpenActionModal] = useState<boolean>(false);
   const navigation = useNavigation<BagNavigationProp>();
 

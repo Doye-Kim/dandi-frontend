@@ -1,11 +1,11 @@
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import { responsive } from '@/utils';
-import { BagItem } from './MainBagList';
-import CustomText from '../common/CustomText';
+import CustomText from '../../common/CustomText';
+import { BagProps } from '@/api/bag';
 
 interface BagListModalItemProps {
-  item: BagItem;
+  item: BagProps;
   copyBagId: number | null;
   setCopyBagId: (copyBagId: number) => void;
 }

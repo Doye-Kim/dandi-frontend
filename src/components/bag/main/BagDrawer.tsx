@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
@@ -8,48 +9,48 @@ import { colors } from '@/constants';
 import { responsive } from '@/utils';
 import { CheckIcon } from '@/assets/icons';
 import { ItemKeyProps, StyleItemIcon } from './BagThings';
-import { getDrawerItems } from '@/api/bag';
-import CustomText from '../common/CustomText';
+import { getDrawerItems, ItemProps } from '@/api/bag';
+import CustomText from '../../common/CustomText';
 import useBagStore from '@/store/useBagStore';
-import DeleteButton from './DeleteButton';
+import DeleteButton from '../DeleteButton';
 
 const BagDrawer = () => {
   const editMode = useBagStore((state) => state.editMode);
   const { addMultipleItems } = useBagStore();
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
-  const [drawerItems, setDrawerItems] = useState<ItemKeyProps[]>([]);
+  const [drawerKeyItems, setDrawerKeyItems] = useState<ItemKeyProps[]>([]);
   const [selectItems, setSelectItems] = useState<ItemKeyProps[]>([]);
 
-  const getDrawerItemList = async () => {
-    try {
-      const data = await getDrawerItems(
-        selectBagId === -1 ? defaultBagId : selectBagId,
+  const { data: drawerItems, error } = useQuery<ItemProps[]>({
+    queryKey: ['drawerItems', selectBagId],
+    queryFn: () =>
+      getDrawerItems(selectBagId === -1 ? defaultBagId : selectBagId),
+    select: (data) => data.sort((a, b) => a.itemOrder - b.itemOrder),
+  });
+
+  useEffect(() => {
+    if (drawerItems) {
+      setDrawerKeyItems(
+        drawerItems.map((item) => ({
+          ...item,
+          key: `bag-${item.itemId}`,
+          disabledDrag: !editMode,
+        })),
       );
-      setDrawerItems(
-        data
-          .sort((a, b) => a.itemOrder - b.itemOrder)
-          .map((item) => ({
-            ...item,
-            key: `bag-${item.itemId}`,
-            disabledDrag: !editMode,
-          })),
-      );
-    } catch (err) {
+    }
+    if (error) {
       Toast.show({
         type: 'error',
-        text1: axios.isAxiosError(err)
-          ? err.message
+        text1: axios.isAxiosError(error)
+          ? error.message
           : '서랍 소지품을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
       });
     }
-  };
-  useEffect(() => {
-    getDrawerItemList();
-  }, []);
+  }, [drawerItems, error]);
 
   useEffect(() => {
-    setDrawerItems((prevItems) =>
+    setDrawerKeyItems((prevItems) =>
       prevItems.map((item) => ({
         ...item,
         disabledDrag: !editMode,
@@ -80,7 +81,7 @@ const BagDrawer = () => {
       addMultipleItems(itemsToMove);
       console.log('itemsToMove', itemsToMove);
 
-      setDrawerItems((prevItems) =>
+      setDrawerKeyItems((prevItems) =>
         prevItems.filter((item) => !itemsToMove.includes(item)),
       );
 
@@ -131,16 +132,16 @@ const BagDrawer = () => {
 
   return (
     <StyleContainer>
-      {drawerItems.length > 0 ? (
+      {setDrawerKeyItems.length > 0 ? (
         <>
           <ScrollView>
             <DraggableGrid
               numColumns={4}
               style={{ margin: 20, flexWrap: 'wrap' }}
               renderItem={renderItem}
-              data={drawerItems}
+              data={drawerKeyItems}
               onDragRelease={(updatedData) => {
-                setDrawerItems(updatedData);
+                setDrawerKeyItems(updatedData);
               }}
             />
           </ScrollView>

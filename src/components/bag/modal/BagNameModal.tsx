@@ -4,8 +4,8 @@ import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
 import { responsive, responsiveVertical } from '@/utils';
 import { colors } from '@/constants';
-import HeaderText from '../common/HeaderText';
-import AuthButton from '../auth/AuthButton';
+import HeaderText from '../../common/HeaderText';
+import AuthButton from '../../auth/AuthButton';
 
 interface BagNameModalProps {
   visible: boolean;

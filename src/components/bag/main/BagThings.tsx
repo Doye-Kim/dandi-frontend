@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { DraggableGrid } from 'react-native-draggable-grid';
+import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
@@ -8,8 +9,8 @@ import { colors } from '@/constants';
 import { responsive } from '@/utils';
 import { ItemProps, getBagItems } from '@/api/bag';
 import useBagStore from '@/store/useBagStore';
-import DeleteButton from './DeleteButton';
-import CustomText from '../common/CustomText';
+import DeleteButton from '../DeleteButton';
+import CustomText from '../../common/CustomText';
 import BagThing from './BagThing';
 
 export interface ItemKeyProps extends ItemProps {
@@ -19,31 +20,33 @@ export interface ItemKeyProps extends ItemProps {
 
 const BagThings = () => {
   const editMode = useBagStore((state) => state.editMode);
-  const bagItems = useBagStore((state) => state.bagItems);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
-  const { setBagItems, updateDisabledDrag } = useBagStore();
+  const { updateDisabledDrag } = useBagStore();
+
+  const [bagKeyItems, setBagKeyItems] = useState<ItemKeyProps[]>([]);
+
+  const { data: bagItems, error } = useQuery<ItemProps[], Error>({
+    queryKey: ['bagItems', selectBagId],
+    queryFn: () => getBagItems(selectBagId === -1 ? defaultBagId : selectBagId),
+    select: (data) => data.sort((a, b) => a.itemOrder - b.itemOrder),
+  });
 
   const getBagItemList = async () => {
-    try {
-      const data = await getBagItems(
-        selectBagId === -1 ? defaultBagId : selectBagId,
+    if (bagItems) {
+      setBagKeyItems(
+        bagItems.map((item) => ({
+          ...item,
+          key: `bag-${item.itemId}`,
+          disabledDrag: !editMode,
+        })),
       );
-      console.log('getBagItems', data);
-      setBagItems(
-        data
-          .sort((a, b) => a.itemOrder - b.itemOrder)
-          .map((item) => ({
-            ...item,
-            key: `bag-${item.itemId}`,
-            disabledDrag: !editMode,
-          })),
-      );
-    } catch (err) {
+    }
+    if (error) {
       Toast.show({
         type: 'error',
-        text1: axios.isAxiosError(err)
-          ? err.message
+        text1: axios.isAxiosError(error)
+          ? error.message
           : '가방 소지품 목록을 불러오는 데 문제가 생겼어요.  다시 시도해 주세요',
       });
     }
@@ -51,7 +54,7 @@ const BagThings = () => {
 
   useEffect(() => {
     getBagItemList();
-  }, []);
+  }, [bagItems, error]);
 
   useEffect(() => {
     updateDisabledDrag(!editMode);
@@ -86,13 +89,13 @@ const BagThings = () => {
 
   return (
     <View>
-      {bagItems.length > 0 ? (
+      {bagKeyItems.length > 0 ? (
         <DraggableGrid
           numColumns={5}
           renderItem={renderItem}
-          data={bagItems}
+          data={bagKeyItems}
           onDragRelease={(updatedData) => {
-            setBagItems(updatedData);
+            setBagKeyItems(updatedData);
           }}
         />
       ) : (

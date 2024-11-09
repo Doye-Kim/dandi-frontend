@@ -1,18 +1,11 @@
 import { TouchableOpacity, View } from 'react-native';
 import { colors } from '@/constants';
-import CustomText from '../common/CustomText';
-import DeleteButton from './DeleteButton';
+import CustomText from '../../common/CustomText';
+import DeleteButton from '../DeleteButton';
 import useBagStore from '@/store/useBagStore';
+import { ItemProps } from '@/api/bag';
 
-export interface BagDrawerItem {
-  id: number;
-  itemOrder: number;
-  emoticon: string;
-  name: string;
-  colorKey: number;
-  created_at: string;
-}
-const DrawerItem = ({ item }: { item: BagDrawerItem }) => {
+const DrawerItem = ({ item }: { item: ItemProps }) => {
   const editMode = useBagStore((state) => state.editMode);
   const { setEditMode } = useBagStore();
   const backColor =
@@ -32,7 +25,7 @@ const DrawerItem = ({ item }: { item: BagDrawerItem }) => {
     <View>
       {editMode && <DeleteButton onPressDelete={onPressDelete} />}
       <TouchableOpacity
-        key={item.id}
+        key={item.itemId}
         onLongPress={onLongPress}
         style={{
           backgroundColor: backColor,

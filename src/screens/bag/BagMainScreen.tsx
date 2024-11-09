@@ -6,11 +6,11 @@ import { responsive, responsiveVertical } from '@/utils';
 import { DrawerIcon, FolderIcon } from '@/assets/icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import BagHeader from '@/components/bag/BagHeader';
-import MainBagList from '@/components/bag/MainBagList';
-import BagActionBar from '@/components/bag/BagActionBar';
-import BagThings from '@/components/bag/BagThings';
-import BagDrawer from '@/components/bag/BagDrawer';
+import BagHeader from '@/components/bag/main/BagHeader';
+import MainBagList from '@/components/bag/main/MainBagList';
+import BagActionBar from '@/components/bag/main/BagActionBar';
+import BagThings from '@/components/bag/main/BagThings';
+import BagDrawer from '@/components/bag/main/BagDrawer';
 
 export type BagScreenProps = {
   navigation: StackNavigationProp<

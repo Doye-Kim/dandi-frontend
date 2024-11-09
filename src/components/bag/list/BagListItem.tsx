@@ -3,13 +3,13 @@ import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { DeleteBagIcon, BagBurgerIcon } from '@/assets/icons';
 import { colors } from '@/constants';
-import { BagItem } from './MainBagList';
 import { responsive } from '@/utils';
-import CustomText from '../common/CustomText';
-import CustomModal from './CustomModal';
-import BagNameModal from './BagNameModal';
+import { BagProps } from '@/api/bag';
+import CustomText from '../../common/CustomText';
+import CustomModal from '../modal/CustomModal';
+import BagNameModal from '../modal/BagNameModal';
 
-const BagListItem = ({ item, drag }: { item: BagItem; drag: () => void }) => {
+const BagListItem = ({ item, drag }: { item: BagProps; drag: () => void }) => {
   const [isOpenDelete, setIsOpenDelete] = useState<boolean>(false);
   const [isOpenBagName, setIsOpenBagName] = useState<boolean>(false);
 

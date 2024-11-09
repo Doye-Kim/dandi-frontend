@@ -4,10 +4,10 @@ import styled from 'styled-components/native';
 import { AddFolderIcon, LeftIcon } from '@/assets/icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import HeaderText from '../common/HeaderText';
-import CustomModal from './CustomModal';
-import BagListModal from './BagListModal';
-import BagNameModal from './BagNameModal';
+import HeaderText from '../../common/HeaderText';
+import CustomModal from '../modal/CustomModal';
+import BagListModal from '../modal/BagListModal';
+import BagNameModal from '../modal/BagNameModal';
 
 const CustomBagHeader = () => {
   const [isOpenAddBag, setIsOpenAddBag] = useState(false);

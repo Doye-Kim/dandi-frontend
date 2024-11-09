@@ -2,8 +2,8 @@ import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
 import { colors, ModalCategory, ModalMessages } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils';
-import HeaderText from '../common/HeaderText';
-import CustomText from '../common/CustomText';
+import HeaderText from '../../common/HeaderText';
+import CustomText from '../../common/CustomText';
 import CustomModalButton from './CustomModalButton';
 
 interface CustomModalProps {

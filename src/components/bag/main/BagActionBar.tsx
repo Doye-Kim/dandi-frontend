@@ -4,7 +4,7 @@ import { BagTrashIcon, PlusThingsIcon, RefreshIcon } from '@/assets/icons';
 import { bagNavigations, colors } from '@/constants';
 import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import { responsive } from '@/utils';
-import CustomText from '../common/CustomText';
+import CustomText from '../../common/CustomText';
 import useBagStore from '@/store/useBagStore';
 
 const BagActionBar = ({ navigation }: BagScreenProps) => {

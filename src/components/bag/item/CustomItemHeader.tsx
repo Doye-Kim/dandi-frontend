@@ -4,9 +4,9 @@ import styled from 'styled-components/native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LeftIcon } from '@/assets/icons';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import HeaderText from '../common/HeaderText';
-import CustomText from '../common/CustomText';
-import CustomModal from './CustomModal';
+import HeaderText from '../../common/HeaderText';
+import CustomText from '../../common/CustomText';
+import CustomModal from '../modal/CustomModal';
 
 const CustomItemHeader = ({ itemId }: { itemId?: number }) => {
   const navigation = useNavigation<NavigationProp<BagStackParamList>>();

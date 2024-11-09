@@ -16,7 +16,7 @@ import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
 import { BagScreenProps } from './BagMainScreen';
 import { DropdownIcon } from '@/assets/icons';
 import { responsive, responsiveVertical } from '@/utils';
-import CustomItemHeader from '@/components/bag/CustomItemHeader';
+import CustomItemHeader from '@/components/bag/item/CustomItemHeader';
 import CustomText from '@/components/common/CustomText';
 import AuthButton from '@/components/auth/AuthButton';
 

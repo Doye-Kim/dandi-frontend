@@ -1,22 +1,25 @@
 import Toast from 'react-native-toast-message';
 import RootNavigator from './src/navigations/RootNavigator';
 import { NavigationContainer } from '@react-navigation/native';
-import messaging from '@react-native-firebase/messaging';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider as PaperProvider } from 'react-native-paper';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { colors } from '@/constants';
-import { useCallback, useEffect } from 'react';
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
-    <PaperProvider>
-      <View style={styles.container}>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </View>
-      <Toast />
-    </PaperProvider>
+    <QueryClientProvider client={queryClient}>
+      <PaperProvider>
+        <View style={styles.container}>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </View>
+        <Toast />
+      </PaperProvider>
+    </QueryClientProvider>
   );
 };
 

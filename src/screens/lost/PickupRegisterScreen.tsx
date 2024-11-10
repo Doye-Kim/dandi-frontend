@@ -1,10 +1,17 @@
 import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
-import { KeyboardAvoidingView, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, Image } from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
+import Toast from 'react-native-toast-message';
 import { LatLng } from 'react-native-maps';
 import DatePicker from 'react-native-date-picker';
+import { BASE_IMAGE_URL } from '@/api/axios';
+import { registerPickup } from '@/api/lost';
 import { colors } from '@/constants';
+import { requestCameraAndGalleryPermissions } from '@/utils/permission';
+import { getCurrentLocation } from '@/utils/map';
 import { responsive, responsiveVertical } from '@/utils';
 import { convertDateTimeFormat } from '@/utils/date';
 import { CameraIcon } from '@/assets/icons';
@@ -13,10 +20,19 @@ import { SimpleMarkerIcon } from '@/assets/icons';
 import { CalendarIcon } from '@/assets/icons';
 import CustomText from '@/components/common/CustomText';
 import CustomButton from '@/components/common/CustomButton';
+import CameraGalleryPickerModal from '@/components/lost/CameraGalleryPickerModal';
 import PickupMapModal from '@/components/lost/PickupMapModal';
 
-const PickupRegisterScreen = () => {
-  // todo: 상태 바인딩 및 초기화 및 핸들러 함수 정의
+type PickupRegisterScreenNavigationProp = StackNavigationProp<
+  LostStackParamList,
+  'PickupRegister'
+>;
+
+type PickupRegisterScreenProps = {
+  navigation: PickupRegisterScreenNavigationProp;
+};
+
+const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
   const [explain, setExplain] = useState<string>('');
   // todo: 위치 정보를 현재 위치로 초기화
   const [location, setLocation] = useState<LatLng>({
@@ -25,24 +41,90 @@ const PickupRegisterScreen = () => {
   });
   const [keepLocation, setKeepLocation] = useState<string>('');
   const [datetime, setDatetime] = useState<Date>(new Date());
-  const [isMapModalVisible, setIsMapModalVisible] = useState<boolean>(false);
+  const [photoUrl, setPhotoUrl] = useState<string>('');
+  const [isPhotoMethodOpen, setIsPhotoMethodOpen] = useState<boolean>(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState<boolean>(false);
   const [isDatetimeOpen, setIsDatetimeOpen] = useState<boolean>(false);
   const selectedDatetime = useMemo(
     () => convertDateTimeFormat(datetime),
     [datetime],
   );
 
-  const handleRegister = () => {
-    console.log('등록 버튼 클릭');
+  useEffect(() => {
+    const fetchLocation = async () => {
+      const location = await getCurrentLocation();
+      if (location) {
+        setLocation(location);
+      }
+    };
+
+    fetchLocation();
+  }, []);
+
+  const handleRegister = async () => {
+    try {
+      const data = await registerPickup({
+        category: 'OTHER',
+        foundLocation: {
+          lat: location.latitude,
+          lon: location.longitude,
+        },
+        image: photoUrl,
+        foundAt: datetime.toISOString().split('.')[0],
+        storageDesc: keepLocation,
+        itemDesc: explain,
+      });
+      Toast.show({
+        type: 'success',
+        text1: '습득물 등록 성공',
+        text2: '습득물이 성공적으로 등록되었습니다.',
+      });
+      console.log(data);
+      navigation.navigate('PickupList');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '습득물 등록 실패',
+        text2: '습득물 등록에 실패했습니다. 다시 시도해 주세요.',
+      });
+      console.error(error);
+    }
   };
-  // todo: 카메라 사진 변경
+  // 카메라, 갤러리 권한 요청 및 선택 모달 열기
+  const uploadPhoto = async () => {
+    const hasPermission = await requestCameraAndGalleryPermissions();
+    if (hasPermission) {
+      setIsPhotoMethodOpen(true);
+    }
+  };
+
   return (
     <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Container>
-          <CameraBox>
-            <CameraIcon width={responsive(232)} height={responsive(232)} />
+          <CameraBox onPress={uploadPhoto} isPhoto={photoUrl === ''}>
+            {photoUrl ? (
+              <Image
+                source={{
+                  uri: `${BASE_IMAGE_URL}${photoUrl}`,
+                }}
+                style={{
+                  width: responsive(232),
+                  height: responsive(232),
+                  borderRadius: 10,
+                }}
+              />
+            ) : (
+              <CameraIcon width={responsive(232)} height={responsive(232)} />
+            )}
           </CameraBox>
+          {/* 카메라, 갤러리 선택 모달 */}
+          <CameraGalleryPickerModal
+            itemType='FOUND'
+            isVisible={isPhotoMethodOpen}
+            handlePhotoUrl={setPhotoUrl}
+            onClose={() => setIsPhotoMethodOpen(false)}
+          />
           <WarningBox>
             <WarningIcon width={responsive(24)} height={responsive(24)} />
             <WarningText>
@@ -64,18 +146,22 @@ const PickupRegisterScreen = () => {
             </ExplainBox>
             <LocationBox>
               <LabelText>습득 장소</LabelText>
-              <SelectedText>거제시 중곡로 42</SelectedText>
-              <IconButton onPress={() => setIsMapModalVisible(true)}>
-                <SimpleMarkerIcon width={24} height={24} />
+              <SelectedText>
+                {location.latitude.toFixed(2)},{location.longitude.toFixed(2)}
+              </SelectedText>
+              <IconButton onPress={() => setIsMapModalOpen(true)}>
+                <SimpleMarkerIcon
+                  width={responsive(24)}
+                  height={responsive(24)}
+                />
               </IconButton>
             </LocationBox>
             {/* 위치 선택 모달 */}
             <PickupMapModal
-              visible={isMapModalVisible}
-              onClose={() => setIsMapModalVisible(false)}
-              onSelectLocation={(location: LatLng) => {
-                setLocation(location);
-              }}
+              visible={isMapModalOpen}
+              onClose={() => setIsMapModalOpen(false)}
+              initialLocation={location}
+              onSelectLocation={setLocation}
             />
             <KeepExplainBox>
               <LabelText>보관 장소</LabelText>
@@ -135,11 +221,12 @@ const Container = styled.SafeAreaView`
   align-items: center;
 `;
 
-const CameraBox = styled.TouchableOpacity`
+const CameraBox = styled.TouchableOpacity<{ isPhoto: boolean }>`
   width: 88%;
   padding-horizontal: ${responsive(20)}px;
   align-items: center;
-  border: 1px dashed ${colors.GRAY_400};
+  border: ${({ isPhoto }) =>
+    isPhoto ? `1px dashed ${colors.GRAY_400}` : 'none'};
   border-radius: 10px;
   margin-top: ${responsiveVertical(8)}px;
   margin-bottom: ${responsiveVertical(8)}px;

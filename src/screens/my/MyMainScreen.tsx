@@ -27,7 +27,7 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
     console.log('SOS');
   };
   const handlePressLost = () => {
-    console.log('LOST');
+    navigation.navigate(myNavigations.MY_PICKUP);
   };
   const handleLogout = () => {
     console.log('logout');

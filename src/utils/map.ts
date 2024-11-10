@@ -45,11 +45,11 @@ const getCurrentLocation = async (): Promise<LatLng | null> => {
   if (hasPermission) {
     return new Promise((resolve, reject) => {
       Geolocation.getCurrentPosition(
-        position => {
+        (position) => {
           const { latitude, longitude } = position.coords;
           resolve({ latitude, longitude });
         },
-        error => {
+        (error) => {
           console.log(error);
           reject(error);
         },

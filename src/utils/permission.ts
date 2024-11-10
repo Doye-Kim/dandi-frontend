@@ -1,4 +1,3 @@
-// permissions.js
 import { Platform, Alert, Linking } from 'react-native';
 import {
   request,
@@ -63,5 +62,57 @@ const requestLocationPermission = async () => {
   }
   return true;
 };
+// 카메라, 갤러리 권한 요청
+const requestCameraAndGalleryPermissions = async () => {
+  if (Platform.OS === 'android') {
+    const permissions = [PERMISSIONS.ANDROID.CAMERA];
 
-export { requestLocationPermission };
+    if (Platform.Version >= 34) {
+      permissions.push(PERMISSIONS.ANDROID.READ_MEDIA_VISUAL_USER_SELECTED);
+    } else if (Platform.Version >= 33) {
+      permissions.push(PERMISSIONS.ANDROID.READ_MEDIA_IMAGES);
+    } else {
+      permissions.push(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+    }
+
+    const statuses = await requestMultiple(permissions);
+    const allGranted = permissions.every(
+      (permission) => statuses[permission] === RESULTS.GRANTED,
+    );
+
+    if (!allGranted) {
+      Alert.alert(
+        '권한 필요',
+        '앱에서 카메라와 갤러리에 접근하려면 권한이 필요합니다.',
+        [
+          { text: '취소', style: 'cancel' },
+          { text: '설정 열기', onPress: () => Linking.openSettings() },
+        ],
+      );
+      return false;
+    }
+  } else if (Platform.OS === 'ios') {
+    const statuses = await requestMultiple([
+      PERMISSIONS.IOS.CAMERA,
+      PERMISSIONS.IOS.PHOTO_LIBRARY,
+    ]);
+
+    if (
+      statuses[PERMISSIONS.IOS.CAMERA] !== RESULTS.GRANTED ||
+      statuses[PERMISSIONS.IOS.PHOTO_LIBRARY] !== RESULTS.GRANTED
+    ) {
+      Alert.alert(
+        '권한 필요',
+        '앱에서 카메라와 갤러리에 접근하려면 권한이 필요합니다.',
+        [
+          { text: '취소', style: 'cancel' },
+          { text: '설정 열기', onPress: () => Linking.openSettings() },
+        ],
+      );
+      return false;
+    }
+  }
+  return true;
+};
+
+export { requestLocationPermission, requestCameraAndGalleryPermissions };

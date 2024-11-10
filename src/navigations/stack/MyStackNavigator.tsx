@@ -1,13 +1,17 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { colors, myNavigations } from '@/constants';
+import { colors, lostNavigations, myNavigations } from '@/constants';
 import MyMainScreen from '@/screens/my/MyMainScreen';
 import PasswordUpdateScreen from '@/screens/my/PasswordUpdateScreen';
 import MyNotiScreen from '@/screens/my/MyNotiScreen';
+import MyPickupScreen from '@/screens/my/MyPickupScreen';
+import PickupDetailScreen from '@/screens/lost/PickupDetailScreen';
 
 export type MyStackParamList = {
   [myNavigations.MY_MAIN]: undefined;
   [myNavigations.PASSWORD_UPDATE]: undefined;
   [myNavigations.MY_NOTI]: undefined;
+  [myNavigations.MY_PICKUP]: undefined;
+  [lostNavigations.PICKUP_DETAIL]: { id: number };
 };
 
 const Stack = createStackNavigator<MyStackParamList>();
@@ -50,6 +54,18 @@ function MyStackNavigator() {
         options={{
           headerShown: false,
         }}
+      />
+      <Stack.Screen
+        name={myNavigations.MY_PICKUP}
+        component={MyPickupScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={lostNavigations.PICKUP_DETAIL}
+        component={PickupDetailScreen}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

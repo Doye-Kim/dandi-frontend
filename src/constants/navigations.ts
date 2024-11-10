@@ -35,6 +35,7 @@ const myNavigations = {
   MY_MAIN: 'MyMain',
   PASSWORD_UPDATE: 'PasswordUpdate',
   MY_NOTI: 'MyNoti',
+  MY_PICKUP: 'MyPickup',
 } as const;
 
 export {

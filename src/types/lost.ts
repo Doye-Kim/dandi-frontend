@@ -6,6 +6,19 @@ interface AlertListData {
   title: string;
   date: string;
 }
+// 습득물 상세정보 데이터 타입 정의
+interface PickupDetailData {
+  id: number;
+  description: string;
+  foundLocation: {
+    lat: number;
+    lon: number;
+  };
+  image: string;
+  memberId: number;
+  savePoint: string;
+  type: string;
+}
 
 // 댓글 데이터 타입 정의
 interface CommentData {
@@ -15,4 +28,4 @@ interface CommentData {
   date: string;
 }
 
-export type { AlertListData, CommentData };
+export type { AlertListData, PickupDetailData, CommentData };

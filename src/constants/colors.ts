@@ -35,6 +35,8 @@ export const colors = {
   THINGS_TEXT_6: '#890062',
 
   PRIMARY: '#B22222',
+  BLUE_400: '#007aff',
+
   SELECTED_BLUE: '#E1EBFF',
   ACCENT_BLUE: '#007FFF',
 

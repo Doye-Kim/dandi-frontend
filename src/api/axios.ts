@@ -5,6 +5,9 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// 이미지 기본 URL 설정
+export const BASE_IMAGE_URL = 'http://k11e205.p.ssafy.io:9000/images/';
+
 // 요청 인터셉터 설정: 요청의 헤더를 콘솔에 출력
 axiosInstance.interceptors.request.use(
   (config) => {

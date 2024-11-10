@@ -6863,6 +6863,16 @@ react-native-gesture-handler@^2.20.1:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
+react-native-image-crop-picker@^0.41.4:
+  version "0.41.4"
+  resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.41.4.tgz#0d4bc05f97767286b23ce661d2d6b7208da4325f"
+  integrity sha512-busd3bjSf3afMF3V30+4bN6V92jBTp22zEamPj0QtAQz8MQT4zmXLeZ9m2KRIXylFeJM94We9AEAgg/TvWQUvw==
+
+react-native-image-picker@^7.1.2:
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/react-native-image-picker/-/react-native-image-picker-7.1.2.tgz#383849d1953caf4578874a1f5e5dd11c737bd5cd"
+  integrity sha512-b5y5nP60RIPxlAXlptn2QwlIuZWCUDWa/YPUVjgHc0Ih60mRiOg1PSzf0IjHSLeOZShCpirpvSPGnDExIpTRUg==
+
 react-native-maps@^1.18.2:
   version "1.18.2"
   resolved "https://registry.npmjs.org/react-native-maps/-/react-native-maps-1.18.2.tgz"
@@ -6879,9 +6889,9 @@ react-native-paper@^5.12.5:
     color "^3.1.2"
     use-latest-callback "^0.1.5"
 
-react-native-permissions@^5.0.2:
+react-native-permissions@^5.1.0:
   version "5.1.0"
-  resolved "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-5.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.1.0.tgz#1f132dc0a07c330e9b746cab4c384f41b05703cd"
   integrity sha512-bRV8OHFAbLulElvbJ/BLtrYNV9WXStxknCuI5mTGJNIz6sl8sDUA0OhKpbtb0rqqDdJ2mbR1ZijhGkCDOaT0tA==
 
 react-native-reanimated@^3.16.1:

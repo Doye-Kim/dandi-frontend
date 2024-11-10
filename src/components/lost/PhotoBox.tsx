@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Image } from 'react-native';
 import styled from 'styled-components/native';
 import { responsive } from '@/utils/common';
 
@@ -12,7 +12,14 @@ interface PhotoBoxProps {
 const PhotoBox = ({ imgSrc, width, height }: PhotoBoxProps) => {
   return (
     <Container width={width} height={height}>
-      <Text>{imgSrc}</Text>
+      <Image
+        source={{ uri: imgSrc }}
+        style={{
+          width: width,
+          height: height,
+          borderRadius: 10,
+        }}
+      />
     </Container>
   );
 };

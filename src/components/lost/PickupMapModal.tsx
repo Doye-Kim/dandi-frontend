@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-native';
 import styled from 'styled-components/native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { LatLng, Marker, MapPressEvent } from 'react-native-maps';
 import { colors } from '@/constants';
 import CustomButton from '../common/CustomButton';
 
 interface PickupMapModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectLocation: (location: { latitude: number; longitude: number }) => void;
+  onSelectLocation: (location: LatLng) => void;
+  initialLocation: LatLng;
 }
 
 const PickupMapModal = ({
   visible,
   onClose,
   onSelectLocation,
+  initialLocation,
 }: PickupMapModalProps) => {
-  const [selectedLocation, setSelectedLocation] = useState({
-    latitude: 35.0894681,
-    longitude: 128.8535056,
-  });
+  const [selectedLocation, setSelectedLocation] =
+    useState<LatLng>(initialLocation);
 
-  const handleSelectLocation = (event) => {
+  const handleSelectLocation = (event: MapPressEvent) => {
     setSelectedLocation(event.nativeEvent.coordinate);
   };
 
@@ -31,11 +31,11 @@ const PickupMapModal = ({
         <MapContainer>
           <MapView
             style={{ flex: 1 }}
-            initialRegion={{
+            region={{
               latitude: selectedLocation.latitude,
               longitude: selectedLocation.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+              latitudeDelta: 0.002,
+              longitudeDelta: 0.002,
             }}
             onPress={handleSelectLocation}>
             {selectedLocation && (

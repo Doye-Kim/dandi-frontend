@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
 } from 'react-native-draggable-flatlist';
@@ -9,7 +9,8 @@ import BagListItem from '@/components/bag/list/BagListItem';
 import { BagProps, getBags } from '@/api/bag';
 import useBagStore from '@/store/useBagStore';
 import { showErrorToast } from '@/utils';
-import { useBagQuery } from '@/queries/bagQueries';
+import { useBagOrderMutation, useBagQuery } from '@/queries/bagQueries';
+import CustomText from '@/components/common/CustomText';
 
 const BagListScreen = () => {
   const [sortedBagData, setSortedBagData] = useState<BagProps[]>([]);
@@ -29,14 +30,14 @@ const BagListScreen = () => {
     }
   }, [bagList, error]);
 
-  // #todo: 순서 변경 후 bagData 다시 조회
+  const orderMutation = useBagOrderMutation();
   const handleDragEnd = ({ data }: { data: BagProps[] }) => {
     const reorderedData = data.map((item, index) => ({
       bagId: item.id,
       order: index + 2,
     }));
     reorderedData.push({ bagId: defaultBagId, order: 1 });
-    console.log(reorderedData);
+    orderMutation.mutate(reorderedData);
   };
 
   const renderItem = ({ item, drag }: RenderItemParams<BagProps>) => (
@@ -46,12 +47,18 @@ const BagListScreen = () => {
   return (
     <SafeAreaView>
       <CustomBagHeader />
-      <DraggableFlatList
-        data={sortedBagData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        onDragEnd={handleDragEnd}
-      />
+      {sortedBagData.length > 0 ? (
+        <DraggableFlatList
+          data={sortedBagData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          onDragEnd={handleDragEnd}
+        />
+      ) : (
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <CustomText>나만의 가방이 없습니다. 만들어 보세요!</CustomText>
+        </View>
+      )}
     </SafeAreaView>
   );
 };

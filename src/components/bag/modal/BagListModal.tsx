@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
 import axios from 'axios';
 import { colors } from '@/constants';
@@ -9,7 +8,6 @@ import { responsive, responsiveVertical, showErrorToast } from '@/utils';
 import HeaderText from '../../common/HeaderText';
 import CustomModalButton from './CustomModalButton';
 import BagListModalItem from './BagListModalItem';
-import { getBags } from '@/api/bag';
 import { useBagQuery } from '@/queries/bagQueries';
 
 interface BagListModalProps {
@@ -41,9 +39,13 @@ const BagListModal = ({
     } else onConfirm();
   };
 
+  const handleDismiss = () => {
+    onClose();
+    setCopyBagId(null);
+  };
   return (
     <Portal>
-      <StyledModal visible={visible} onDismiss={onClose}>
+      <StyledModal visible={visible} onDismiss={handleDismiss}>
         <HeaderText>복사할 가방 선택</HeaderText>
         <FlatList
           data={bagList}
@@ -61,7 +63,7 @@ const BagListModal = ({
           <CustomModalButton
             text={'취소'}
             isEnabled={false}
-            onPress={onClose}
+            onPress={handleDismiss}
           />
           <CustomModalButton
             text={'완료'}

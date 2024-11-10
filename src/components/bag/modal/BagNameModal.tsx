@@ -2,10 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { TextInput } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
-import { responsive, responsiveVertical } from '@/utils';
+import { responsive, responsiveVertical, showErrorToast } from '@/utils';
 import { colors } from '@/constants';
 import HeaderText from '../../common/HeaderText';
 import AuthButton from '../../auth/AuthButton';
+import {
+  useCreateBagMutation,
+  useCreateCopyBagMutation,
+  useEditBagNameMutation,
+} from '@/queries/bagQueries';
 
 interface BagNameModalProps {
   visible: boolean;
@@ -30,15 +35,39 @@ const BagNameModal = ({
     setBagName(text);
   };
 
+  const handleDismiss = () => {
+    onClose();
+    setBagName(name ? name : '');
+  };
   useEffect(() => {
     if (visible && bagNameRef.current) {
       bagNameRef.current.focus();
     }
   }, [visible]);
 
+  const createMutation = useCreateBagMutation();
+  const copyMutation = useCreateCopyBagMutation();
+  const editNameMutation = useEditBagNameMutation();
+  const handleCreateBag = () => {
+    if (!bagName || bagName === '') {
+      showErrorToast('이름을 입력해 주세요');
+    } else {
+      onConfirm();
+      setBagName(name ? name : '');
+      if (copyBagId) {
+        copyMutation.mutate({ bagId: copyBagId, name: bagName });
+      } else if (bagId) {
+        console.log('edit', { bagId: bagId, name: bagName });
+        editNameMutation.mutate({ bagId: bagId, name: bagName });
+      } else {
+        createMutation.mutate(bagName);
+      }
+    }
+  };
+
   return (
     <Portal>
-      <StyledModal visible={visible} onDismiss={onClose}>
+      <StyledModal visible={visible} onDismiss={handleDismiss}>
         <HeaderText>
           {bagId ? '가방 이름 변경' : '나만의 가방 만들기'}
         </HeaderText>
@@ -50,7 +79,7 @@ const BagNameModal = ({
             value={bagName}
           />
         </TextInputContainer>
-        <AuthButton title='확인' onPress={onConfirm} style='enable' />
+        <AuthButton title='확인' onPress={handleCreateBag} style='enable' />
       </StyledModal>
     </Portal>
   );

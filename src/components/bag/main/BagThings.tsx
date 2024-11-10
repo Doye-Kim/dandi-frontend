@@ -14,7 +14,7 @@ import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import CustomModal from '../modal/CustomModal';
 import {
   useBagItemQuery,
-  useBagOrderMutation,
+  useBagItemOrderMutation,
   useDeleteItemMutation,
 } from '@/queries/bagQueries';
 
@@ -64,7 +64,7 @@ const BagThings = ({ navigation }: BagScreenProps) => {
     }
   }, [editMode]);
 
-  const orderMutation = useBagOrderMutation();
+  const orderMutation = useBagItemOrderMutation();
   const deleteMutation = useDeleteItemMutation();
 
   const handlePressDelete = (item: ItemKeyProps) => {

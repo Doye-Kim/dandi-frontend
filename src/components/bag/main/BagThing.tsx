@@ -18,10 +18,10 @@ import CustomModal from '../modal/CustomModal';
 import {
   useBagItemMoveToDrawerMutation,
   useBagItemQuery,
-  useBagOrderMutation,
+  useBagItemOrderMutation,
   useDeleteItemMutation,
   useDrawerItemQuery,
-  useDrawerOrderMutation,
+  useDrawerItemOrderMutation,
 } from '@/queries/bagQueries';
 import { RequestItemOrderProps } from '@/api/bag';
 
@@ -95,8 +95,8 @@ const BagThing = ({
   })();
 
   const moveMutation = useBagItemMoveToDrawerMutation();
-  const drawerOrderMutation = useDrawerOrderMutation();
-  const bagOrderMutation = useBagOrderMutation();
+  const drawerOrderMutation = useDrawerItemOrderMutation();
+  const bagOrderMutation = useBagItemOrderMutation();
 
   const { data: bagItems } = useBagItemQuery(selectBagId, defaultBagId);
   const { data: drawerItems } = useDrawerItemQuery(selectBagId, defaultBagId);

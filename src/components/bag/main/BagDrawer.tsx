@@ -13,17 +13,16 @@ import DeleteButton from '../DeleteButton';
 import CustomModal from '../modal/CustomModal';
 import {
   useBagItemQuery,
-  useBagOrderMutation,
+  useBagItemOrderMutation,
   useDeleteItemMutation,
   useDrawerItemQuery,
-  useDrawerOrderMutation,
+  useDrawerItemOrderMutation,
   useMoveDrawerItemMutation,
 } from '@/queries/bagQueries';
 import { RequestItemOrderProps } from '@/api/bag';
 
 const BagDrawer = () => {
   const editMode = useBagStore((state) => state.editMode);
-  const isEditComplete = useBagStore((state) => state.isEditComplete);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
   const [drawerKeyItems, setDrawerKeyItems] = useState<ItemKeyProps[]>([]);
@@ -62,8 +61,8 @@ const BagDrawer = () => {
     );
   }, [editMode]);
 
-  const drawerOrderMutation = useDrawerOrderMutation();
-  const bagOrderMutation = useBagOrderMutation();
+  const drawerOrderMutation = useDrawerItemOrderMutation();
+  const bagOrderMutation = useBagItemOrderMutation();
 
   const { data: bagItems } = useBagItemQuery(selectBagId, defaultBagId);
 
@@ -71,31 +70,6 @@ const BagDrawer = () => {
     useState<RequestItemOrderProps[]>();
   const [updatedDrawerItemsOrder, setUpdatedDrawerItemsOrder] =
     useState<RequestItemOrderProps[]>();
-
-  // useEffect(() => {
-  //   if (bagItems && drawerItems) {
-  //     setUpdatedBagItemsOrder([
-  //       ...bagItems.map((bagItem, index) => ({
-  //         itemId: bagItem.itemId,
-  //         orderId: index + 1,
-  //       })),
-  //       ...selectItems.map((item, index) => ({
-  //         itemId: item.itemId,
-  //         orderId: bagItems.length + index + 1,
-  //       })),
-  //     ]);
-  //     const selectedItemIds = selectItems.map((item) => item.itemId);
-
-  //     setUpdatedDrawerItemsOrder(
-  //       drawerItems
-  //         .filter((drawerItem) => !selectedItemIds.includes(drawerItem.itemId))
-  //         .map((drawerItem, index) => ({
-  //           itemId: drawerItem.itemId,
-  //           orderId: index + 1,
-  //         })),
-  //     );
-  //   }
-  // }, [selectItems]);
 
   const deleteMutation = useDeleteItemMutation();
   const moveMutation = useMoveDrawerItemMutation();
@@ -155,13 +129,11 @@ const BagDrawer = () => {
     setSelectItems([]);
     if (updatedDrawerItemsOrder && updatedBagItemsOrder) {
       try {
-        // `moveMutation`이 완료될 때까지 대기
         await moveMutation.mutateAsync({
           selectBagId: selectBagId,
           requestItems: selectItems.map((item) => item.itemId),
         });
 
-        // `moveMutation`이 완료된 후에 순서 업데이트
         drawerOrderMutation.mutate(updatedDrawerItemsOrder);
         bagOrderMutation.mutate({
           bagId: selectBagId,

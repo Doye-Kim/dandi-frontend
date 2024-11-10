@@ -39,6 +39,8 @@ const CustomBagHeader = () => {
 
   const handleFetchMakeBag = () => {
     console.log('Fetching bag creation');
+    setIsOpenBagName(false);
+    setCopyBagId(null);
   };
 
   return (

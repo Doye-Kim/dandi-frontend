@@ -80,7 +80,7 @@ const patchBag = async (bagId: number) => {
 };
 
 const putBagOrder = async (bags: RequestBagOrderProps[]) => {
-  const { data } = await axiosInstance.put(`/items`, bags);
+  const { data } = await axiosInstance.put(`/bags`, bags);
   return data;
 };
 
@@ -93,13 +93,14 @@ const putDrawerOrder = async (items: RequestItemOrderProps[]) => {
   const { data } = await axiosInstance.put(`/items`, items);
   return data;
 };
+
 const putEditItem = async (itemId: number, item: RequestItemProps) => {
   const { data } = await axiosInstance.put(`/items/${itemId}`, item);
   return data;
 };
 
 const putBagName = async (bagId: number, name: string) => {
-  const { data } = await axiosInstance.put(`/bags.${bagId}`, { name });
+  const { data } = await axiosInstance.put(`/bags/${bagId}`, { name });
   return data;
 };
 

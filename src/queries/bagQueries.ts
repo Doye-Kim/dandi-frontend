@@ -1,16 +1,23 @@
 import {
+  deleteBag,
   deleteBagItem,
   deleteItem,
   getBagItems,
   getBags,
   getDrawerItems,
   ItemProps,
+  patchBag,
+  postCopyNewBag,
   postItem,
   postItems,
+  postNewBag,
+  putBagName,
+  putBagOrder,
   putDrawerOrder,
   putEditItem,
   putItemOrder,
   RequestBagItemProps,
+  RequestBagOrderProps,
   RequestItemOrderProps,
   RequestItemProps,
 } from '@/api/bag';
@@ -89,7 +96,7 @@ export const useEditBagItemMutation = () => {
   });
 };
 
-export const useDrawerOrderMutation = () => {
+export const useDrawerItemOrderMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -109,7 +116,7 @@ export const useDrawerOrderMutation = () => {
   });
 };
 
-export const useBagOrderMutation = () => {
+export const useBagItemOrderMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -133,6 +140,41 @@ export const useBagOrderMutation = () => {
   });
 };
 
+export const useBagOrderMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (bags: RequestBagOrderProps[]) => putBagOrder(bags),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bags'] });
+    },
+
+    onError: (error) => {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as { code: string };
+        showErrorToast(code);
+      }
+    },
+  });
+};
+
+export const useCopyToDefaultMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (bagId: number) => patchBag(bagId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bagItems'] });
+    },
+
+    onError: (error) => {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as { code: string };
+        showErrorToast(code);
+      }
+    },
+  });
+};
 export const useMoveDrawerItemMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -154,6 +196,61 @@ export const useMoveDrawerItemMutation = () => {
         const { code } = error.response.data as { code: string };
         showErrorToast(code);
       }
+    },
+  });
+};
+
+export const useCreateBagMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => postNewBag(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bags'] });
+    },
+    onError: (error) => {
+      console.error('Error deleting item:', error);
+    },
+  });
+};
+
+export const useCreateCopyBagMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bagId, name }: { bagId: number; name: string }) =>
+      postCopyNewBag(bagId, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bags'] });
+    },
+    onError: (error) => {
+      console.error('Error deleting item:', error);
+    },
+  });
+};
+
+export const useEditBagNameMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bagId, name }: { bagId: number; name: string }) =>
+      putBagName(bagId, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bags'] });
+    },
+    onError: (error) => {
+      console.error('Error deleting item:', error);
+    },
+  });
+};
+
+export const useDeleteBagMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (bagId: number) => deleteBag(bagId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bags'] });
+    },
+    onError: (error) => {
+      console.error('Error deleting item:', error);
     },
   });
 };

@@ -6,11 +6,13 @@ import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import { responsive } from '@/utils';
 import CustomText from '../../common/CustomText';
 import useBagStore from '@/store/useBagStore';
+import { useCopyToDefaultMutation } from '@/queries/bagQueries';
 
 const BagActionBar = ({ navigation }: BagScreenProps) => {
   const editMode = useBagStore((state) => state.editMode);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
+  const { setSelectBagId } = useBagStore();
   const [isDefault, setIsDefault] = useState(selectBagId === defaultBagId);
 
   useEffect(() => {
@@ -19,10 +21,18 @@ const BagActionBar = ({ navigation }: BagScreenProps) => {
   const handlePressAdd = () => {
     navigation.navigate(bagNavigations.BAG_ITEM, {});
   };
+
+  const copyToDefaultMutation = useCopyToDefaultMutation();
+
+  const handlePressItemsToDefault = () => {
+    copyToDefaultMutation.mutate(selectBagId);
+    setSelectBagId(defaultBagId);
+  };
+
   return (
     <StyleBarContainer editMode={editMode} isDefault={isDefault}>
       {!editMode && selectBagId !== defaultBagId && (
-        <ButtonContainer>
+        <ButtonContainer onPress={handlePressItemsToDefault}>
           <RefreshIcon width={12} height={12} />
           <CustomText
             style={{ color: colors.GRAY_700, fontSize: 12, marginLeft: 5 }}>

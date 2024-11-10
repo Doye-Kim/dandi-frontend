@@ -112,7 +112,7 @@ const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
             colorKey: colorKey,
           });
         }
-        navigation.reset({ routes: [{ name: bagNavigations.BAG_MAIN }] });
+        navigation.navigate(bagNavigations.BAG_MAIN);
       } catch (error) {
         console.log(error);
       }

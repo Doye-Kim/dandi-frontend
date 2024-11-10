@@ -34,12 +34,7 @@ const MapMainScreen = () => {
   const today = new Date();
   const [date, setDate] = useState(today);
   const mapRef = useRef<MapView>(null);
-  const [region, setRegion] = useState<Region>({
-    latitude: 37.78825,
-    longitude: -122.4324,
-    latitudeDelta: 0.01, // 초기 줌 레벨
-    longitudeDelta: 0.01,
-  });
+  const [region, setRegion] = useState<Region>();
 
   // 현재 위치 초기값 설정
   useEffect(() => {
@@ -47,6 +42,12 @@ const MapMainScreen = () => {
       const location = await getCurrentLocation();
       if (location) {
         setCurrentLocation(location);
+        setRegion({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          latitudeDelta: 0.01, // 초기 줌 레벨
+          longitudeDelta: 0.01,
+        });
       }
     };
 

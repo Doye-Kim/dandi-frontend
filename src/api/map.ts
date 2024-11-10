@@ -29,18 +29,12 @@ export interface ResponseRouteList {
   nextRouteId: number;
 }
 
-const startRoute = async ({ bagId }: { bagId: number }) => {
+const startRoute = async (bagId: number) => {
   const data = await axiosInstance.post('/routes', { bagId });
   return data;
 };
 
-const endRoute = async ({
-  routeId,
-  track,
-}: {
-  routeId: number;
-  track: LatLon[];
-}) => {
+const endRoute = async (routeId: number, track: LatLon[]) => {
   const data = await axiosInstance.patch(`/routes/${routeId}`, { track });
   return data;
 };

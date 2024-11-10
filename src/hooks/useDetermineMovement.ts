@@ -3,6 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { calculateAverageSpeed, calculateDistance } from '@/utils';
 import { NativeModules } from 'react-native';
 import { LatLng, LatLon } from '@/api/map';
+import {
+  useEndRouteMutation,
+  useStartRouteMutation,
+} from '@/queries/mapQueries';
+import useBagStore from '@/store/useBagStore';
 
 const { LocationServiceModule } = NativeModules;
 
@@ -21,10 +26,11 @@ export const useDetermineMovement = (
   const distances = useRef<number[]>([]);
   const speedThreshold = 0.5;
   const MAX_LOCATIONS_LENGTH = 60;
-  const isMovingRef = useRef(isMoving); // 최신 isMoving 값을 저장할 Ref
+  const isMovingRef = useRef(isMoving);
+  const defaultBagId = useBagStore((state) => state.defaultBagId);
 
   useEffect(() => {
-    isMovingRef.current = isMoving; // isMoving 값이 변경될 때마다 Ref 업데이트
+    isMovingRef.current = isMoving;
   }, [isMoving]);
 
   const determineMovement = async () => {
@@ -58,6 +64,7 @@ export const useDetermineMovement = (
     }
   };
 
+  const startMutation = useStartRouteMutation();
   const startMovement = async () => {
     const newRouteId = 1;
     await AsyncStorage.setItem('routeId', String(newRouteId));
@@ -65,18 +72,24 @@ export const useDetermineMovement = (
       'locations',
       JSON.stringify(locations.slice(-10)),
     );
+    startMutation.mutate(defaultBagId);
   };
 
+  const endMutation = useEndRouteMutation();
   const stopMovement = async () => {
     setIsMoving(false);
-    const routeId = await AsyncStorage.getItem('routeId');
-    const track = await AsyncStorage.getItem('locations');
+    const routeId = Number(await AsyncStorage.getItem('routeId'));
+    const trackString = await AsyncStorage.getItem('locations');
+    const track = trackString ? (JSON.parse(trackString) as LatLon[]) : [];
+
     console.log({ routeId }, { track });
+    endMutation.mutate({ routeId, track });
     await AsyncStorage.removeItem('routeId');
     await AsyncStorage.removeItem('locations');
   };
 
   useEffect(() => {
+    // console.log(locations.at(-1));
     if (locations.length >= 2) {
       const [lastLocation, prevLocation] = [locations.at(-1), locations.at(-2)];
       const dist = calculateDistance(

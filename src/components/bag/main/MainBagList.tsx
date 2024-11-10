@@ -1,36 +1,27 @@
 import { useState, useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import Toast from 'react-native-toast-message';
 import styled from 'styled-components/native';
 import axios from 'axios';
 import { colors } from '@/constants';
-import { responsive, responsiveVertical } from '@/utils';
+import { responsive, responsiveVertical, showErrorToast } from '@/utils';
 import { BagProps, getBags } from '@/api/bag';
 import CustomText from '../../common/CustomText';
 import useBagStore from '@/store/useBagStore';
+import { useBagQuery } from '@/queries/bagQueries';
 
 const MainBagList = () => {
-  const { editMode, selectBagId, defaultBagId, setEditMode, setSelectBagId } =
-    useBagStore();
+  const { editMode, selectBagId, defaultBagId, setSelectBagId } = useBagStore();
 
-  const { data: bagList, error } = useQuery<BagProps[], Error>({
-    queryKey: ['bags'],
-    queryFn: getBags,
-    select: (data) => data.sort((a, b) => a.bagOrder - b.bagOrder),
-  });
+  const { data: bagList, error } = useBagQuery();
   // #todo: 로그인 시 디폴드 가방 아이디 설정
   useEffect(() => {
     if (bagList) {
       setSelectBagId(defaultBagId);
     }
-    if (error) {
-      Toast.show({
-        type: 'error',
-        text1: axios.isAxiosError(error)
-          ? error.message
-          : '가방 목록을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
-      });
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const { code } = error.response.data as { code: string };
+      showErrorToast(code);
     }
   }, [bagList, error]);
 

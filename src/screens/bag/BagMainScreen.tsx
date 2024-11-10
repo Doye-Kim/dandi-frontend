@@ -11,6 +11,7 @@ import MainBagList from '@/components/bag/main/MainBagList';
 import BagActionBar from '@/components/bag/main/BagActionBar';
 import BagThings from '@/components/bag/main/BagThings';
 import BagDrawer from '@/components/bag/main/BagDrawer';
+import useBagStore from '@/store/useBagStore';
 
 export type BagScreenProps = {
   navigation: StackNavigationProp<
@@ -21,7 +22,7 @@ export type BagScreenProps = {
 
 const BagMainScreen = ({ navigation }: BagScreenProps) => {
   const [isOpenDrawer, setIsOpenDrawer] = React.useState(false);
-
+  const editMode = useBagStore((state) => state.editMode);
   const rotation = useRef(new Animated.Value(0)).current;
   const decreaseFactor = useRef(5);
 
@@ -90,7 +91,7 @@ const BagMainScreen = ({ navigation }: BagScreenProps) => {
       </StyleBagListContainer>
       <Divider />
       <BagActionBar navigation={navigation} />
-      <BagThings />
+      <BagThings navigation={navigation} />
       <AnimatedTouchableOpacity
         onPress={handlePressDrawer}
         style={{

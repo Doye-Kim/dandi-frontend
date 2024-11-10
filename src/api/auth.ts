@@ -69,7 +69,6 @@ const login = async (userData: LoginProps, fcmCode: string) => {
 
 const getUserInfo = async () => {
   const { data } = await axiosInstance.get('/auth');
-  console.log(data);
   return data;
 };
 

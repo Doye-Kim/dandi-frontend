@@ -5,3 +5,4 @@ export * from './permission';
 export * from './map';
 export * from './axios';
 export * from './date';
+export * from './toast';

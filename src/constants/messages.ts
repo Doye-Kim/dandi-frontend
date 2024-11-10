@@ -18,4 +18,14 @@ export const ModalMessages = {
     leftButton: '취소',
   },
 };
+
+export const ErrorMessages: { [key: string]: string } = {
+  E000: '알 수 없는 오류가 발생했습니다. 다시 시도해 주세요.',
+  SELECT_BAG: '가방을 선택해 주세요',
+};
+
+export const SharedErrorMessages = {
+  AUTH_ERROR: '사용자 인증에 문제가 생겼습니다. 재로그인 해주세요',
+};
+
 export type ModalCategory = keyof typeof ModalMessages;

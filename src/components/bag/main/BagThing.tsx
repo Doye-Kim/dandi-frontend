@@ -12,18 +12,31 @@ import {
 } from './BagThings';
 import { DoubleAngleIcon, SparkleIcon, TrashRedIcon } from '@/assets/icons';
 import CustomText from '../../common/CustomText';
-import { useNavigation } from '@react-navigation/native';
-import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import { StackNavigationProp } from '@react-navigation/stack';
-type BagNavigationProp = StackNavigationProp<
-  BagStackParamList,
-  typeof bagNavigations.BAG_MAIN
->;
+import { BagScreenProps } from '@/screens/bag/BagMainScreen';
+import useBagStore from '@/store/useBagStore';
+import CustomModal from '../modal/CustomModal';
+import {
+  useBagItemMoveToDrawerMutation,
+  useBagItemQuery,
+  useBagOrderMutation,
+  useDeleteItemMutation,
+  useDrawerItemQuery,
+  useDrawerOrderMutation,
+} from '@/queries/bagQueries';
+import { RequestItemOrderProps } from '@/api/bag';
 
-const BagThing = ({ item }: { item: ItemKeyProps }) => {
+const BagThing = ({
+  item,
+  navigation,
+}: {
+  item: ItemKeyProps;
+  navigation: BagScreenProps['navigation'];
+}) => {
+  const editMode = useBagStore((state) => state.editMode);
+  const selectBagId = useBagStore((state) => state.selectBagId);
+  const defaultBagId = useBagStore((state) => state.defaultBagId);
+  const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const [isOpenActionModal, setIsOpenActionModal] = useState<boolean>(false);
-  const navigation = useNavigation<BagNavigationProp>();
-
   const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
 
   // 애니메이션
@@ -56,7 +69,7 @@ const BagThing = ({ item }: { item: ItemKeyProps }) => {
   };
 
   // 포지션 계산
-  const itemTop = 170 + 90 * Math.floor((item.itemOrder - 1) / 5);
+  const itemTop = 170 + 90 * Math.floor(item.itemOrder / 5);
   const top = 170 + 90 * (Math.floor((item.itemOrder - 1) / 5) + 1);
 
   const position = (() => {
@@ -81,10 +94,72 @@ const BagThing = ({ item }: { item: ItemKeyProps }) => {
     }
   })();
 
+  const moveMutation = useBagItemMoveToDrawerMutation();
+  const drawerOrderMutation = useDrawerOrderMutation();
+  const bagOrderMutation = useBagOrderMutation();
+
+  const { data: bagItems } = useBagItemQuery(selectBagId, defaultBagId);
+  const { data: drawerItems } = useDrawerItemQuery(selectBagId, defaultBagId);
+
+  const [updatedBagItemsOrder, setUpdatedBagItemsOrder] =
+    useState<RequestItemOrderProps[]>();
+  const [updatedDrawerItemsOrder, setUpdatedDrawerItemsOrder] =
+    useState<RequestItemOrderProps[]>();
+
+  useEffect(() => {
+    if (bagItems && drawerItems) {
+      setUpdatedBagItemsOrder(
+        bagItems
+          .filter((bagItem) => bagItem.itemId !== item.itemId)
+          .map((bagItem, index) => ({
+            itemId: bagItem.itemId,
+            orderId: index + 1,
+          })),
+      );
+      setUpdatedDrawerItemsOrder([
+        ...drawerItems.map((drawerItem, index) => ({
+          itemId: drawerItem.itemId,
+          orderId: index + 1,
+        })),
+        { itemId: item.itemId, orderId: drawerItems.length + 1 },
+      ]);
+    }
+  }, [bagItems, drawerItems]);
+
+  const handlePressMove = async () => {
+    if (updatedDrawerItemsOrder && updatedBagItemsOrder) {
+      try {
+        await moveMutation.mutateAsync({
+          selectBagId: selectBagId,
+          itemId: item.itemId,
+        });
+        drawerOrderMutation.mutate(updatedDrawerItemsOrder);
+        bagOrderMutation.mutate({
+          bagId: selectBagId,
+          requestItems: updatedBagItemsOrder,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const handlePressEdit = () => {
     setIsOpenActionModal(false);
     navigation.navigate(bagNavigations.BAG_ITEM, { item });
   };
+
+  const handlePressDelete = () => {
+    setIsOpenDeleteModal(true);
+  };
+
+  const deleteMutation = useDeleteItemMutation();
+
+  const handleDelete = async () => {
+    deleteMutation.mutate(item.itemId);
+    setIsOpenDeleteModal(false);
+  };
+
   return (
     <>
       <StyleTouchable onLongPress={handleLongPress}>
@@ -122,7 +197,7 @@ const BagThing = ({ item }: { item: ItemKeyProps }) => {
               </StyleSpotlightItemIcon>
             </Animated.View>
             <StyledModalBackground style={{ ...position }}>
-              <StyledTouchableOpacityIng>
+              <StyledTouchableOpacityIng onPress={handlePressMove}>
                 <StyleText>서랍으로 이동</StyleText>
                 <DoubleAngleIcon width={15} height={15} />
               </StyledTouchableOpacityIng>
@@ -130,13 +205,22 @@ const BagThing = ({ item }: { item: ItemKeyProps }) => {
                 <StyleText>소지품 수정</StyleText>
                 <SparkleIcon width={15} height={15} />
               </StyledTouchableOpacityIng>
-              <StyledTouchableOpacity>
+              <StyledTouchableOpacity onPress={handlePressDelete}>
                 <StyleTextRed>제거하기</StyleTextRed>
                 <TrashRedIcon width={15} height={15} />
               </StyledTouchableOpacity>
             </StyledModalBackground>
           </Modal>
         </Portal>
+      )}
+      {isOpenDeleteModal && (
+        <CustomModal
+          visible={isOpenDeleteModal}
+          onClose={() => setIsOpenDeleteModal(false)}
+          onCancel={() => setIsOpenDeleteModal(false)}
+          onConfirm={handleDelete}
+          category={'DELETE_ITEM'}
+        />
       )}
     </>
   );

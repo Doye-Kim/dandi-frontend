@@ -1,36 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
 import DraggableGrid from 'react-native-draggable-grid';
 import { colors } from '@/constants';
-import { responsive } from '@/utils';
+import { responsive, showErrorToast } from '@/utils';
 import { CheckIcon } from '@/assets/icons';
 import { ItemKeyProps, StyleItemIcon } from './BagThings';
-import { getDrawerItems, ItemProps } from '@/api/bag';
 import CustomText from '../../common/CustomText';
 import useBagStore from '@/store/useBagStore';
 import DeleteButton from '../DeleteButton';
+import CustomModal from '../modal/CustomModal';
+import {
+  useBagItemQuery,
+  useBagOrderMutation,
+  useDeleteItemMutation,
+  useDrawerItemQuery,
+  useDrawerOrderMutation,
+  useMoveDrawerItemMutation,
+} from '@/queries/bagQueries';
+import { RequestItemOrderProps } from '@/api/bag';
 
 const BagDrawer = () => {
   const editMode = useBagStore((state) => state.editMode);
-  const { addMultipleItems } = useBagStore();
+  const isEditComplete = useBagStore((state) => state.isEditComplete);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
   const [drawerKeyItems, setDrawerKeyItems] = useState<ItemKeyProps[]>([]);
   const [selectItems, setSelectItems] = useState<ItemKeyProps[]>([]);
+  const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(0);
 
-  const { data: drawerItems, error } = useQuery<ItemProps[]>({
-    queryKey: ['drawerItems', selectBagId],
-    queryFn: () =>
-      getDrawerItems(selectBagId === -1 ? defaultBagId : selectBagId),
-    select: (data) => data.sort((a, b) => a.itemOrder - b.itemOrder),
-  });
+  const { data: drawerItems, error } = useDrawerItemQuery(
+    selectBagId,
+    defaultBagId,
+  );
 
   useEffect(() => {
     if (drawerItems) {
+      console.log('drawer', drawerItems);
       setDrawerKeyItems(
         drawerItems.map((item) => ({
           ...item,
@@ -39,13 +47,9 @@ const BagDrawer = () => {
         })),
       );
     }
-    if (error) {
-      Toast.show({
-        type: 'error',
-        text1: axios.isAxiosError(error)
-          ? error.message
-          : '서랍 소지품을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
-      });
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const { code } = error.response.data as { code: string; message: string };
+      showErrorToast(code);
     }
   }, [drawerItems, error]);
 
@@ -58,7 +62,53 @@ const BagDrawer = () => {
     );
   }, [editMode]);
 
-  const handlePress = (item: ItemKeyProps) => {
+  const drawerOrderMutation = useDrawerOrderMutation();
+  const bagOrderMutation = useBagOrderMutation();
+
+  const { data: bagItems } = useBagItemQuery(selectBagId, defaultBagId);
+
+  const [updatedBagItemsOrder, setUpdatedBagItemsOrder] =
+    useState<RequestItemOrderProps[]>();
+  const [updatedDrawerItemsOrder, setUpdatedDrawerItemsOrder] =
+    useState<RequestItemOrderProps[]>();
+
+  // useEffect(() => {
+  //   if (bagItems && drawerItems) {
+  //     setUpdatedBagItemsOrder([
+  //       ...bagItems.map((bagItem, index) => ({
+  //         itemId: bagItem.itemId,
+  //         orderId: index + 1,
+  //       })),
+  //       ...selectItems.map((item, index) => ({
+  //         itemId: item.itemId,
+  //         orderId: bagItems.length + index + 1,
+  //       })),
+  //     ]);
+  //     const selectedItemIds = selectItems.map((item) => item.itemId);
+
+  //     setUpdatedDrawerItemsOrder(
+  //       drawerItems
+  //         .filter((drawerItem) => !selectedItemIds.includes(drawerItem.itemId))
+  //         .map((drawerItem, index) => ({
+  //           itemId: drawerItem.itemId,
+  //           orderId: index + 1,
+  //         })),
+  //     );
+  //   }
+  // }, [selectItems]);
+
+  const deleteMutation = useDeleteItemMutation();
+  const moveMutation = useMoveDrawerItemMutation();
+
+  const handleDelete = async () => {
+    if (selectedItem) {
+      deleteMutation.mutate(selectedItem);
+      setIsOpenDeleteModal(false);
+      setSelectedItem(0);
+    }
+  };
+
+  const handlePressItem = (item: ItemKeyProps) => {
     setSelectItems((prevItems: ItemKeyProps[]) => {
       const itemExists = prevItems.includes(item);
 
@@ -70,23 +120,57 @@ const BagDrawer = () => {
     });
   };
 
-  const onPressDelete = () => {
-    console.log('delete');
+  const handlePressDelete = (item: ItemKeyProps) => {
+    setSelectedItem(item.itemId);
+    setIsOpenDeleteModal(true);
   };
 
-  const handlePutBag = () => {
-    setSelectItems((currentItems) => {
-      const itemsToMove = [...currentItems];
+  useEffect(() => {
+    if (bagItems && drawerItems) {
+      setUpdatedBagItemsOrder([
+        ...bagItems.map((bagItem, index) => ({
+          itemId: bagItem.itemId,
+          orderId: index + 1,
+        })),
+        ...selectItems.map((item, index) => ({
+          itemId: item.itemId,
+          orderId: bagItems.length + index + 1,
+        })),
+      ]);
 
-      addMultipleItems(itemsToMove);
-      console.log('itemsToMove', itemsToMove);
+      const selectedItemIds = selectItems.map((item) => item.itemId);
 
-      setDrawerKeyItems((prevItems) =>
-        prevItems.filter((item) => !itemsToMove.includes(item)),
+      setUpdatedDrawerItemsOrder(
+        drawerItems
+          .filter((drawerItem) => !selectedItemIds.includes(drawerItem.itemId))
+          .map((drawerItem, index) => ({
+            itemId: drawerItem.itemId,
+            orderId: index + 1,
+          })),
       );
+    }
+  }, [selectItems]);
 
-      return [];
-    });
+  const handlePutBag = async () => {
+    setSelectItems([]);
+    if (updatedDrawerItemsOrder && updatedBagItemsOrder) {
+      try {
+        // `moveMutation`이 완료될 때까지 대기
+        await moveMutation.mutateAsync({
+          selectBagId: selectBagId,
+          requestItems: selectItems.map((item) => item.itemId),
+        });
+
+        // `moveMutation`이 완료된 후에 순서 업데이트
+        drawerOrderMutation.mutate(updatedDrawerItemsOrder);
+        bagOrderMutation.mutate({
+          bagId: selectBagId,
+          requestItems: updatedBagItemsOrder,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const renderItem = (item: ItemKeyProps) => {
@@ -95,7 +179,9 @@ const BagDrawer = () => {
 
     return !item.disabledDrag ? (
       <StyleView>
-        {editMode && <DeleteButton onPressDelete={onPressDelete} />}
+        {editMode && (
+          <DeleteButton onPressDelete={() => handlePressDelete(item)} />
+        )}
         <StyleItemIcon color={color}>
           <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
         </StyleItemIcon>
@@ -107,7 +193,7 @@ const BagDrawer = () => {
         </CustomText>
       </StyleView>
     ) : (
-      <StyleTouchable onPress={() => handlePress(item)}>
+      <StyleTouchable onPress={() => handlePressItem(item)}>
         {isSelected ? (
           <StyleSelectItemIcon>
             <Text style={{ fontSize: 28, position: 'absolute', opacity: 0.5 }}>
@@ -132,7 +218,7 @@ const BagDrawer = () => {
 
   return (
     <StyleContainer>
-      {setDrawerKeyItems.length > 0 ? (
+      {drawerKeyItems.length > 0 ? (
         <>
           <ScrollView>
             <DraggableGrid
@@ -142,6 +228,12 @@ const BagDrawer = () => {
               data={drawerKeyItems}
               onDragRelease={(updatedData) => {
                 setDrawerKeyItems(updatedData);
+                drawerOrderMutation.mutate(
+                  updatedData.map((item, index) => ({
+                    itemId: item.itemId,
+                    orderId: index + 1,
+                  })),
+                );
               }}
             />
           </ScrollView>
@@ -155,6 +247,15 @@ const BagDrawer = () => {
         </>
       ) : (
         <StyleEmptyItemText>서랍에 보관된 소지품이 없어요</StyleEmptyItemText>
+      )}
+      {isOpenDeleteModal && (
+        <CustomModal
+          visible={isOpenDeleteModal}
+          onClose={() => setIsOpenDeleteModal(false)}
+          onCancel={() => setIsOpenDeleteModal(false)}
+          onConfirm={handleDelete}
+          category={'DELETE_ITEM'}
+        />
       )}
     </StyleContainer>
   );

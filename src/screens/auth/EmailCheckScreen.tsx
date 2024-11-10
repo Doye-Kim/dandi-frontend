@@ -1,8 +1,9 @@
-import { SafeAreaView, TouchableOpacity } from 'react-native';
 import { useState, useEffect } from 'react';
+import { SafeAreaView, TouchableOpacity } from 'react-native';
+import axios from 'axios';
 import { CheckRingIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
-import { responsive, responsiveVertical } from '@/utils';
+import { responsive, responsiveVertical, showErrorToast } from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
 import CustomText from '@/components/common/CustomText';
 import AuthButton from '@/components/auth/AuthButton';
@@ -45,12 +46,11 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
       Toast.show({ type: 'success', text1: '이메일이 전송되었습니다.' });
       setTimeLeft(180);
       setIsButtonDisabled(true);
-    } catch (err) {
-      console.log(err);
-      Toast.show({
-        type: 'error',
-        text1: '알 수 없는 에러가 발생했습니다. 다시 시도해 주세요',
-      });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as { code: string };
+        showErrorToast(code);
+      }
     }
   };
   const onResendPress = () => {

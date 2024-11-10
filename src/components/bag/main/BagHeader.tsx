@@ -5,17 +5,22 @@ import HeaderText from '../../common/HeaderText';
 import useBagStore from '@/store/useBagStore';
 
 const BagHeader = () => {
-  const { editMode, setEditMode } = useBagStore();
-  const onPress = () => {
+  const { editMode, setEditMode, setIsEditComplete } = useBagStore();
+
+  const handlePress = () => {
     if (!editMode) setEditMode(true);
-    else setEditMode(false);
+    else {
+      setIsEditComplete(true);
+      setEditMode(false);
+    }
   };
+
   return (
     <StyledHeader>
       <HeaderText>내 소지품</HeaderText>
       <TouchableOpacity
         style={{ position: 'absolute', right: 20 }}
-        onPress={onPress}>
+        onPress={handlePress}>
         <CustomText
           style={{
             fontSize: 15,

@@ -31,7 +31,7 @@ export interface RequestBagOrderProps {
 
 export interface RequestItemOrderProps {
   itemId: number;
-  order: number;
+  orderId: number;
 }
 
 const getBags = async (): Promise<BagProps[]> => {
@@ -93,7 +93,7 @@ const putDrawerOrder = async (items: RequestItemOrderProps[]) => {
   const { data } = await axiosInstance.put(`/items`, items);
   return data;
 };
-const putEditItem = async (itemId: number, item: RequestBagItemProps) => {
+const putEditItem = async (itemId: number, item: RequestItemProps) => {
   const { data } = await axiosInstance.put(`/items/${itemId}`, item);
   return data;
 };

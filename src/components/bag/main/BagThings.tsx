@@ -1,38 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { DraggableGrid } from 'react-native-draggable-grid';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
 import axios from 'axios';
 import { colors } from '@/constants';
-import { responsive } from '@/utils';
-import { ItemProps, getBagItems } from '@/api/bag';
+import { responsive, showErrorToast } from '@/utils';
+import { ItemProps } from '@/api/bag';
 import useBagStore from '@/store/useBagStore';
 import DeleteButton from '../DeleteButton';
 import CustomText from '../../common/CustomText';
 import BagThing from './BagThing';
+import { BagScreenProps } from '@/screens/bag/BagMainScreen';
+import CustomModal from '../modal/CustomModal';
+import {
+  useBagItemQuery,
+  useBagOrderMutation,
+  useDeleteItemMutation,
+} from '@/queries/bagQueries';
 
 export interface ItemKeyProps extends ItemProps {
   key: string;
   disabledDrag: boolean;
 }
 
-const BagThings = () => {
+const BagThings = ({ navigation }: BagScreenProps) => {
   const editMode = useBagStore((state) => state.editMode);
+  const isEditComplete = useBagStore((state) => state.isEditComplete);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
-  const { updateDisabledDrag } = useBagStore();
 
   const [bagKeyItems, setBagKeyItems] = useState<ItemKeyProps[]>([]);
+  const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(0);
 
-  const { data: bagItems, error } = useQuery<ItemProps[], Error>({
-    queryKey: ['bagItems', selectBagId],
-    queryFn: () => getBagItems(selectBagId === -1 ? defaultBagId : selectBagId),
-    select: (data) => data.sort((a, b) => a.itemOrder - b.itemOrder),
-  });
+  const { data: bagItems, error } = useBagItemQuery(selectBagId, defaultBagId);
 
-  const getBagItemList = async () => {
+  useEffect(() => {
+    if (bagItems) {
+      console.log(bagItems);
+      setBagKeyItems(
+        bagItems.map((item) => ({
+          ...item,
+          key: `bag-${item.itemId}`,
+          disabledDrag: !editMode,
+        })),
+      );
+    }
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const { code } = error.response.data as { code: string };
+      showErrorToast(code);
+    }
+  }, [bagItems, error]);
+
+  useEffect(() => {
     if (bagItems) {
       setBagKeyItems(
         bagItems.map((item) => ({
@@ -42,34 +62,30 @@ const BagThings = () => {
         })),
       );
     }
-    if (error) {
-      Toast.show({
-        type: 'error',
-        text1: axios.isAxiosError(error)
-          ? error.message
-          : '가방 소지품 목록을 불러오는 데 문제가 생겼어요.  다시 시도해 주세요',
-      });
-    }
-  };
-
-  useEffect(() => {
-    getBagItemList();
-  }, [bagItems, error]);
-
-  useEffect(() => {
-    updateDisabledDrag(!editMode);
   }, [editMode]);
 
-  const onPressDelete = () => {
-    console.log('delete');
+  const orderMutation = useBagOrderMutation();
+  const deleteMutation = useDeleteItemMutation();
+
+  const handlePressDelete = (item: ItemKeyProps) => {
+    setSelectedItem(item.itemId);
+    setIsOpenDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (selectedItem) {
+      deleteMutation.mutate(selectedItem);
+      setIsOpenDeleteModal(false);
+      setSelectedItem(0);
+    }
   };
 
   const renderItem = (item: ItemKeyProps) => {
     const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
 
-    return !item.disabledDrag ? (
+    return editMode ? (
       <StyleView>
-        {editMode && <DeleteButton onPressDelete={onPressDelete} />}
+        <DeleteButton onPressDelete={() => handlePressDelete(item)} />
         <StyleItemIcon color={color}>
           <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
         </StyleItemIcon>
@@ -81,9 +97,18 @@ const BagThings = () => {
           }}>
           {item.name}
         </CustomText>
+        {isOpenDeleteModal && (
+          <CustomModal
+            visible={isOpenDeleteModal}
+            onClose={() => setIsOpenDeleteModal(false)}
+            onCancel={() => setIsOpenDeleteModal(false)}
+            onConfirm={handleDelete}
+            category={'DELETE_ITEM'}
+          />
+        )}
       </StyleView>
     ) : (
-      <BagThing item={item} />
+      <BagThing item={item} navigation={navigation} />
     );
   };
 
@@ -96,6 +121,13 @@ const BagThings = () => {
           data={bagKeyItems}
           onDragRelease={(updatedData) => {
             setBagKeyItems(updatedData);
+            orderMutation.mutate({
+              bagId: selectBagId,
+              requestItems: updatedData.map((item, index) => ({
+                itemId: item.itemId,
+                orderId: index + 1,
+              })),
+            });
           }}
         />
       ) : (

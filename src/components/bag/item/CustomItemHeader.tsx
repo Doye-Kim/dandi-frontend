@@ -23,17 +23,12 @@ const CustomItemHeader = ({ itemId }: { itemId?: number }) => {
   const isEdit = itemId ? true : false;
   return (
     <StyledHeader isEdit={isEdit}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={{ position: 'absolute', left: 20 }}
+        onPress={() => navigation.goBack()}>
         <LeftIcon width={25} height={25} />
       </TouchableOpacity>
       <HeaderText>{itemId ? '소지품 수정' : '소지품 추가'}</HeaderText>
-      {itemId ? (
-        <TouchableOpacity onPress={handlePressDelete}>
-          <CustomText>삭제</CustomText>
-        </TouchableOpacity>
-      ) : (
-        <View style={{ width: 25 }}></View>
-      )}
 
       <CustomModal
         visible={isOpenDelete}
@@ -51,7 +46,7 @@ export default CustomItemHeader;
 const StyledHeader = styled.View<{ isEdit: boolean }>`
   flex-direction: row;
   width: 100%;
-  justify-content: ${(isEdit) => (isEdit ? 'space-between' : 'flex-start')};
+  justify-content: center;
   align-items: center;
   height: 70px;
   padding: 0 10px;

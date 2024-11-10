@@ -1,15 +1,21 @@
 import { useCallback, useRef } from 'react';
 import { SafeAreaView, TextInput } from 'react-native';
-import { responsive, validateEmail, validatePassword } from '@/utils';
+import Toast from 'react-native-toast-message';
+import messaging from '@react-native-firebase/messaging';
+import axios from 'axios';
+import {
+  responsive,
+  showErrorToast,
+  validateEmail,
+  validatePassword,
+} from '@/utils';
 import InputField from '@/components/auth/InputField';
 import AuthButton from '@/components/auth/AuthButton';
 import useForm from '@/hooks/useForm';
 import useUserStore from '@/store/useUserStore';
 import { getUserInfo, login } from '@/api/auth';
-import Toast from 'react-native-toast-message';
-import messaging from '@react-native-firebase/messaging';
-import { AxiosError } from 'axios';
 import { setEncryptStorage } from '@/utils/encryptedStorage';
+import useBagStore from '@/store/useBagStore';
 
 const LoginScreen = () => {
   const { setIsLogin } = useUserStore();
@@ -35,6 +41,7 @@ const LoginScreen = () => {
   interface ErrorResponse {
     message: string;
   }
+  const { setDefaultBagId } = useBagStore();
 
   const handleLogin = async () => {
     const userData = {
@@ -44,33 +51,30 @@ const LoginScreen = () => {
     const fcmCode = await getFcmToken();
     try {
       await login(userData, fcmCode);
-      console.log(userData);
-      setIsLogin(true);
       Toast.show({
         type: 'success',
         text1: '로그인 성공!',
       });
       await getUserData();
-    } catch (err) {
-      const error = err as AxiosError<ErrorResponse>;
-      console.log(error);
-      Toast.show({
-        type: 'error',
-        text1: error.response?.data?.message
-          ? error.response.data.message
-          : '알 수 없는 에러가 발생했습니다. 다시 시도해 주세요',
-      });
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as { code: string };
+        showErrorToast(code);
+      }
     }
   };
 
   const getUserData = async () => {
     try {
       const data = await getUserInfo();
-      setEncryptStorage('user', data);
+      setDefaultBagId(data.bagId);
+      await setEncryptStorage('user', data);
+      setIsLogin(true);
     } catch (err) {
       console.log(err);
     }
   };
+
   const onPressLogin = () => {
     handleLogin();
   };

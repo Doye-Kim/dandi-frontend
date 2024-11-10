@@ -1,37 +1,40 @@
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import {
-  SafeAreaView,
   TextInput,
   TextInputProps,
   TouchableOpacity,
   View,
 } from 'react-native';
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import styled from 'styled-components/native';
 import EmojiPicker, { type EmojiType } from 'rn-emoji-keyboard';
-import { RouteProp } from '@react-navigation/native';
 import { bagNavigations, colors } from '@/constants';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import { BagScreenProps } from './BagMainScreen';
 import { DropdownIcon } from '@/assets/icons';
 import { responsive, responsiveVertical } from '@/utils';
 import CustomItemHeader from '@/components/bag/item/CustomItemHeader';
 import CustomText from '@/components/common/CustomText';
 import AuthButton from '@/components/auth/AuthButton';
+import useBagStore from '@/store/useBagStore';
+import {
+  useCreateBagItemMutation,
+  useEditBagItemMutation,
+} from '@/queries/bagQueries';
 
 type BagItemScreenRouteProp = RouteProp<
   BagStackParamList,
   typeof bagNavigations.BAG_ITEM
 >;
 
-const BagItemScreen = ({
-  route,
-  navigation,
-}: {
-  route: BagItemScreenRouteProp;
-  navigation: BagScreenProps;
-}) => {
+const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
+  const navigation = useNavigation<NavigationProp<BagStackParamList>>();
+  const selectBagId = useBagStore((state) => state.selectBagId);
   const { item } = route?.params || {};
   const [isOpenEmojiPicker, setIsOpenEmojiPicker] = useState<boolean>(false);
   const [isOpenDropdown, setIsOpenDropdown] = useState<boolean>(false);
@@ -80,6 +83,9 @@ const BagItemScreen = ({
     setColorKey(option);
   };
 
+  const editMutation = useEditBagItemMutation();
+  const createMutation = useCreateBagItemMutation();
+
   const handlePressConfirm = () => {
     console.log('confirm', selectEmoji, name, colorKey);
     if (!name) {
@@ -87,21 +93,44 @@ const BagItemScreen = ({
         type: 'error',
         text1: '이름을 입력해 주세요',
       });
+    } else {
+      try {
+        if (item) {
+          editMutation.mutateAsync({
+            id: item.itemId,
+            requestItem: {
+              emoticon: selectEmoji,
+              name: name,
+              colorKey: colorKey,
+            },
+          });
+        } else {
+          createMutation.mutate({
+            bagId: selectBagId,
+            emoticon: selectEmoji,
+            name: name,
+            colorKey: colorKey,
+          });
+        }
+        navigation.reset({ routes: [{ name: bagNavigations.BAG_MAIN }] });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, alignItems: 'center' }}>
+    <StyledContainer>
       <CustomItemHeader {...(item ? { itemId: item.itemId } : {})} />
       <View style={{ padding: 40 }}>
         <StyleOptionContainer>
-          <CustomText style={{ fontSize: 18 }}>아이콘</CustomText>
+          <StyleTitleText>아이콘</StyleTitleText>
           <TouchableOpacity onPress={handlePressEmoji}>
             <CustomText style={{ fontSize: 50 }}>{selectEmoji}</CustomText>
           </TouchableOpacity>
         </StyleOptionContainer>
         <StyleOptionContainer>
-          <CustomText style={{ fontSize: 18 }}>이름</CustomText>
+          <StyleTitleText>이름</StyleTitleText>
           <StyleTextInput
             ref={nameRef}
             onChangeText={handleChangeText}
@@ -111,7 +140,7 @@ const BagItemScreen = ({
           />
         </StyleOptionContainer>
         <StyleOptionContainer>
-          <CustomText style={{ fontSize: 18 }}>대표색</CustomText>
+          <StyleTitleText>대표색</StyleTitleText>
           <StyleTouchableDropdown onPress={handleToggleDropdown}>
             <StyleDropdownColor backColor={backColor} />
             <DropdownIcon />
@@ -141,12 +170,22 @@ const BagItemScreen = ({
           style={'enable'}
         />
       </View>
-    </SafeAreaView>
+    </StyledContainer>
   );
 };
 
 export default BagItemScreen;
 
+const StyledContainer = styled.SafeAreaView`
+  flex: 1;
+  align-items: center;
+`;
+
+const StyleTitleText = styled(CustomText)`
+  font-size: 18px;
+  text-align: center;
+  width: ${responsive(70)}px;
+`;
 const StyleTextInput = React.forwardRef<TextInput, TextInputProps>(
   (props, ref) => <StyledInput {...props} ref={ref} />,
 );

@@ -3,15 +3,14 @@ import { FlatList } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
+import axios from 'axios';
 import { colors } from '@/constants';
-import { responsive, responsiveVertical } from '@/utils';
+import { responsive, responsiveVertical, showErrorToast } from '@/utils';
 import HeaderText from '../../common/HeaderText';
 import CustomModalButton from './CustomModalButton';
 import BagListModalItem from './BagListModalItem';
-
-import data from '@/dummy/bag.json';
 import { getBags } from '@/api/bag';
+import { useBagQuery } from '@/queries/bagQueries';
 
 interface BagListModalProps {
   visible: boolean;
@@ -27,29 +26,18 @@ const BagListModal = ({
   onClose,
   onConfirm,
 }: BagListModalProps) => {
-  const { data: bagList, error } = useQuery({
-    queryKey: ['bags'],
-    queryFn: getBags,
-    select: (data) => data.sort((a, b) => a.bagOrder - b.bagOrder),
-  });
+  const { data: bagList, error } = useBagQuery();
 
   useEffect(() => {
-    if (error) {
-      Toast.show({
-        type: 'error',
-        text1: error.message
-          ? error.message
-          : '가방 목록을 불러오는 데 문제가 생겼어요. 다시 시도해 주세요',
-      });
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const { code } = error.response.data as { code: string };
+      showErrorToast(code);
     }
   }, [bagList, error]);
 
   const handlePressConfirm = () => {
     if (copyBagId === null) {
-      Toast.show({
-        type: 'error',
-        text1: '가방을 선택해 주세요',
-      });
+      showErrorToast('SELECT_BAG');
     } else onConfirm();
   };
 

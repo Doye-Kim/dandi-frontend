@@ -3,21 +3,17 @@ import { SafeAreaView } from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
 } from 'react-native-draggable-flatlist';
-import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import CustomBagHeader from '@/components/bag/list/CustomBagHeader';
 import BagListItem from '@/components/bag/list/BagListItem';
-import data from '@/dummy/bag.json';
 import { BagProps, getBags } from '@/api/bag';
 import useBagStore from '@/store/useBagStore';
-import Toast from 'react-native-toast-message';
+import { showErrorToast } from '@/utils';
+import { useBagQuery } from '@/queries/bagQueries';
 
 const BagListScreen = () => {
   const [sortedBagData, setSortedBagData] = useState<BagProps[]>([]);
-  const { data: bagList, error } = useQuery({
-    queryKey: ['bags'],
-    queryFn: getBags,
-    select: (data) => data.sort((a, b) => a.bagOrder - b.bagOrder),
-  });
+  const { data: bagList, error } = useBagQuery();
   const defaultBagId = useBagStore((state) => state.defaultBagId);
 
   useEffect(() => {
@@ -26,12 +22,10 @@ const BagListScreen = () => {
       setSortedBagData(sortedData);
     }
     if (error) {
-      Toast.show({
-        type: 'error',
-        text1: error.message
-          ? error.message
-          : '가방 목록을 불러오는 데 알 수 없는 오류가 발생했습니다. 다시 시도해 주세요',
-      });
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as { code: string };
+        showErrorToast(code);
+      }
     }
   }, [bagList, error]);
 
@@ -46,7 +40,7 @@ const BagListScreen = () => {
   };
 
   const renderItem = ({ item, drag }: RenderItemParams<BagProps>) => (
-    <BagListItem item={item} drag={drag} /> // drag를 BagListItem에 전달
+    <BagListItem item={item} drag={drag} />
   );
 
   return (

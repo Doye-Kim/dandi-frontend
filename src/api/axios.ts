@@ -29,7 +29,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       console.log('Error Status:', error.response.status);
-      console.log('Error Data:', error.response.data);
+      console.log('Error Data:', error.response.data.code);
       console.log('Error URL:', error.config.url);
       console.log('Error Method:', error.config.method);
     } else {

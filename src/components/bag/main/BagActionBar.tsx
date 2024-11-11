@@ -6,7 +6,14 @@ import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import { responsive } from '@/utils';
 import CustomText from '../../common/CustomText';
 import useBagStore from '@/store/useBagStore';
-import { useCopyToDefaultMutation } from '@/queries/bagQueries';
+import {
+  useBagItemQuery,
+  useCopyToDefaultMutation,
+  useDeleteItemsMutation,
+  useDrawerItemOrderMutation,
+  useDrawerItemQuery,
+} from '@/queries/bagQueries';
+import { RequestItemOrderProps } from '@/api/bag';
 
 const BagActionBar = ({ navigation }: BagScreenProps) => {
   const editMode = useBagStore((state) => state.editMode);
@@ -28,6 +35,45 @@ const BagActionBar = ({ navigation }: BagScreenProps) => {
     copyToDefaultMutation.mutate(selectBagId);
     setSelectBagId(defaultBagId);
   };
+  const { data: bagItems } = useBagItemQuery(selectBagId, defaultBagId);
+  const { data: drawerItems } = useDrawerItemQuery(selectBagId, defaultBagId);
+  const itemsMoveToDrawerMutation = useDeleteItemsMutation();
+  const [updatedDrawerItemsOrder, setUpdatedDrawerItemsOrder] =
+    useState<RequestItemOrderProps[]>();
+
+  useEffect(() => {
+    if (drawerItems && bagItems) {
+      setUpdatedDrawerItemsOrder([
+        ...drawerItems.map((bagItem, index) => ({
+          itemId: bagItem.itemId,
+          orderId: index + 1,
+        })),
+        ...bagItems.map((item, index) => ({
+          itemId: item.itemId,
+          orderId: drawerItems.length + index + 1,
+        })),
+      ]);
+    }
+  }, [drawerItems, bagItems]);
+
+  const drawerOrderMutation = useDrawerItemOrderMutation();
+  const handlePressItemsMoveToDrawer = async () => {
+    if (updatedDrawerItemsOrder) {
+      try {
+        await itemsMoveToDrawerMutation.mutateAsync({
+          bagId: selectBagId,
+          itemsId: bagItems ? bagItems.map((item) => item.itemId) : [],
+        });
+        drawerOrderMutation.mutate(updatedDrawerItemsOrder);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    itemsMoveToDrawerMutation.mutate({
+      bagId: selectBagId,
+      itemsId: bagItems ? bagItems.map((item) => item.itemId) : [],
+    });
+  };
 
   return (
     <StyleBarContainer editMode={editMode} isDefault={isDefault}>
@@ -42,7 +88,7 @@ const BagActionBar = ({ navigation }: BagScreenProps) => {
       )}
 
       {editMode && (
-        <ButtonContainer>
+        <ButtonContainer onPress={handlePressItemsMoveToDrawer}>
           <BagTrashIcon width={12} height={12} />
           <CustomText
             style={{ color: colors.GRAY_700, fontSize: 12, marginLeft: 5 }}>

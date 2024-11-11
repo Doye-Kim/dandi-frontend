@@ -1,28 +1,25 @@
-import AuthButton from '@/components/auth/AuthButton';
-import InputField from '@/components/auth/InputField';
-import MyHeader from '@/components/my/MyHeader';
-import { myNavigations } from '@/constants';
-import useForm from '@/hooks/useForm';
-import {
-  validatePastPassword,
-  validatePassword,
-  validatePasswordUpdate,
-  showToast,
-} from '@/utils';
 import { useRef } from 'react';
 import { SafeAreaView, TextInput, View } from 'react-native';
-import { MyScreenProps } from './MyMainScreen';
-import { putUpdatePassword } from '@/api/auth';
+import axios from 'axios';
+import { authNavigations } from '@/constants';
+import { AuthHomeScreenProps } from './AuthHomeScreen';
+import { postPasswordWithVerification } from '@/api/auth';
+import {
+  validatePassword,
+  validatePasswordConfirm,
+  showErrorToast,
+  showToast,
+} from '@/utils';
+import AuthButton from '@/components/auth/AuthButton';
+import InputField from '@/components/auth/InputField';
+import useAuthStore from '@/store/useAuthStore';
+import useForm from '@/hooks/useForm';
 
-const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
-  const pastPasswordRef = useRef<TextInput | null>(null);
+const AuthPasswordUpdateScreen = ({ navigation }: AuthHomeScreenProps) => {
   const passwordRef = useRef<TextInput | null>(null);
   const passwordConfirmRef = useRef<TextInput | null>(null);
-
-  const checkPastPassword = useForm({
-    initialValue: { pastPassword: '' },
-    validate: validatePastPassword,
-  });
+  const verificationNumber = useAuthStore((state) => state.verificationNumber);
+  const email = useAuthStore((state) => state.email);
 
   const checkPassword = useForm({
     initialValue: { password: '' },
@@ -31,45 +28,41 @@ const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
 
   const checkPasswordConfirm = useForm({
     initialValue: {
-      pastPassword: checkPastPassword.values.pastPassword,
       password: checkPassword.values.password,
       passwordConfirm: '',
     },
-    validate: validatePasswordUpdate,
+    validate: validatePasswordConfirm,
   });
 
-  const putPassword = async () => {
+  const confirmPassword = async (password: string) => {
+    console.log({ verificationNumber, email, newPassword: password });
     try {
-      await putUpdatePassword({
-        pastPassword: checkPastPassword.values.pastPassword,
-        newPassword: checkPasswordConfirm.values.password,
+      const data = await postPasswordWithVerification({
+        verificationNumber,
+        email,
+        newPassword: password,
       });
-      navigation.navigate(myNavigations.MY_MAIN);
-      showToast('비밀번호 변경 완료');
+      navigation.navigate(authNavigations.LOGIN);
+      showToast('비밀번호가 변경되었습니다.');
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as {
+          code: string;
+          message: string;
+        };
+        showErrorToast(code);
+      }
     }
   };
 
   const handlePress = () => {
-    putPassword();
+    const passwordValue = checkPasswordConfirm.values.password;
+    confirmPassword(passwordValue);
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <MyHeader title={'비밀번호 변경'} />
       <View style={{ alignItems: 'center' }}>
-        <InputField
-          ref={pastPasswordRef}
-          placeholder='현재 비밀번호 입력'
-          error={checkPastPassword.errors.password}
-          touched={checkPastPassword.touched.password}
-          secureTextEntry={true}
-          returnKeyType='next'
-          blurOnSubmit={false}
-          onSubmitEditing={() => passwordConfirmRef.current?.focus()}
-          {...checkPastPassword.getTextInputProps('pastPassword')}
-        />
         <InputField
           ref={passwordRef}
           placeholder='새 비밀번호 입력'
@@ -78,7 +71,7 @@ const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
           secureTextEntry={true}
           returnKeyType='next'
           blurOnSubmit={false}
-          onSubmitEditing={() => passwordRef.current?.focus()}
+          onSubmitEditing={() => passwordConfirmRef.current?.focus()}
           {...checkPasswordConfirm.getTextInputProps('password')}
         />
         <InputField
@@ -88,7 +81,7 @@ const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
           touched={checkPasswordConfirm.touched.passwordConfirm}
           secureTextEntry={true}
           returnKeyType='join'
-          blurOnSubmit={true}
+          blurOnSubmit={false}
           onSubmitEditing={() => {
             if (
               !checkPasswordConfirm.errors.passwordConfirm &&
@@ -113,4 +106,4 @@ const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
     </SafeAreaView>
   );
 };
-export default PasswordUpdateScreen;
+export default AuthPasswordUpdateScreen;

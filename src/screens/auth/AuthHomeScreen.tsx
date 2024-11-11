@@ -3,14 +3,18 @@ import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import styled from 'styled-components/native';
+import axios from 'axios';
 import { LogoIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
-import { responsive, setHeader } from '@/utils';
+import { responsive, showErrorToast } from '@/utils';
+import { getUserInfo, managerLogin } from '@/api/auth';
+import { setEncryptStorage } from '@/utils/encryptedStorage';
 import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
-import axiosInstance from '@/api/axios';
 import useUserStore from '@/store/useUserStore';
+import messaging from '@react-native-firebase/messaging';
+import useBagStore from '@/store/useBagStore';
 
 export type AuthHomeScreenProps = {
   navigation: StackNavigationProp<
@@ -27,7 +31,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
     }, []),
   );
   const { setIsLogin } = useUserStore();
-
+  const { setDefaultBagId } = useBagStore();
   const onPressJoin = () => {
     navigation.navigate(authNavigations.AUTH_EMAIL);
   };
@@ -35,14 +39,39 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
     navigation.navigate(authNavigations.LOGIN);
   };
 
-  const onPressManager = async () => {
+  const getUserData = async () => {
     try {
-      const { data } = await axiosInstance.post('/auth/manager/jaedoo2');
-      setHeader('Authorization', data);
+      const data = await getUserInfo();
+      console.log('getUserData', data);
+      setDefaultBagId(data.bagId);
+      await setEncryptStorage('user', data);
       setIsLogin(true);
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const getFcmToken = useCallback(async () => {
+    const data = await messaging().getToken();
+    console.log('fcm', data);
+    return data;
+  }, []);
+
+  const handleLogin = async () => {
+    const fcmCode = await getFcmToken();
+    try {
+      await managerLogin(fcmCode);
+      await getUserData();
+      setIsLogin(true);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as { code: string };
+        showErrorToast(code);
+      }
+    }
+  };
+  const onPressManager = async () => {
+    handleLogin();
   };
   return (
     <StyledSafeAreaView>

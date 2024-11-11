@@ -1,10 +1,11 @@
 import { useCallback, useRef } from 'react';
-import { SafeAreaView, TextInput } from 'react-native';
+import { SafeAreaView, TextInput, TouchableOpacity } from 'react-native';
 import Toast from 'react-native-toast-message';
 import messaging from '@react-native-firebase/messaging';
 import axios from 'axios';
 import {
   responsive,
+  responsiveVertical,
   showErrorToast,
   validateEmail,
   validatePassword,
@@ -16,8 +17,12 @@ import useUserStore from '@/store/useUserStore';
 import { getUserInfo, login } from '@/api/auth';
 import { setEncryptStorage } from '@/utils/encryptedStorage';
 import useBagStore from '@/store/useBagStore';
+import CustomText from '@/components/common/CustomText';
+import { authNavigations, colors } from '@/constants';
+import { AuthHomeScreenProps } from './AuthHomeScreen';
+import styled from 'styled-components/native';
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }: AuthHomeScreenProps) => {
   const { setIsLogin } = useUserStore();
 
   const emailRef = useRef<TextInput | null>(null);
@@ -38,9 +43,6 @@ const LoginScreen = () => {
     return data;
   }, []);
 
-  interface ErrorResponse {
-    message: string;
-  }
   const { setDefaultBagId } = useBagStore();
 
   const handleLogin = async () => {
@@ -51,11 +53,8 @@ const LoginScreen = () => {
     const fcmCode = await getFcmToken();
     try {
       await login(userData, fcmCode);
-      Toast.show({
-        type: 'success',
-        text1: '로그인 성공!',
-      });
       await getUserData();
+      setIsLogin(true);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const { code } = error.response.data as { code: string };
@@ -79,6 +78,9 @@ const LoginScreen = () => {
     handleLogin();
   };
 
+  const handleFindPassword = () => {
+    navigation.navigate(authNavigations.EMAIL_VERIFY);
+  };
   return (
     <SafeAreaView style={{ flex: 1, marginHorizontal: responsive(10) }}>
       <InputField
@@ -107,6 +109,12 @@ const LoginScreen = () => {
         }}
         {...checkPassword.getTextInputProps('password')}
       />
+      <StyledFindPasswordContainer onPress={handleFindPassword}>
+        <CustomText
+          style={{ color: colors.GRAY_600, textDecorationLine: 'underline' }}>
+          비밀번호 찾기
+        </CustomText>
+      </StyledFindPasswordContainer>
       <AuthButton
         title='다음'
         onPress={onPressLogin}
@@ -121,3 +129,10 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
+
+const StyledFindPasswordContainer = styled.TouchableOpacity`
+  width: ${responsive(332)}px;
+  height: ${responsiveVertical(30)}px;
+  justify-content: center;
+  align-items: flex-end;
+`;

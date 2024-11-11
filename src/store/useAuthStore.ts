@@ -4,8 +4,10 @@ interface AuthState {
   nickname: string;
   email: string;
   password: string;
+  verificationNumber: string;
   setNickname: (nickname: string) => void;
   setEmail: (email: string) => void;
+  setVerificationNumber: (verificationNumber: string) => void;
   setPassword: (password: string) => void;
   resetAuthInfo: () => void;
 }
@@ -13,6 +15,7 @@ const useAuthStore = create<AuthState>((set) => ({
   nickname: '',
   email: '',
   password: '',
+  verificationNumber: '',
   setNickname: (nickname: string) => {
     set({ nickname });
   },
@@ -22,7 +25,11 @@ const useAuthStore = create<AuthState>((set) => ({
   setPassword: (password: string) => {
     set({ password });
   },
-  resetAuthInfo: () => set({ nickname: '', email: '', password: '' }),
+  setVerificationNumber: (verificationNumber: string) => {
+    set({ verificationNumber });
+  },
+  resetAuthInfo: () =>
+    set({ nickname: '', email: '', password: '', verificationNumber: '' }),
 }));
 
 export default useAuthStore;

@@ -84,6 +84,24 @@ const getUserInfo = async () => {
   return data;
 };
 
+const putPasswordVerifyNum = async (email: string) => {
+  const { data } = await axiosInstance.put('/auth/password', { email });
+  return data;
+};
+
+export interface PostPasswordVeriProps {
+  verificationNumber: string;
+  email: string;
+  newPassword: string;
+}
+
+const postPasswordWithVerification = async (
+  postInfo: PostPasswordVeriProps,
+) => {
+  const { data } = await axiosInstance.post('/auth/password', postInfo);
+  return data;
+};
+
 const putFCM = async (fcmCode: string) => {
   const { data } = await axiosInstance.put('/member/fcm', { fcmCode });
   return data;
@@ -111,6 +129,15 @@ const setAccessToken = async (accessToken: string) => {
   }, JWT_EXPIRRY_TIME - 60000);
 };
 
+export interface PasswordUpdateProps {
+  newPassword: string;
+  pastPassword: string;
+}
+const putUpdatePassword = async (password: PasswordUpdateProps) => {
+  const { data } = await axiosInstance.put('/member/password', password);
+  return data;
+};
+
 export {
   join,
   postJoinLink,
@@ -124,4 +151,7 @@ export {
   logout,
   putFCM,
   getUserInfo,
+  putPasswordVerifyNum,
+  postPasswordWithVerification,
+  putUpdatePassword,
 };

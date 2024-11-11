@@ -13,6 +13,8 @@ const authNavigations = {
   AUTH_NAME: 'AuthName',
   EMAIL_CHECK: 'EmailCheck',
   LOGIN: 'Login',
+  EMAIL_VERIFY: 'EmailVerify',
+  PASSWORD_UPDATE: 'PasswordUpdate',
 } as const;
 
 const bagNavigations = {

@@ -7,6 +7,8 @@ import AuthPasswordScreen from '@/screens/auth/AuthPasswordScreen';
 import AuthNameScreen from '@/screens/auth/AuthNameScreen';
 import EmailCheckScreen from '@/screens/auth/EmailCheckScreen';
 import LoginScreen from '@/screens/auth/LoginScreen';
+import EmailVerifyScreen from '@/screens/auth/EmailVerifyScreen';
+import AuthPasswordUpdateScreen from '@/screens/auth/AuthPasswordUpdateScreen';
 
 export type AuthStackParamList = {
   [authNavigations.AUTH_HOME]: undefined;
@@ -15,6 +17,8 @@ export type AuthStackParamList = {
   [authNavigations.AUTH_NAME]: undefined;
   [authNavigations.EMAIL_CHECK]: undefined;
   [authNavigations.LOGIN]: undefined;
+  [authNavigations.EMAIL_VERIFY]: undefined;
+  [authNavigations.PASSWORD_UPDATE]: undefined;
 };
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -77,6 +81,20 @@ function AuthStackNavigator() {
       <Stack.Screen
         name={authNavigations.LOGIN}
         component={LoginScreen}
+        options={{
+          headerTitle: ' ',
+        }}
+      />
+      <Stack.Screen
+        name={authNavigations.EMAIL_VERIFY}
+        component={EmailVerifyScreen}
+        options={{
+          headerTitle: ' ',
+        }}
+      />
+      <Stack.Screen
+        name={authNavigations.PASSWORD_UPDATE}
+        component={AuthPasswordUpdateScreen}
         options={{
           headerTitle: ' ',
         }}

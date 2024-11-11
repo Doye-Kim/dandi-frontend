@@ -114,6 +114,13 @@ const deleteItem = async (itemId: number) => {
   return data;
 };
 
+const deleteItems = async (bagId: number, itemIds: number[]) => {
+  const { data } = await axiosInstance.delete(`/bags/${bagId}/items`, {
+    data: itemIds,
+  });
+  return data;
+};
+
 export {
   getBags,
   getBagItems,
@@ -131,4 +138,5 @@ export {
   putBagName,
   deleteBag,
   deleteItem,
+  deleteItems,
 };

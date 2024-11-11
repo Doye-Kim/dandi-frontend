@@ -2,6 +2,7 @@ import {
   deleteBag,
   deleteBagItem,
   deleteItem,
+  deleteItems,
   getBagItems,
   getBags,
   getDrawerItems,
@@ -286,6 +287,22 @@ export const useDeleteItemMutation = () => {
     },
     onError: (error) => {
       console.error('Error deleting item:', error);
+    },
+  });
+};
+
+export const useDeleteItemsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ bagId, itemsId }: { bagId: number; itemsId: number[] }) =>
+      deleteItems(bagId, itemsId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drawerItems'] });
+      queryClient.invalidateQueries({ queryKey: ['bagItems'] });
+    },
+    onError: (error) => {
+      console.error('Error deleting items:', error);
     },
   });
 };

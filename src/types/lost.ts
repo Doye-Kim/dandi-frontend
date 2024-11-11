@@ -1,10 +1,14 @@
-// 분실물, 습득물 목록 데이터 타입 정의
-interface AlertListData {
+// 알람 데이터 타입 정의
+interface AlertData {
   id: number;
-  type: string;
-  read: boolean;
+  memberId: number;
+  createdAt: string;
+  confirmation: boolean;
   title: string;
-  date: string;
+  lostItemId?: number;
+  foundItemId?: number;
+  commentId?: number;
+  routeId?: number;
 }
 // 습득물 상세정보 데이터 타입 정의
 interface PickupDetailData {
@@ -19,7 +23,6 @@ interface PickupDetailData {
   savePoint: string;
   type: string;
 }
-
 // 댓글 데이터 타입 정의
 interface CommentData {
   id: number;
@@ -28,4 +31,4 @@ interface CommentData {
   date: string;
 }
 
-export type { AlertListData, PickupDetailData, CommentData };
+export type { AlertData, PickupDetailData, CommentData };

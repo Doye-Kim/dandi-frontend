@@ -1,23 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components/native';
-import CustomText from '@/components/common/CustomText';
 import { colors } from '@/constants';
-import { responsive } from '@/utils';
+import { responsive } from '@/utils/common';
+import { convertTimeFormat } from '@/utils/date';
+import { LatLon, ResponseRouteListItem } from '@/api/map';
+import CustomText from '@/components/common/CustomText';
 
 interface RouteListItemProps {
+  isSelectMode: boolean;
+  route: ResponseRouteListItem;
+  handlePress: (track: LatLon) => void;
   handleLongPress: () => void;
+  isSelected: boolean;
 }
 
-const RouteListItem = ({ handleLongPress }: RouteListItemProps) => {
+const RouteListItem = ({
+  route,
+  handleLongPress,
+  handlePress,
+  isSelected,
+}: RouteListItemProps) => {
   return (
-    <Container>
-      <RouteCardBox onLongPress={handleLongPress}>
+    <Container isSelected={isSelected}>
+      <RouteCardBox
+        onLongPress={handleLongPress}
+        onPress={() => handlePress(route.track[0])}>
         <RouteBox>
-          <RouteText>경상남도 거제시 중곡로 42</RouteText>
-          <RouteText>- 부산광역시 강서구 녹산산단로 72</RouteText>
+          <RouteText>
+            {route.track[0].lat.toFixed(2)}, {route.track[0].lon.toFixed(2)}
+          </RouteText>
+          <RouteText>
+            - {route.track[route.track.length - 1].lat.toFixed(2)},
+            {route.track[route.track.length - 1].lon.toFixed(2)}
+          </RouteText>
         </RouteBox>
-        <TimeText>18:30 - 20:00</TimeText>
+        <TimeBox>
+          <TimeText>
+            {convertTimeFormat(route.createdAt)} -{' '}
+            {convertTimeFormat(route.endedAt)}
+          </TimeText>
+        </TimeBox>
       </RouteCardBox>
     </Container>
   );
@@ -25,11 +48,12 @@ const RouteListItem = ({ handleLongPress }: RouteListItemProps) => {
 
 export default RouteListItem;
 
-const Container = styled.View`
+const Container = styled.View<{ isSelected: boolean }>`
   flex-direction: row;
   justify-content: space-between;
   padding: ${responsive(14)}px;
-  background-color: ${colors.GRAY_300};
+  background-color: ${({ isSelected }) =>
+    isSelected ? colors.SELECTED_BLUE : colors.GRAY_200};
 `;
 
 const RouteCardBox = styled.TouchableOpacity`
@@ -38,7 +62,16 @@ const RouteCardBox = styled.TouchableOpacity`
   justify-content: space-between;
 `;
 
-const RouteBox = styled.View``;
+const RouteBox = styled.View`
+  flex: 7;
+  align-items: center;
+`;
+
+const TimeBox = styled.View`
+  flex: 3;
+  align-items: center;
+  justify-content: flex-end;
+`;
 
 const RouteText = styled(CustomText)``;
 

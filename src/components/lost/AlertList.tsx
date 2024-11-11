@@ -4,15 +4,16 @@ import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import AlertListItem from '@/components/lost/AlertListItem';
 import { responsive } from '@/utils/common';
-import { AlertListData } from '@/types/lost';
+import { AlertData } from '@/types/lost';
+import Toast from 'react-native-toast-message';
 
 interface AlertListProps {
-  data: AlertListData[];
+  data: AlertData[];
   isSelectMode: boolean;
   selected: number[];
   handleSelect: (id: number) => void;
   handleLongPress: (id: number) => void;
-  goToDetail: (id: number) => void;
+  goToDetail: (itmeId: number) => void;
 }
 
 const AlertList = ({
@@ -27,16 +28,29 @@ const AlertList = ({
     <Container>
       <FlatList
         data={data}
-        renderItem={({ item }) => (
-          <AlertListItem
-            data={item}
-            isSelectMode={isSelectMode}
-            isSelected={selected.includes(item.id)}
-            handleSelect={() => handleSelect(item.id)}
-            handleLongPress={() => handleLongPress(item.id)}
-            goToDetail={() => goToDetail(item.id)}
-          />
-        )}
+        renderItem={({ item }) => {
+          const itemId = item.foundItemId || item.lostItemId;
+
+          return (
+            <AlertListItem
+              data={item}
+              isSelectMode={isSelectMode}
+              isSelected={selected.includes(item.id)}
+              handleSelect={() => handleSelect(item.id)}
+              handleLongPress={() => handleLongPress(item.id)}
+              goToDetail={() => {
+                if (itemId) {
+                  goToDetail(itemId);
+                } else {
+                  Toast.show({
+                    type: 'error',
+                    text1: '해당 분실물 정보를 찾을 수 없습니다.',
+                  });
+                }
+              }}
+            />
+          );
+        }}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={
           !isSelectMode ? {} : { paddingBottom: responsive(70) }

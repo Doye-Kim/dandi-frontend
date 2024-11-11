@@ -69,7 +69,7 @@ const login = async (userData: LoginProps, fcmCode: string) => {
 
 const managerLogin = async (fcmCode: string) => {
   removeHeader('Authorization');
-  const { data } = await axiosInstance.post('/auth/manager/jaedoo2');
+  const { data } = await axiosInstance.post('/auth/manager/manager');
 
   console.log('accessTOkeneeeneene', data);
   if (data) {

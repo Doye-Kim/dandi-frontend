@@ -76,16 +76,14 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
       });
       Toast.show({
         type: 'success',
-        text1: '습득물 등록 성공',
-        text2: '습득물이 성공적으로 등록되었습니다.',
+        text1: '습득물이 성공적으로 등록되었습니다.',
       });
       console.log(data);
       navigation.navigate('PickupList');
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: '습득물 등록 실패',
-        text2: '습득물 등록에 실패했습니다. 다시 시도해 주세요.',
+        text1: '습득물 등록에 실패했습니다. 다시 시도해 주세요.',
       });
       console.error(error);
     }

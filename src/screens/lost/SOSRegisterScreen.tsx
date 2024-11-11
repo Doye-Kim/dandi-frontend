@@ -1,18 +1,22 @@
 import React from 'react';
 import { useState, useMemo } from 'react';
-import { KeyboardAvoidingView, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
 import DatePicker from 'react-native-date-picker';
 import { colors } from '@/constants';
+import { BASE_IMAGE_URL } from '@/api/axios';
 import { responsive, responsiveVertical } from '@/utils';
+import { requestCameraAndGalleryPermissions } from '@/utils/permission';
 import { convertDateTimeFormat } from '@/utils/date';
 import { CameraIcon } from '@/assets/icons';
 import { WarningIcon } from '@/assets/icons';
 import { CalendarIcon } from '@/assets/icons';
 import CustomText from '@/components/common/CustomText';
 import CustomButton from '@/components/common/CustomButton';
+import CameraGalleryPickerModal from '@/components/lost/CameraGalleryPickerModal';
+import Toast from 'react-native-toast-message';
 
 type SOSRegisterScreenNavigationProp = StackNavigationProp<
   LostStackParamList,
@@ -24,12 +28,12 @@ type SOSRegisterScreenProps = {
 };
 
 const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
-  // todo: 상태 바인딩 및 초기화 및 핸들러 함수 정의
   const [explain, setExplain] = useState('');
   const [location, setLocation] = useState('');
-  const [keepLocation, setKeepLocation] = useState('');
   const [datetime, setDatetime] = useState<Date>(new Date());
   const [isDatetimeOpen, setIsDatetimeOpen] = useState<boolean>(false);
+  const [isPhotoMethodOpen, setIsPhotoMethodOpen] = useState<boolean>(false);
+  const [photoUrl, setPhotoUrl] = useState<string>('');
   const selectedDatetime = useMemo(
     () => convertDateTimeFormat(datetime),
     [datetime],
@@ -37,17 +41,56 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
 
   // 경로 선택 화면 이동 함수
   const goToRouteSelection = () => {
-    navigation.navigate('RouteSelection');
-    console.log('경로 선택 버튼 클릭');
+    if (!photoUrl || !explain || !location) {
+      Toast.show({
+        type: 'error',
+        text1: '입력하지 않은 정보가 있습니다.',
+      });
+      return;
+    }
+    navigation.navigate('RouteSelection', {
+      photoUrl,
+      explain,
+      location,
+      datetime: datetime.toISOString(),
+    });
+  };
+
+  // 카메라, 갤러리 권한 요청 및 선택 모달 열기
+  const uploadPhoto = async () => {
+    const hasPermission = await requestCameraAndGalleryPermissions();
+    if (hasPermission) {
+      setIsPhotoMethodOpen(true);
+    }
   };
 
   return (
     <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Container>
-          <CameraBox>
-            <CameraIcon width={responsive(232)} height={responsive(232)} />
+          <CameraBox onPress={uploadPhoto} isPhoto={photoUrl === ''}>
+            {photoUrl ? (
+              <Image
+                source={{
+                  uri: `${BASE_IMAGE_URL}${photoUrl}`,
+                }}
+                style={{
+                  width: responsive(232),
+                  height: responsive(232),
+                  borderRadius: 10,
+                }}
+              />
+            ) : (
+              <CameraIcon width={responsive(232)} height={responsive(232)} />
+            )}
           </CameraBox>
+          {/* 카메라, 갤러리 선택 모달 */}
+          <CameraGalleryPickerModal
+            itemType='LOST'
+            isVisible={isPhotoMethodOpen}
+            handlePhotoUrl={setPhotoUrl}
+            onClose={() => setIsPhotoMethodOpen(false)}
+          />
           <WarningBox>
             <WarningIcon width={24} height={24} />
             <WarningText>
@@ -125,11 +168,12 @@ const Container = styled.SafeAreaView`
   align-items: center;
 `;
 
-const CameraBox = styled.TouchableOpacity`
+const CameraBox = styled.TouchableOpacity<{ isPhoto: boolean }>`
   width: 88%;
   padding-horizontal: ${responsive(20)}px;
   align-items: center;
-  border: 1px dashed ${colors.GRAY_400};
+  border: ${({ isPhoto }) =>
+    isPhoto ? `1px dashed ${colors.GRAY_400}` : 'none'};
   border-radius: 10px;
   margin-top: ${responsiveVertical(8)}px;
   margin-bottom: ${responsiveVertical(8)}px;

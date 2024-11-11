@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Button } from 'react-native';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { Modal } from 'react-native';
 import styled from 'styled-components/native';
 import MapView, { LatLng, Marker, MapPressEvent } from 'react-native-maps';
 import { colors } from '@/constants';
@@ -20,6 +21,10 @@ const PickupMapModal = ({
 }: PickupMapModalProps) => {
   const [selectedLocation, setSelectedLocation] =
     useState<LatLng>(initialLocation);
+
+  useEffect(() => {
+    setSelectedLocation(initialLocation);
+  }, [initialLocation]);
 
   const handleSelectLocation = (event: MapPressEvent) => {
     setSelectedLocation(event.nativeEvent.coordinate);

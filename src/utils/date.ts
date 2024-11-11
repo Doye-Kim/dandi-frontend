@@ -26,6 +26,14 @@ const convertDateTimeFormat = (data: Date) => {
   )}:${String(data.getMinutes()).padStart(2, '0')}`;
 };
 
+// 시간을 'HH:mm' 형식으로 변환하는 함수
+const convertTimeFormat = (isoString: string) => {
+  const date = new Date(isoString);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`;
+};
+
 // #todo: 파라미터 형식을 string으로 바꿔서 함수 내부에서 Date 형식으로 변환하거나
 // 호출할 때 Date 형식으로 하거나 둘 중 하나만 하기
 function getTimeDifference(startTime: Date, endTime: Date) {
@@ -70,4 +78,5 @@ export {
   isSameOrAfter,
   convertDateTimeFormat,
   getTimeDifference,
+  convertTimeFormat,
 };

@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import { responsive } from '@/utils/common';
-import { AlertListData } from '@/types/lost';
+import { AlertData } from '@/types/lost';
 import CustomText from '@/components/common/CustomText';
 
 interface AlertListItemProps {
-  data: AlertListData;
+  data: AlertData;
   isSelectMode: boolean;
   isSelected: boolean;
   handleSelect: () => void;
@@ -33,7 +33,7 @@ const AlertListItem = ({
         </EmojiBox>
         <TitleBox>
           <CustomText style={{ color: colors.PRIMARY }}>
-            {data.type === 'lostItem' ? '습득물' : '분실물'}
+            {data.foundItemId ? '습득물' : '분실물'}
           </CustomText>
         </TitleBox>
         <TimeBox>
@@ -42,7 +42,8 @@ const AlertListItem = ({
               color: colors.GRAY_500,
               fontSize: responsive(10),
             }}>
-            {data.date.slice(5, 10)}
+            {/* todo: date 동적 변경 예정 */}
+            {/* {data.date.slice(5, 10)} */}
           </CustomText>
         </TimeBox>
       </AlertHeader>

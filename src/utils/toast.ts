@@ -13,3 +13,9 @@ export const showErrorToast = (code: string) => {
     text1: getErrorMessage(code),
   });
 };
+export const showCustomErrorToast = (message: string) => {
+  Toast.show({
+    type: 'error',
+    text1: message,
+  });
+};

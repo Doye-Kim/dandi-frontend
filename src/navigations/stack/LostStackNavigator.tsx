@@ -16,7 +16,12 @@ export type LostStackParamList = {
   PickupDetail: { id: number };
   SOSList: undefined;
   SOSRegister: undefined;
-  RouteSelection: undefined;
+  RouteSelection: {
+    photoUrl: string;
+    explain: string;
+    location: string;
+    datetime: string;
+  };
   SOSDetail: { id: number };
 };
 

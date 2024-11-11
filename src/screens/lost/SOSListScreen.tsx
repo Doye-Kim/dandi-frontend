@@ -1,13 +1,17 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
+import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
+import { getAlertList } from '@/api/lost';
+import { AlertData } from '@/types/lost';
 import { colors } from '@/constants';
 import { RegisterIcon } from '@/assets/icons';
 import { responsive } from '@/utils';
 import AlertList from '@/components/lost/AlertList';
 import ListOptopmModal from '@/components/lost/ListOptionModal';
+import CustomText from '@/components/common/CustomText';
 
 type SOSListScreenNavigationProp = StackNavigationProp<
   LostStackParamList,
@@ -21,44 +25,23 @@ type SOSListScreenProps = {
 const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [selectedItemId, setSelectedItemId] = useState<null | number>(null);
-  const sosData = [
-    {
-      id: 1,
-      type: 'sos',
-      read: false,
-      date: '2021-09-01',
-      title: '1. 현재 위치에 SOS가 등록됐어요!',
-    },
-    {
-      id: 2,
-      type: 'sos',
-      read: true,
-      date: '2021-09-02',
-      title: '2. 현재 위치에 SOS가 등록됐어요!',
-    },
-    {
-      id: 3,
-      type: 'sos',
-      read: false,
-      date: '2021-09-03',
-      title: '3. 현재 위치에 SOS가 등록됐어요!',
-    },
-    {
-      id: 4,
-      type: 'sos',
-      read: true,
-      date: '2021-09-04',
-      title: '4. 현재 위치에 SOS가 등록됐어요!',
-    },
-    {
-      id: 5,
-      type: 'sos',
-      read: false,
-      date: '2021-09-05',
-      title: '5. 현재 위치에 SOS가 등록됐어요!',
-    },
-  ];
+  const [alertList, setAlertList] = useState<AlertData[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchAlertList = async () => {
+        try {
+          const data = await getAlertList(0, ['lostItem']);
+          console.log(data);
+          setAlertList(data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchAlertList();
+    }, []),
+  );
 
   // 선택 모드 지정 함수
   const handleSelectMode = (id: number) => {
@@ -86,8 +69,9 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
 
   return (
     <Container>
+      {alertList.length === 0 && <EmptyText>등록된 SOS가 없습니다.</EmptyText>}
       <AlertList
-        data={sosData}
+        data={alertList}
         isSelectMode={selectMode}
         selected={selected}
         handleSelect={handleSelectItem}
@@ -115,4 +99,9 @@ const RegisterIconBox = styled.TouchableOpacity`
   position: absolute;
   right: ${responsive(20)}px;
   bottom: ${responsive(20)}px;
+`;
+
+const EmptyText = styled(CustomText)`
+  text-align: center;
+  margin-top: ${responsive(20)}px;
 `;

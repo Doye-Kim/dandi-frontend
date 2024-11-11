@@ -1,11 +1,15 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
+import Toast from 'react-native-toast-message';
+import { getAlertList, getPickupQuiz, submitPickupQuiz } from '@/api/lost';
 import { colors } from '@/constants';
 import { responsive } from '@/utils';
 import { RegisterIcon } from '@/assets/icons';
+import CustomText from '@/components/common/CustomText';
 import AlertList from '@/components/lost/AlertList';
 import ListOptopmModal from '@/components/lost/ListOptionModal';
 import PickupQuizModal from '@/components/lost/PickupQuizModal';
@@ -21,48 +25,28 @@ type PickupListScreenProps = {
 };
 
 const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
+  const [alertList, setAlertList] = useState<[]>([]);
+  const [quizData, setQuizData] = useState<null | any>(null);
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [selectedItemId, setSelectedItemId] = useState<null | number>(null);
+  const [selectedFoundId, setSelectedFoundId] = useState<null | number>(null);
   const [quizModalVisible, setQuizModalVisible] = useState<boolean>(false);
-  // todo: API 연동 후 데이터 변경
-  const pickupData = [
-    {
-      id: 1,
-      type: 'lostItem',
-      read: false,
-      date: '2021-09-01',
-      title: '1. 현재 위치에 습득물이 등록됐어요!',
-    },
-    {
-      id: 2,
-      type: 'lostItem',
-      read: true,
-      date: '2021-09-02',
-      title: '2. 현재 위치에 습득물이 등록됐어요!',
-    },
-    {
-      id: 3,
-      type: 'lostItem',
-      read: false,
-      date: '2021-09-03',
-      title: '3. 현재 위치에 습득물이 등록됐어요!',
-    },
-    {
-      id: 4,
-      type: 'lostItem',
-      read: true,
-      date: '2021-09-04',
-      title: '4. 현재 위치에 습득물이 등록됐어요!',
-    },
-    {
-      id: 5,
-      type: 'lostItem',
-      read: false,
-      date: '2021-09-05',
-      title: '5. 현재 위치에 습득물이 등록됐어요!',
-    },
-  ];
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchAlertList = async () => {
+        try {
+          const data = await getAlertList(0, ['foundItem']);
+          console.log(data);
+          setAlertList(data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      fetchAlertList();
+    }, []),
+  );
 
   useEffect(() => {
     navigation.setOptions({
@@ -88,9 +72,8 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
   // 선택 모드 전환 함수(버튼 클릭)
   const toggleSelectMode = () => {
     setSelectMode((prev) => !prev);
-    setSelected([]); // 선택 초기화
+    setSelected([]);
   };
-
   // 선택 모드 지정 함수(LongPress)
   const handleSelectMode = (id: number) => {
     setSelectMode(true);
@@ -114,25 +97,60 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
     setSelected([]);
   };
   // 상세 페이지 이동 전 퀴즈 시도 함수
-  const tryQuiz = (id: number) => {
-    setSelectedItemId(id);
-    setQuizModalVisible(true);
+  const tryQuiz = async (foundId: number) => {
+    setSelectedFoundId(foundId);
+    try {
+      const quiz = await getPickupQuiz(foundId); // 퀴즈 데이터를 가져옴
+      setQuizData(quiz);
+      setQuizModalVisible(true);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: '권한이 없습니다.',
+        text2: '퀴즈 데이터를 불러오지 못했습니다.',
+      });
+    }
   };
-
   // 퀴즈 성공 시 상세 페이지로 이동하는 함수
-  const handleQuizSuccess = () => {
-    // todo: 퀴즈 성공 시 상세 페이지로 이동
-    if (selectedItemId !== null) {
-      navigation.navigate('PickupDetail', { id: selectedItemId });
-      setQuizModalVisible(false);
-      setSelectedItemId(null);
+  const handleQuizSubmit = async (answer: string) => {
+    if (!selectedFoundId || !quizData) return;
+
+    try {
+      const result = await submitPickupQuiz(
+        selectedFoundId,
+        quizData.id,
+        answer,
+      );
+      if (result.success) {
+        navigation.navigate('PickupDetail', { id: selectedFoundId });
+        setQuizModalVisible(false);
+        setSelectedFoundId(null);
+        setQuizData(null);
+      } else {
+        setQuizModalVisible(false);
+        setSelectedFoundId(null);
+        setQuizData(null);
+        Toast.show({
+          type: 'error',
+          text1: '퀴즈를 다시 확인해주세요.',
+        });
+      }
+    } catch (error) {
+      // todo: 예외 처리 추가
+      Toast.show({
+        type: 'error',
+        text1: '퀴즈 제출에 실패했습니다.',
+      });
     }
   };
 
   return (
     <Container>
+      {alertList.length === 0 && (
+        <EmptyText>등록된 습득물이 없습니다.</EmptyText>
+      )}
       <AlertList
-        data={pickupData}
+        data={alertList}
         isSelectMode={selectMode}
         selected={selected}
         handleSelect={handleSelectItem}
@@ -142,8 +160,9 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
       <ListOptopmModal isVisible={selectMode} onDelete={deleteAlert} />
       <PickupQuizModal
         inVisible={quizModalVisible}
+        quizData={quizData ? quizData.options : []}
         onClose={() => setQuizModalVisible(false)}
-        onQuizSuccess={handleQuizSuccess}
+        onSubmit={handleQuizSubmit}
       />
       <RegisterIconBox onPress={() => navigation.navigate('PickupRegister')}>
         <RegisterIcon width={responsive(48)} height={responsive(48)} />
@@ -163,4 +182,9 @@ const RegisterIconBox = styled.TouchableOpacity`
   position: absolute;
   right: ${responsive(20)}px;
   bottom: ${responsive(20)}px;
+`;
+
+const EmptyText = styled(CustomText)`
+  text-align: center;
+  margin-top: ${responsive(20)}px;
 `;

@@ -67,8 +67,20 @@ const login = async (userData: LoginProps, fcmCode: string) => {
   return data;
 };
 
+const managerLogin = async (fcmCode: string) => {
+  removeHeader('Authorization');
+  const { data } = await axiosInstance.post('/auth/manager/jaedoo2');
+
+  console.log('accessTOkeneeeneene', data);
+  if (data) {
+    await setAccessToken(data);
+    await putFCM(fcmCode);
+  }
+  return data;
+};
+
 const getUserInfo = async () => {
-  const { data } = await axiosInstance.get('/auth');
+  const { data } = await axiosInstance.get('/member');
   return data;
 };
 
@@ -107,6 +119,7 @@ export {
   postPasswordUpdateVerification,
   patchPasswordUpdate,
   login,
+  managerLogin,
   refreshAuth,
   logout,
   putFCM,

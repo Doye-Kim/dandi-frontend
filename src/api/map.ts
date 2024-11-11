@@ -29,47 +29,77 @@ export interface ResponseRouteList {
   nextRouteId: number;
 }
 
-const startRoute = async (bagId: number) => {
-  const data = await axiosInstance.post('/routes', { bagId });
-  return data;
-};
+export interface CheckListItemProps {
+  name: string;
+  emoticon: string;
+  type: number;
+  isChecked: boolean;
+}
 
-const endRoute = async (routeId: number, track: LatLon[]) => {
-  const data = await axiosInstance.patch(`/routes/${routeId}`, { track });
-  return data;
-};
-
-const getRoutes = async (date: String) => {
-  const data = await axiosInstance.get(`/routes?date=${date}`);
-  return data;
-};
-
-const getRoute = async (routeId: number) => {
-  const data = await axiosInstance.get(`routes/${routeId}`);
-  return data;
-};
-
-// export type skipState = 'Y' | 'N';
-
-export type ResponseRouteItem = {
+export interface RouteProps {
   id: number;
   memberId: number;
   track: LatLon[];
   skip: string;
-  startSnapshot: Snapshot;
+  startSnapshot: {
+    bagId: number;
+    items: CheckListItemProps[];
+  };
+  nextSnapshot: {
+    bagId: number;
+    items: CheckListItemProps[];
+  };
+  previousRouteId: number | null;
+  nextRouteId: number | null;
   createdAt: string;
   endedAt: string;
-};
+}
 
-export type UseRouteItem = {
+export interface UseRouteProps {
   id: number;
   memberId: number;
   track: LatLng[];
   skip: string;
-  startSnapshot: Snapshot;
+  startSnapshot: {
+    bagId: number;
+    items: CheckListItemProps[];
+  };
+  nextSnapshot: {
+    bagId: number;
+    items: CheckListItemProps[];
+  };
+  previousRouteId: number | null;
+  nextRouteId: number | null;
   createdAt: string;
   endedAt: string;
+}
+
+const startRoute = async (bagId: number) => {
+  const { data } = await axiosInstance.post('/routes', { bagId });
+  return data;
 };
+
+const endRoute = async (routeId: number, track: LatLon[]) => {
+  const { data } = await axiosInstance.patch(`/routes/${routeId}`, { track });
+  return data;
+};
+
+const getRouteId = async () => {
+  const { data } = await axiosInstance.get('/routes/current');
+  return data;
+};
+
+const getRoutes = async (date: String): Promise<ResponseRouteList> => {
+  const { data } = await axiosInstance.get(`/routes?date=${date}`);
+  return data;
+};
+
+const getRoute = async (routeId: number): Promise<RouteProps> => {
+  const { data } = await axiosInstance.get(`routes/${routeId}`);
+  return data;
+};
+
+// export type skipState = 'Y' | 'N';
 
 export interface Item {
   name: string;
@@ -88,4 +118,4 @@ export interface ResponseSnapshot {
   snapshot: Snapshot;
 }
 
-export { startRoute, endRoute, getRoutes, getRoute };
+export { startRoute, endRoute, getRoutes, getRoute, getRouteId };

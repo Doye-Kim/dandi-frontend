@@ -2,33 +2,38 @@ import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import styled from 'styled-components/native';
+import axios from 'axios';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useDetermineMovement } from '@/hooks/useDetermineMovement';
 import { CurrentPin, SparkleIcon } from '@/assets/icons';
-import { getCurrentLocation } from '@/utils';
+import { convertDateFormat, getCurrentLocation, showErrorToast } from '@/utils';
 import { colors } from '@/constants';
 import CustomHeader from '@/components/map/CustomHeader';
 import {
   LatLng,
   LatLon,
-  ResponseRouteItem,
   ResponseRouteListItem,
-  UseRouteItem,
+  RouteProps,
   UseRouteListItem,
+  UseRouteProps,
 } from '@/api/map';
 import CustomText from '@/components/common/CustomText';
 import CheckListModal from '@/components/map/ChecklistModal';
 import CustomPolyline from '@/components/map/CustomPolyLine';
 import CustomMarker from '@/components/map/CustomMarker';
-import { routes } from '@/dummy/routes.json';
-import { nextRouteId } from '@/dummy/routes.json';
-import route from '@/dummy/route.json';
+import {
+  useRouteIdQuery,
+  useRouteQuery,
+  useRoutesQuery,
+} from '@/queries/mapQueries';
 
 const MapMainScreen = () => {
   const [currentLocation, setCurrentLocation] = useState<LatLng>(); // 사용자의 현재 위치
   const [locations, setLocations] = useState<LatLon[]>([]); // 사용자의 이동 여부를 확인하기 위한 10분 간의 위치 데이터
-  const [isMoving, setIsMoving] = useState<boolean>(false); // 사용자 이동 여부
-  const [routeId, setRouteId] = useState<number | null>(null); // 동선 ID
+  const [isMoving, setIsMoving] = useState<boolean>(false);
+
+  const [defaultRouteId, setDefaultRouteId] = useState();
+  const [routeId, setRouteId] = useState<number | undefined>();
   const [isOpenChecklist, setIsOpenChecklist] = useState<boolean>(false);
   const [isMain, setIsMain] = useState<boolean>(true);
   const today = new Date();
@@ -36,21 +41,64 @@ const MapMainScreen = () => {
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState<Region>();
 
+  const { data: routes, error } = useRoutesQuery(convertDateFormat(date));
+  const { data: currentRouteId, error: idError } = useRouteIdQuery();
+  const { data: route, error: routeError } = useRouteQuery(
+    defaultRouteId,
+    !!defaultRouteId,
+  );
+
+  useEffect(() => {
+    if (axios.isAxiosError(routeError) && routeError.response?.data) {
+      const { code } = routeError.response.data as {
+        code: string;
+        message: string;
+      };
+      showErrorToast(code);
+    }
+  }, [routeError]);
+
+  useEffect(() => {
+    if (currentRouteId) {
+      setDefaultRouteId(currentRouteId.routeId);
+    }
+    if (axios.isAxiosError(idError) && idError.response?.data) {
+      const { code } = idError.response.data as {
+        code: string;
+        message: string;
+      };
+      showErrorToast(code);
+    }
+  }, [currentRouteId, idError]);
+
+  useEffect(() => {
+    if (axios.isAxiosError(error) && error.response?.data) {
+      const { code } = error.response.data as { code: string; message: string };
+      showErrorToast(code);
+    }
+  }, [routes, error]);
+
   // 현재 위치 초기값 설정
   useEffect(() => {
+    console.log('[] useEffect');
     const fetchLocation = async () => {
       const location = await getCurrentLocation();
       if (location) {
         setCurrentLocation(location);
-        setRegion({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01, // 초기 줌 레벨
-          longitudeDelta: 0.01,
-        });
+        mapRef.current?.fitToCoordinates(
+          [
+            {
+              latitude: location.latitude,
+              longitude: location.longitude,
+            },
+          ],
+          {
+            edgePadding: { top: 200, right: 200, bottom: 200, left: 200 },
+            animated: true,
+          },
+        );
       }
     };
-
     fetchLocation();
   }, []);
 
@@ -58,60 +106,36 @@ const MapMainScreen = () => {
   useLocationTracking(setLocations, setCurrentLocation);
   useDetermineMovement(locations, isMoving, setIsMoving);
 
-  // 동선 데이터 처리
-  const [data, setData] = useState<
-    UseRouteListItem[] | UseRouteItem | undefined | null
-  >();
-
-  const convertRouteArray = (
-    input: ResponseRouteListItem[],
-  ): UseRouteListItem[] => {
-    return input.map((route) => ({
-      ...route,
-      track: route.track.map((point) => ({
-        latitude: point.lat,
-        longitude: point.lon,
-      })),
-    }));
-  };
-
-  const convertRouteObject = (input: ResponseRouteItem): UseRouteItem => {
-    return {
-      ...input,
-      track: input.track.map((point) => ({
-        latitude: point.lat,
-        longitude: point.lon,
-      })),
-    };
-  };
-
-  // #todo: 동선이 없으면 현재 위치를 중심으로 함
-  useEffect(() => {
-    let convertedData;
-    if (isMain) convertedData = convertRouteArray(routes) as UseRouteListItem[];
-    else
-      convertedData = convertedData = convertRouteObject(route) as UseRouteItem;
-
-    const allCoordinates = Array.isArray(convertedData)
-      ? convertedData.flatMap((route) => route.track)
-      : convertedData.track;
-
-    setData(convertedData);
+  // 맵 중심 맞추기
+  const updateMapCenter = () => {
+    console.log('updateMapCenter');
+    const allCoordinates = isMain
+      ? routes?.routes.flatMap((route) => route.track)
+      : route && route.track;
 
     // 모든 좌표를 맵 중심으로 맞춤
-    mapRef.current?.fitToCoordinates(allCoordinates, {
-      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, // 원하는 여백 추가
-      animated: true,
-    });
+    if (allCoordinates && allCoordinates.length > 0) {
+      mapRef.current?.fitToCoordinates(allCoordinates, {
+        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+        animated: true,
+      });
+    }
+  };
+  useEffect(() => {
+    console.log('isMain, currentLocation useEffect');
   }, [isMain]);
 
-  // 상호작용
+  // 상호작용(줌, 이동 등등..)
   const handleRegionChangeComplete = (newRegion: Region) => {
     setRegion(newRegion);
   };
 
+  // #todo? 버튼 누르면 현재 위치를 지도의 중심으로 하는 것도 있으면 좋겠다
+
   const onPressToggle = () => {
-    if (Array.isArray(data)) setRouteId(data[data.length - 1].id);
+    if (isMain) {
+      setRouteId(defaultRouteId);
+    }
     setIsMain((prev) => !prev);
   };
 
@@ -135,22 +159,23 @@ const MapMainScreen = () => {
           setDate={setDate}
         />
       ) : (
-        !Array.isArray(data) &&
-        data && (
-          <CustomHeader
-            isMain={isMain}
-            today={today}
-            data={data}
-            setData={setData}
-          />
-        )
+        <CustomHeader
+          isMain={isMain}
+          today={today}
+          route={route}
+          routeId={routeId}
+          setRouteId={setRouteId}
+        />
       )}
-      <ToggleButton onPress={onPressToggle}>
-        <SparkleIcon />
-        <CustomText style={{ marginLeft: 10, color: colors.WHITE }}>
-          {isMain ? '동선 상세 보기' : '동선 모아 보기'}
-        </CustomText>
-      </ToggleButton>
+      {defaultRouteId && (
+        <ToggleButton onPress={onPressToggle}>
+          <SparkleIcon />
+          <CustomText style={{ marginLeft: 10, color: colors.WHITE }}>
+            {isMain ? '동선 상세 보기' : '동선 모아 보기'}
+          </CustomText>
+        </ToggleButton>
+      )}
+
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
@@ -168,22 +193,25 @@ const MapMainScreen = () => {
             <CurrentPin width={60} height={60} />
           </Marker>
         )}
-
-        {data &&
-          (Array.isArray(data) ? data : [data]).map((route, index) => (
+        {/* {(isMain ? routes : [route]).map} */}
+        {routes?.routes &&
+          route &&
+          (isMain ? routes.routes : [route]).map((route, index) => (
             <React.Fragment key={route.id || index}>
               <CustomPolyline
                 track={route.track}
                 id={route.id}
                 onPress={onPressPolyline}
               />
-              {Array.isArray(data) && index === data.length - 1 ? (
+              {routes &&
+              index === routes?.routes.length - 1 &&
+              routes?.nextRouteId ? (
                 <CustomMarker
                   track={route.track}
                   isRoute={false}
                   routeId={route.id}
                   isLast={true}
-                  nextId={nextRouteId}
+                  nextId={routes?.nextRouteId}
                   onPress={onPressMarker}
                 />
               ) : (
@@ -198,7 +226,7 @@ const MapMainScreen = () => {
             </React.Fragment>
           ))}
       </MapView>
-      {routeId &&
+      {/* {routeId &&
         data &&
         (Array.isArray(data) ? (
           <CheckListModal
@@ -214,7 +242,7 @@ const MapMainScreen = () => {
             snapshot={data.startSnapshot}
             skip={data.skip}
           />
-        ))}
+        ))} */}
     </SafeAreaView>
   );
 };

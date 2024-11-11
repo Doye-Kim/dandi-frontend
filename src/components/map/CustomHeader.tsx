@@ -13,41 +13,49 @@ import {
   isSameOrAfter,
   responsive,
 } from '@/utils';
-import { UseRouteItem } from '@/api/map';
+import { UseRouteProps } from '@/api/map';
 
 const CustomHeader = ({
   isMain,
   today,
   date,
   setDate,
-  data,
-  setData,
+  route,
+  routeId,
+  setRouteId,
 }: {
   isMain: boolean;
   today: Date;
   date?: Date;
   setDate?: (date: Date) => void;
-  data?: UseRouteItem;
-  setData?: (data: UseRouteItem) => void;
+  route?: UseRouteProps;
+  routeId?: number;
+  setRouteId?: (routeId: number) => void;
 }) => {
   const [startTime, setStartTime] = useState(
-    data && convertDateTimeFormat(new Date(data.createdAt)),
+    route && convertDateTimeFormat(new Date(route.createdAt)),
   );
   const [isOpenSelectDate, setIsOpenSelectDate] = useState(false);
   const [timeDiff, setTimeDiff] = useState<string>();
   useEffect(() => {
-    if (data)
+    if (route)
       setTimeDiff(
-        getTimeDifference(new Date(data.createdAt), new Date(data.endedAt)),
+        getTimeDifference(new Date(route.createdAt), new Date(route.endedAt)),
       );
   }, []);
   const onPressNext = () => {
     if (isMain && date && setDate && !isSameOrAfter(today, date))
       setDate(changeDateByDays(date, 1));
+    else if (!isMain && route && setRouteId && route.nextRouteId !== null) {
+      setRouteId(route.nextRouteId);
+    }
   };
 
   const onPressPrev = () => {
     if (isMain && setDate && date) setDate(changeDateByDays(date, -1));
+    else if (!isMain && route && setRouteId && route.previousRouteId !== null) {
+      setRouteId(route.previousRouteId);
+    }
   };
   return (
     <HeaderContainer>
@@ -67,9 +75,9 @@ const CustomHeader = ({
               modal
               open={isOpenSelectDate}
               date={date}
-              mode="date"
+              mode='date'
               maximumDate={today}
-              onConfirm={date => {
+              onConfirm={(date) => {
                 setIsOpenSelectDate(false);
                 setDate(date);
               }}

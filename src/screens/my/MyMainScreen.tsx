@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Mailer from 'react-native-mail';
 import axios from 'axios';
-import { myNavigations } from '@/constants';
 import { MyStackParamList } from '@/navigations/stack/MyStackNavigator';
-import {
-  getEncryptStorage,
-  removeEncryptStorage,
-} from '@/utils/encryptedStorage';
-import { deleteUser, logout } from '@/api/auth';
+import { removeEncryptStorage } from '@/utils/encryptedStorage';
 import { showErrorToast, showToast } from '@/utils';
-import Section from '@/components/my/Section';
+import { deleteUser, logout } from '@/api/auth';
+import { myNavigations } from '@/constants';
+import CustomModal from '@/components/common/CustomModal';
+import InputModal from '@/components/common/InputModal';
 import ListItem from '@/components/my/ListItem';
 import useUserStore from '@/store/useUserStore';
-import CustomModal from '@/components/common/CustomModal';
+import Section from '@/components/my/Section';
 
 export type MyScreenProps = {
   navigation: StackNavigationProp<
@@ -24,26 +22,16 @@ export type MyScreenProps = {
   >;
 };
 
-type User = {
-  nickname: string;
-  email: string;
-  emailStatus: string;
-  bagId: number;
-  id: number;
-};
-
-// #todo: encrypted store에 저장해둘 유저 정보 가져와서 사용하기
 // #todo: 내가 쓴 분실물 목록, SOS 목록 원래 목록에서 데이터 변경해 가져오기
 const MyMainScreen = ({ navigation }: MyScreenProps) => {
-  const [user, setUser] = useState<User>();
+  const nickname = useUserStore((state) => state.nickname);
+  const email = useUserStore((state) => state.email);
+  const [isOpenNameUpdate, setIsOpenNameUpdate] = useState(false);
   const { setIsLogin } = useUserStore();
-  const getUser = async () => {
-    setUser(JSON.parse(await getEncryptStorage('user')));
+
+  const handlePressNickname = () => {
+    setIsOpenNameUpdate(true);
   };
-  useEffect(() => {
-    getUser();
-  }, []);
-  const handlePressNickname = () => {};
   const handlePressPassword = () => {
     navigation.navigate(myNavigations.PASSWORD_UPDATE);
   };
@@ -117,49 +105,49 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {user && (
-        <ScrollView style={{ padding: 10 }}>
-          <Section title='내 정보'>
-            <ListItem
-              label='닉네임'
-              rightText={user.nickname}
-              onPress={handlePressNickname}
-            />
-            <ListItem label='이메일' rightText={user.email} disabled />
-            <ListItem
-              label='비밀번호 변경'
-              showIcon
-              onPress={handlePressPassword}
-            />
-            <ListItem label='알림 설정' showIcon onPress={handlePressNoti} />
-          </Section>
+      <ScrollView style={{ padding: 10 }}>
+        <Section title='내 정보'>
+          <ListItem
+            label='닉네임'
+            rightText={nickname}
+            onPress={handlePressNickname}
+          />
+          <ListItem label='이메일' rightText={email} disabled />
+          <ListItem
+            label='비밀번호 변경'
+            showIcon
+            onPress={handlePressPassword}
+          />
+          <ListItem label='알림 설정' showIcon onPress={handlePressNoti} />
+        </Section>
 
-          <Section title='분실물'>
-            <ListItem
-              label='내가 등록한 SOS'
-              showIcon
-              onPress={handlePressSOS}
-            />
-            <ListItem
-              label='내가 신고한 분실물'
-              showIcon
-              onPress={handlePressLost}
-            />
-          </Section>
+        <Section title='분실물'>
+          <ListItem label='내가 등록한 SOS' showIcon onPress={handlePressSOS} />
+          <ListItem
+            label='내가 신고한 분실물'
+            showIcon
+            onPress={handlePressLost}
+          />
+        </Section>
 
-          <Section title='그외'>
-            <ListItem label='로그아웃' onPress={handleLogout} />
-            <ListItem label='회원 탈퇴' onPress={handlePressWithdraw} />
-            <ListItem label='문의하기' onPress={handleSendMail} />
-          </Section>
-        </ScrollView>
-      )}
+        <Section title='그외'>
+          <ListItem label='로그아웃' onPress={handleLogout} />
+          <ListItem label='회원 탈퇴' onPress={handlePressWithdraw} />
+          <ListItem label='문의하기' onPress={handleSendMail} />
+        </Section>
+      </ScrollView>
       <CustomModal
         visible={isOpenWithdraw}
         category='WITHDRAW'
         onClose={() => setIsOpenWithdraw(false)}
         onCancel={() => setIsOpenWithdraw(false)}
         onConfirm={handlePressWithDrawConfirm}
+      />
+      <InputModal
+        visible={isOpenNameUpdate}
+        onClose={() => setIsOpenNameUpdate(false)}
+        onConfirm={() => setIsOpenNameUpdate(false)}
+        nickname={nickname}
       />
     </SafeAreaView>
   );

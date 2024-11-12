@@ -15,7 +15,6 @@ import AuthButton from '@/components/auth/AuthButton';
 import useForm from '@/hooks/useForm';
 import useUserStore from '@/store/useUserStore';
 import { getUserInfo, login } from '@/api/auth';
-import { setEncryptStorage } from '@/utils/encryptedStorage';
 import useBagStore from '@/store/useBagStore';
 import CustomText from '@/components/common/CustomText';
 import { authNavigations, colors } from '@/constants';
@@ -23,7 +22,7 @@ import { AuthHomeScreenProps } from './AuthHomeScreen';
 import styled from 'styled-components/native';
 
 const LoginScreen = ({ navigation }: AuthHomeScreenProps) => {
-  const { setIsLogin } = useUserStore();
+  const { setIsLogin, setNickname, setEmail } = useUserStore();
 
   const emailRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
@@ -67,7 +66,8 @@ const LoginScreen = ({ navigation }: AuthHomeScreenProps) => {
     try {
       const data = await getUserInfo();
       setDefaultBagId(data.bagId);
-      await setEncryptStorage('user', JSON.stringify(data));
+      setNickname(data.nickname);
+      setEmail(data.email);
       setIsLogin(true);
     } catch (err) {
       console.log(err);

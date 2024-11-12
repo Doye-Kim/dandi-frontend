@@ -2,65 +2,91 @@ import { useEffect, useRef, useState } from 'react';
 import { TextInput } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
-import { responsive, responsiveVertical, showErrorToast } from '@/utils';
+import axios from 'axios';
+import {
+  responsive,
+  responsiveVertical,
+  showCustomErrorToast,
+  showErrorToast,
+} from '@/utils';
 import { colors } from '@/constants';
-import HeaderText from '../../common/HeaderText';
-import AuthButton from '../../auth/AuthButton';
+import HeaderText from './HeaderText';
+import AuthButton from '../auth/AuthButton';
 import {
   useCreateBagMutation,
   useCreateCopyBagMutation,
   useEditBagNameMutation,
 } from '@/queries/bagQueries';
+import { putUpdateNickname } from '@/api/auth';
+import { getEncryptStorage, setEncryptStorage } from '@/utils/encryptedStorage';
+import useUserStore from '@/store/useUserStore';
 
-interface BagNameModalProps {
+interface InputModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
   copyBagId?: number;
   bagId?: number;
   name?: string;
+  nickname?: string;
 }
-const BagNameModal = ({
+const InputModal = ({
   visible,
   copyBagId,
   onClose,
   onConfirm,
   bagId,
   name,
-}: BagNameModalProps) => {
-  const [bagName, setBagName] = useState(name ? name : '');
-  const bagNameRef = useRef<TextInput>(null);
+  nickname,
+}: InputModalProps) => {
+  const [newName, setNewName] = useState(name ? name : '');
+  const nameRef = useRef<TextInput>(null);
+  const { setNickname } = useUserStore();
 
   const handleChangeText = (text: string) => {
-    setBagName(text);
+    setNewName(text);
   };
 
   const handleDismiss = () => {
     onClose();
-    setBagName(name ? name : '');
+    setNewName(name ? name : nickname ? nickname : '');
   };
   useEffect(() => {
-    if (visible && bagNameRef.current) {
-      bagNameRef.current.focus();
+    if (visible && nameRef.current) {
+      nameRef.current.focus();
     }
   }, [visible]);
 
   const createMutation = useCreateBagMutation();
   const copyMutation = useCreateCopyBagMutation();
   const editNameMutation = useEditBagNameMutation();
-  const handleCreateBag = () => {
-    if (!bagName || bagName === '') {
+
+  const handleCreateBag = async () => {
+    if (!newName || newName === '') {
       showErrorToast('이름을 입력해 주세요');
     } else {
       onConfirm();
-      setBagName(name ? name : '');
+      setNewName(name ? name : nickname ? nickname : '');
       if (copyBagId) {
-        copyMutation.mutate({ bagId: copyBagId, name: bagName });
+        copyMutation.mutate({ bagId: copyBagId, name: newName });
       } else if (bagId) {
-        console.log('edit', { bagId: bagId, name: bagName });
-        editNameMutation.mutate({ bagId: bagId, name: bagName });
+        console.log('edit', { bagId: bagId, name: newName });
+        editNameMutation.mutate({ bagId: bagId, name: newName });
+      } else if (nickname) {
+        try {
+          await putUpdateNickname(newName);
+          setNickname(newName);
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.data) {
+            const { code, message } = error.response.data as {
+              code: string;
+              message: string;
+            };
+            showCustomErrorToast(message);
+          }
+        }
       } else {
-        createMutation.mutate(bagName);
+        createMutation.mutate(newName);
       }
     }
   };
@@ -69,14 +95,18 @@ const BagNameModal = ({
     <Portal>
       <StyledModal visible={visible} onDismiss={handleDismiss}>
         <HeaderText>
-          {bagId ? '가방 이름 변경' : '나만의 가방 만들기'}
+          {bagId
+            ? '가방 이름 변경'
+            : nickname
+            ? '닉네임 변경'
+            : '나만의 가방 만들기'}
         </HeaderText>
         <TextInputContainer>
           <StyledTextInput
-            ref={bagNameRef}
-            placeholder='가방의 이름을 입력해 주세요'
+            ref={nameRef}
+            placeholder='이름을 입력해 주세요'
             onChangeText={handleChangeText}
-            value={bagName}
+            value={name}
           />
         </TextInputContainer>
         <AuthButton title='확인' onPress={handleCreateBag} style='enable' />
@@ -85,7 +115,7 @@ const BagNameModal = ({
   );
 };
 
-export default BagNameModal;
+export default InputModal;
 
 const StyledModal = styled(Modal).attrs({
   contentContainerStyle: {

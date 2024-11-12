@@ -3,7 +3,12 @@ import { SafeAreaView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { CheckRingIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
-import { responsive, responsiveVertical, showErrorToast } from '@/utils';
+import {
+  responsive,
+  responsiveVertical,
+  showCustomErrorToast,
+  showErrorToast,
+} from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
 import CustomText from '@/components/common/CustomText';
 import AuthButton from '@/components/auth/AuthButton';
@@ -22,8 +27,8 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
   const verify = async () => {
     setIsLoading(true);
     try {
-      const data = postJoinVerify(email);
-      console.log(data);
+      const data = await postJoinVerify(email);
+      console.log('data', data);
       Toast.show({
         type: 'success',
         text1: '축하합니다! 로그인을 진행해 주세요',
@@ -32,12 +37,13 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
       setIsLoading(false);
       navigation.reset({ routes: [{ name: authNavigations.LOGIN }] });
     } catch (error) {
+      setIsLoading(false);
       if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as {
+        const { code, message } = error.response.data as {
           code: string;
           message: string;
         };
-        showErrorToast(code);
+        showCustomErrorToast(message);
       }
     }
   };

@@ -9,7 +9,6 @@ import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
 import { responsive, showErrorToast } from '@/utils';
 import { getUserInfo, managerLogin } from '@/api/auth';
-import { setEncryptStorage } from '@/utils/encryptedStorage';
 import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
 import useUserStore from '@/store/useUserStore';
@@ -30,7 +29,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       resetAuthInfo();
     }, []),
   );
-  const { setIsLogin } = useUserStore();
+  const { setIsLogin, setEmail, setNickname } = useUserStore();
   const { setDefaultBagId } = useBagStore();
   const onPressJoin = () => {
     navigation.navigate(authNavigations.AUTH_EMAIL);
@@ -42,9 +41,9 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
   const getUserData = async () => {
     try {
       const data = await getUserInfo();
-      console.log('getUserData', data);
       setDefaultBagId(data.bagId);
-      await setEncryptStorage('user', JSON.stringify(data));
+      setNickname(data.nickname);
+      setEmail(data.email);
       setIsLogin(true);
     } catch (err) {
       console.log(err);

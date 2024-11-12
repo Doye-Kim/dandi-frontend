@@ -7,7 +7,7 @@ import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
 import HeaderText from '@/components/common/HeaderText';
 import CustomModal from '@/components/common/CustomModal';
 import BagListModal from '../modal/BagListModal';
-import BagNameModal from '../modal/BagNameModal';
+import InputModal from '../../common/InputModal';
 
 const CustomBagHeader = () => {
   const [isOpenAddBag, setIsOpenAddBag] = useState(false);
@@ -69,7 +69,7 @@ const CustomBagHeader = () => {
         onConfirm={handleMakeBag}
       />
 
-      <BagNameModal
+      <InputModal
         visible={isOpenBagName}
         onClose={() => setIsOpenBagName(false)}
         onConfirm={handleFetchMakeBag}

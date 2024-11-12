@@ -4,7 +4,6 @@ import messaging from '@react-native-firebase/messaging';
 import {
   getEncryptStorage,
   removeEncryptStorage,
-  setEncryptStorage,
 } from '@/utils/encryptedStorage';
 import { getUserInfo, refreshAuth } from '@/api/auth';
 import AuthStackNavigator from './stack/AuthStackNavigator';
@@ -14,13 +13,15 @@ import useBagStore from '@/store/useBagStore';
 function RootNavigator() {
   const { isLogin, setIsLogin } = useUserStore();
   const { setDefaultBagId } = useBagStore();
+  const { setNickname, setEmail } = useUserStore();
 
   const getUserData = async () => {
     try {
       const data = await getUserInfo();
       console.log('getUserData', data);
       setDefaultBagId(data.bagId);
-      await setEncryptStorage('user', JSON.stringify(data));
+      setNickname(data.nickname);
+      setEmail(data.email);
     } catch (err) {
       console.log(err);
     }
@@ -34,6 +35,8 @@ function RootNavigator() {
         await getUserData();
         setIsLogin(true);
       } catch (err) {
+        removeEncryptStorage('accessToken');
+        removeEncryptStorage('refreshToken');
         console.log(err);
       }
     }

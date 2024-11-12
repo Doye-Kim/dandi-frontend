@@ -8,7 +8,7 @@ import { BagProps } from '@/api/bag';
 import { useDeleteBagMutation } from '@/queries/bagQueries';
 import CustomText from '@/components/common/CustomText';
 import CustomModal from '@/components/common/CustomModal';
-import BagNameModal from '../modal/BagNameModal';
+import InputModal from '../../common/InputModal';
 
 const BagListItem = ({ item, drag }: { item: BagProps; drag: () => void }) => {
   const [isOpenDelete, setIsOpenDelete] = useState<boolean>(false);
@@ -57,7 +57,7 @@ const BagListItem = ({ item, drag }: { item: BagProps; drag: () => void }) => {
         onConfirm={handleDeleteBag}
         name={item.name}
       />
-      <BagNameModal
+      <InputModal
         visible={isOpenBagName}
         onClose={() => setIsOpenBagName(false)}
         onConfirm={handleEditBagName}

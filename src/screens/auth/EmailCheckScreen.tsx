@@ -18,6 +18,7 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
   const email = useAuthStore((state) => state.email);
   const { resetAuthInfo } = useAuthStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const verify = async () => {
     setIsLoading(true);
     try {
@@ -28,11 +29,16 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
         text1: '축하합니다! 로그인을 진행해 주세요',
       });
       resetAuthInfo();
-
       setIsLoading(false);
       navigation.reset({ routes: [{ name: authNavigations.LOGIN }] });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as {
+          code: string;
+          message: string;
+        };
+        showErrorToast(code);
+      }
     }
   };
   const onPress = () => {

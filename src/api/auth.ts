@@ -65,7 +65,7 @@ const login = async (userData: LoginProps, fcmCode: string) => {
 
 const managerLogin = async (fcmCode: string) => {
   removeHeader('Authorization');
-  const { data } = await axiosInstance.post('/auth/manager/manager');
+  const { data } = await axiosInstance.post('/manager/login/manager');
 
   console.log('accessTOkeneeeneene', data);
   if (data) {

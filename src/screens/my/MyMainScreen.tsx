@@ -39,7 +39,7 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
     navigation.navigate(myNavigations.MY_NOTI);
   };
   const handlePressSOS = () => {
-    console.log('SOS');
+    navigation.navigate(myNavigations.MY_SOS);
   };
   const handlePressLost = () => {
     navigation.navigate(myNavigations.MY_PICKUP);

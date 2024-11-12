@@ -5,13 +5,17 @@ import PasswordUpdateScreen from '@/screens/my/PasswordUpdateScreen';
 import MyNotiScreen from '@/screens/my/MyNotiScreen';
 import MyPickupScreen from '@/screens/my/MyPickupScreen';
 import PickupDetailScreen from '@/screens/lost/PickupDetailScreen';
+import MySosScreen from '@/screens/my/MySosScreen';
+import SOSDetailScreen from '@/screens/lost/SOSDetailScreen';
 
 export type MyStackParamList = {
   [myNavigations.MY_MAIN]: undefined;
   [myNavigations.PASSWORD_UPDATE]: undefined;
   [myNavigations.MY_NOTI]: undefined;
   [myNavigations.MY_PICKUP]: undefined;
+  [myNavigations.MY_SOS]: undefined;
   [lostNavigations.PICKUP_DETAIL]: { id: number };
+  [lostNavigations.SOS_DETAIL]: { id: number };
 };
 
 const Stack = createStackNavigator<MyStackParamList>();
@@ -65,6 +69,18 @@ function MyStackNavigator() {
       <Stack.Screen
         name={lostNavigations.PICKUP_DETAIL}
         component={PickupDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={myNavigations.MY_SOS}
+        component={MySosScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={lostNavigations.SOS_DETAIL}
+        component={SOSDetailScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

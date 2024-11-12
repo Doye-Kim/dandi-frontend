@@ -17,10 +17,10 @@ const ReplyListItem = ({ reply }: ReplyListItemProps) => {
       <FowardBlankBox />
       <ContentContainer>
         <HeaderContainer>
-          <WriterNameText>{reply.nickname}</WriterNameText>
+          <WriterNameText>{reply.writerId}</WriterNameText>
         </HeaderContainer>
         <ContentText>{reply.content}</ContentText>
-        <DateText>{reply.date}</DateText>
+        <DateText>{reply.createdAt}</DateText>
       </ContentContainer>
       <BlankBox />
     </Container>

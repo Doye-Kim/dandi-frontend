@@ -1,5 +1,5 @@
 // 알람 데이터 타입 정의
-interface AlertData {
+export interface AlertData {
   id: number;
   memberId: number;
   createdAt: string;
@@ -11,7 +11,7 @@ interface AlertData {
   routeId?: number;
 }
 // 습득물 상세정보 데이터 타입 정의
-interface PickupDetailData {
+export interface PickupDetailData {
   id: number;
   description: string;
   foundLocation: {
@@ -22,13 +22,21 @@ interface PickupDetailData {
   memberId: number;
   savePoint: string;
   type: string;
+  foundAt: string;
+}
+// SOS 상세정보 데이터 타입 정의
+export interface SOSDetailData {
+  id: number;
+  situationDescription: string;
+  itemDescription: string;
+  images: string[];
+  lostAt: string; // 날짜 타입으로 변경 필요
 }
 // 댓글 데이터 타입 정의
-interface CommentData {
+export interface CommentData {
   id: number;
-  nickname: string;
+  writerId: number;
+  parentId: number | null;
   content: string;
-  date: string;
+  createdAt: string;
 }
-
-export type { AlertData, PickupDetailData, CommentData };

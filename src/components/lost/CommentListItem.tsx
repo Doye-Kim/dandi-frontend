@@ -5,66 +5,39 @@ import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils/common';
 import { CommentData } from '@/types/lost';
 import CustomText from '@/components/common/CustomText';
-import ReplyList from '@/components/lost/ReplyList';
+import ReplyCommentInput from '@/components/lost/ReplyCommentInput';
 
 interface CommentListItemProps {
+  type: 'SOS' | 'PICKUP';
   comment: CommentData;
 }
 
-const CommentListItem = ({ comment }: CommentListItemProps) => {
-  const [replies, setReplies] = useState([
-    {
-      id: 1,
-      nickname: '송짱',
-      content: '아니?',
-      date: '2024.10.20 19:00',
-    },
-    {
-      id: 2,
-      nickname: '권짱',
-      content: '아닌데?',
-      date: '2024.10.20 19:04',
-    },
-    {
-      id: 3,
-      nickname: '이짱',
-      content: '아닌데요?',
-      date: '2024.10.20 19:10',
-    },
-  ]);
+const CommentListItem = ({ type, comment }: CommentListItemProps) => {
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
 
-  // todo: API 연동 후 데이터 받아오기
-  useEffect(() => {
-    console.log('대댓글');
-  }, [replies]);
-  // todo: 대댓글 버튼 API 연동
-  const writeReply = () => {
-    console.log('write reply');
-  };
-  // todo: 작성자 확인 후 작성자일 경우 표시
   const isArticleWriter = (id: number) => {
     return id == 1;
   };
 
   return (
-    <>
-      <Container>
-        <BlankBox />
-        <ContentContainer>
-          <HeaderContainer>
-            <WriterNameText isArticleWriter={isArticleWriter(comment.id)}>
-              {comment.nickname}
-              {isArticleWriter(comment.id) ? '(작성자)' : ''}
-            </WriterNameText>
-            <ReplayText onPress={writeReply}>대댓글</ReplayText>
-          </HeaderContainer>
-          <ContentText>{comment.content}</ContentText>
-          <DateText>{comment.date}</DateText>
-        </ContentContainer>
-        <BlankBox />
-      </Container>
-      <ReplyList replies={replies} />
-    </>
+    <Container>
+      <BlankBox />
+      <ContentContainer>
+        <HeaderContainer>
+          <WriterNameText isArticleWriter={isArticleWriter(comment.writerId)}>
+            {`닉네임(임시)`}
+            {isArticleWriter(comment.writerId) ? '(작성자)' : ''}
+          </WriterNameText>
+          <ReplyBox onPress={() => setIsReplyOpen((prev) => !prev)}>
+            <ReplyText>대댓글</ReplyText>
+          </ReplyBox>
+        </HeaderContainer>
+        <ContentText>{comment.content}</ContentText>
+        <DateText>{comment.createdAt}</DateText>
+        {isReplyOpen && <ReplyCommentInput type={type} parentId={comment.id} />}
+      </ContentContainer>
+      <BlankBox />
+    </Container>
   );
 };
 
@@ -94,7 +67,12 @@ const DateText = styled(CustomText)`
   color: ${colors.GRAY_500};
 `;
 
-const ReplayText = styled(CustomText)`
+const ReplyBox = styled.TouchableOpacity`
+  flex: 1;
+  align-items: flex-end;
+`;
+
+const ReplyText = styled(CustomText)`
   color: ${colors.GRAY_500};
 `;
 

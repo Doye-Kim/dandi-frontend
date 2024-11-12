@@ -44,7 +44,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
     if (!photoUrl || !explain || !location) {
       Toast.show({
         type: 'error',
-        text1: '입력하지 않은 정보가 있습니다.',
+        text1: '모든 항목을 입력해주세요.',
       });
       return;
     }

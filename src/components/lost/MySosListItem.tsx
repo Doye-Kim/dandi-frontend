@@ -1,39 +1,34 @@
 import React from 'react';
 import { Image } from 'react-native';
 import styled from 'styled-components/native';
-import { PickupDetailData } from '@/types/lost';
+import { SOSDetailData } from '@/types/lost';
 import { colors } from '@/constants';
 import { BASE_IMAGE_URL } from '@/api/axios';
 import CustomText from '@/components/common/CustomText';
 
-interface MyPickupListItemProps {
-  item: PickupDetailData;
+interface MySosListItemProps {
+  item: SOSDetailData;
   onPress: () => void;
 }
 
-const MyPickupListItem = ({ item, onPress }: MyPickupListItemProps) => {
-  // todo: 위치 정보 => 주소로 변경
-  // todo: 날짜 정보 => 날짜로 변경
-
+const MySosListItem = ({ item, onPress }: MySosListItemProps) => {
   return (
     <ItemContainer onPress={onPress}>
       <Image
-        source={{ uri: `${BASE_IMAGE_URL}${item.image}` }}
+        source={{ uri: `${BASE_IMAGE_URL}${item.images[0]}` }}
         style={{
           width: 80,
           height: 80,
           borderRadius: 10,
         }}
       />
-      <CustomText>{`위치: ${item.foundLocation.lat.toFixed(
-        2,
-      )}, ${item.foundLocation.lon.toFixed(2)}`}</CustomText>
-      <CustomText>{`습득일: ${item.foundAt}`}</CustomText>
+      <CustomText>{item.lostAt}</CustomText>
+      <CustomText>안녕안ㄴ여</CustomText>
     </ItemContainer>
   );
 };
 
-export default MyPickupListItem;
+export default MySosListItem;
 
 const ItemContainer = styled.TouchableOpacity`
   flex-direction: row;

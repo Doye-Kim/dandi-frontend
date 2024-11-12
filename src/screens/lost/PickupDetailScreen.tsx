@@ -7,7 +7,11 @@ import styled from 'styled-components/native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils/common';
+import { convertDateTimeFormat } from '@/utils/date';
 import { getPickupDetail } from '@/api/lost';
+import { BASE_IMAGE_URL } from '@/api/axios';
+import { CommentData } from '@/types/lost';
+import { getPickupComments } from '@/api/lost';
 import InfoIcon from '@/assets/icons/info.svg';
 import CalendarIcon from '@/assets/icons/calendar.svg';
 import SimpleMarkIcon from '@/assets/icons/simple-marker.svg';
@@ -15,7 +19,6 @@ import PhotoBox from '@/components/lost/PhotoBox';
 import InfoSectionBox from '@/components/lost/InfoSectionBox';
 import CommentSectionBox from '@/components/lost/CommentSectionBox';
 import CommentInputBox from '@/components/lost/CommentInputBox';
-import { BASE_IMAGE_URL } from '@/api/axios';
 
 type PickupDetailScreenRouteProp = RouteProp<
   LostStackParamList,
@@ -29,13 +32,23 @@ type PickupDetailScreenProps = {
 const PickupDetailScreen = ({ route }: PickupDetailScreenProps) => {
   const { id } = route.params;
   const [details, setDetails] = useState<PickupDetailData | null>(null);
+  const [comments, setComments] = useState<CommentData[]>([]);
+
+  const fetchComments = async () => {
+    try {
+      const data = await getPickupComments(id);
+      setComments(data.payloads);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const fetchPickupDetail = async () => {
       try {
         const data = await getPickupDetail(id);
         setDetails(data);
-        console.log(data);
+        fetchComments();
       } catch (error) {
         console.error(error);
       }
@@ -97,11 +110,27 @@ const PickupDetailScreen = ({ route }: PickupDetailScreenProps) => {
             <CalendarIcon width={responsive(18)} height={responsive(18)} />
           }
           subtitle='습득 날짜'
-          content='2021-09-01(동적 변경 필요)'
+          content={
+            details?.foundAt
+              ? convertDateTimeFormat(new Date(details.foundAt))
+              : ''
+          }
         />
-        <CommentSectionBox />
+        {details?.id && (
+          <CommentSectionBox
+            type='PICKUP'
+            id={details.id}
+            comments={comments}
+          />
+        )}
       </ScollContainer>
-      <CommentInputBox />
+      {details?.id && (
+        <CommentInputBox
+          type='PICKUP'
+          id={details.id}
+          onCommentSubmit={fetchComments}
+        />
+      )}
     </Container>
   );
 };

@@ -14,6 +14,7 @@ import { requestCameraAndGalleryPermissions } from '@/utils/permission';
 import { getCurrentLocation } from '@/utils/map';
 import { responsive, responsiveVertical } from '@/utils';
 import { convertDateTimeFormat } from '@/utils/date';
+import { showCustomErrorToast } from '@/utils/toast';
 import { CameraIcon } from '@/assets/icons';
 import { WarningIcon } from '@/assets/icons';
 import { SimpleMarkerIcon } from '@/assets/icons';
@@ -34,7 +35,6 @@ type PickupRegisterScreenProps = {
 
 const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
   const [explain, setExplain] = useState<string>('');
-  // todo: 위치 정보를 현재 위치로 초기화
   const [location, setLocation] = useState<LatLng>({
     latitude: 0,
     longitude: 0,
@@ -62,6 +62,10 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
   }, []);
 
   const handleRegister = async () => {
+    if (photoUrl === '' || explain === '' || keepLocation === '') {
+      showCustomErrorToast('모든 항목을 입력해주세요.');
+      return;
+    }
     try {
       const data = await registerPickup({
         category: 'OTHER',
@@ -78,7 +82,6 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
         type: 'success',
         text1: '습득물이 성공적으로 등록되었습니다.',
       });
-      console.log(data);
       navigation.navigate('PickupList');
     } catch (error) {
       Toast.show({

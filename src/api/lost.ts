@@ -21,7 +21,6 @@ interface RegisterSOSParams {
   finishRoute: number;
   images: string[];
 }
-
 // 알람 목록 조회 API
 const getAlertList = async (resourceId = 0, types = ['foundItem']) => {
   const { data } = await axiosInstance.get('/noti', {
@@ -91,6 +90,49 @@ const registerSOS = async (lostParms: RegisterSOSParams) => {
   const { data } = await axiosInstance.post('/losts', lostParms);
   return data;
 };
+// SOS 상세정보 조회 API
+const getSOSDetail = async (lostId: number) => {
+  const { data } = await axiosInstance.get(`/losts/${lostId}`);
+  return data;
+};
+// SOS 댓글 조회 API
+const getSOSComments = async (lostId: number) => {
+  const { data } = await axiosInstance.get(`/losts/${lostId}/comments`, {
+    params: { fetchAll: true },
+  });
+  return data;
+};
+// 습득물 댓글 조회 API
+const getPickupComments = async (foundId: number) => {
+  const { data } = await axiosInstance.get(`/founds/${foundId}/comments`, {
+    params: { fetchAll: true },
+  });
+  return data;
+};
+// 습득물 댓글 등록 API
+const registerPickupComment = async (
+  foundId: number,
+  content: string,
+  parentId: number | null = null,
+) => {
+  const { data } = await axiosInstance.post(`/founds/${foundId}/comments`, {
+    parentId,
+    content,
+  });
+  return data;
+};
+// SOS 댓글 등록 API
+const registerSOSComment = async (
+  lostId: number,
+  content: string,
+  parentId: number | null = null,
+) => {
+  const { data } = await axiosInstance.post(`/losts/${lostId}/comments`, {
+    parentId,
+    content,
+  });
+  return data;
+};
 
 export {
   getAlertList,
@@ -102,4 +144,9 @@ export {
   getPickupDetail,
   getMySOSList,
   registerSOS,
+  getSOSDetail,
+  getSOSComments,
+  getPickupComments,
+  registerPickupComment,
+  registerSOSComment,
 };

@@ -1,44 +1,18 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import { responsive, responsiveVertical } from '@/utils/common';
+import { responsive } from '@/utils/common';
 import { InputButtonIcon } from '@/assets/icons';
-import { registerPickupComment, registerSOSComment } from '@/api/lost';
-import { showCustomErrorToast } from '@/utils/toast';
 
-interface CommentInputBoxProps {
+interface ReplyCommentInputProps {
   type: 'SOS' | 'PICKUP';
-  id: number;
-  onCommentSubmit: () => void;
+  parentId: number;
 }
 
-const CommentInputBox = ({
-  type,
-  id,
-  onCommentSubmit,
-}: CommentInputBoxProps) => {
+const ReplyCommentInput = ({ type, parentId }: ReplyCommentInputProps) => {
   const [comment, setComment] = useState('');
   const [isComment, setIsComment] = useState(false);
-
-  const handleSubmitComment = async () => {
-    if (!comment.trim()) {
-      showCustomErrorToast('댓글을 입력해주세요.');
-      return;
-    }
-
-    try {
-      if (type === 'PICKUP') {
-        await registerPickupComment(id, comment);
-      } else if (type === 'SOS') {
-        await registerSOSComment(id, comment);
-      }
-      setComment('');
-      onCommentSubmit();
-    } catch (error) {
-      console.error('Failed to submit comment', error);
-    }
-  };
 
   return (
     <Container>
@@ -50,14 +24,14 @@ const CommentInputBox = ({
         onFocus={() => setIsComment(true)}
         onBlur={() => setIsComment(false)}
       />
-      <InputButton onPress={handleSubmitComment}>
+      <InputButton onPress={() => {}}>
         <InputButtonIcon width={responsive(40)} height={responsive(40)} />
       </InputButton>
     </Container>
   );
 };
 
-export default CommentInputBox;
+export default ReplyCommentInput;
 
 const Container = styled.View`
   flex-direction: row;

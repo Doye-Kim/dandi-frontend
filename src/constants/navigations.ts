@@ -38,6 +38,7 @@ const myNavigations = {
   PASSWORD_UPDATE: 'PasswordUpdate',
   MY_NOTI: 'MyNoti',
   MY_PICKUP: 'MyPickup',
+  MY_SOS: 'MySOS',
 } as const;
 
 export {

@@ -1,16 +1,17 @@
 import { useRef, useState } from 'react';
 import { SafeAreaView, TextInput, View } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
+import axios from 'axios';
 import { authNavigations, colors } from '@/constants';
-import { responsive, validateName } from '@/utils';
+import { responsive, showErrorToast, validateName } from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
-import useForm from '@/hooks/useForm';
+import { TitleText } from '@/styles';
+import { join } from '@/api/auth';
 import AuthButton from '@/components/auth/AuthButton';
 import InputField from '@/components/auth/InputField';
-import { TitleText } from '@/styles';
 import useAuthStore from '@/store/useAuthStore';
-import { join } from '@/api/auth';
 import LoadingScreen from '../LoadingScreen';
+import useForm from '@/hooks/useForm';
 
 const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,8 +35,15 @@ const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
       console.log(data);
       setIsLoading(false);
       navigation.navigate(authNavigations.EMAIL_CHECK);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      setIsLoading(false);
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const { code } = error.response.data as {
+          code: string;
+          message: string;
+        };
+        showErrorToast(code);
+      }
     }
   };
   const onPress = () => {

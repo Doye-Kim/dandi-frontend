@@ -60,12 +60,13 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
     try {
       await logout();
       setIsLogin(false);
+      removeEncryptStorage('accessToken');
+      removeEncryptStorage('refreshToken');
       showToast('로그아웃 되었습니다.');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const { code } = error.response.data as {
           code: string;
-          message: string;
         };
         showErrorToast(code);
       }
@@ -83,7 +84,6 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
       if (axios.isAxiosError(error) && error.response?.data) {
         const { code } = error.response.data as {
           code: string;
-          message: string;
         };
         showErrorToast(code);
       }

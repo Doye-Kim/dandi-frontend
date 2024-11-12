@@ -49,29 +49,12 @@ const postJoinVerify = async (email: string) => {
   return data;
 };
 
-const postPasswordUpdateVerify = async (email: string) => {
-  const { data } = await axiosInstance.post('/auth/password', { email });
-  return data;
-};
-
-const postPasswordUpdateVerification = async (
-  passwordData: UpdatePasswordVerifyProps,
-) => {
-  const { data } = await axiosInstance.post('/auth/verification', passwordData);
-  return data;
-};
-
-const patchPasswordUpdate = async (passwordData: UpdatePasswordProps) => {
-  const { data } = await axiosInstance.patch('/auth/password', passwordData);
-  return data;
-};
-
 const login = async (userData: LoginProps, fcmCode: string) => {
   removeHeader('Authorization');
   const { data, headers } = await axiosInstance.post('/auth/login', userData);
   const accessToken = headers.authorization;
   const refreshToken = headers.refreshtoken;
-  console.log('헤더', headers);
+
   if (accessToken && refreshToken) {
     await setAccessToken(accessToken);
     await setEncryptStorage('refreshToken', refreshToken);
@@ -115,10 +98,19 @@ const putFCM = async (fcmCode: string) => {
 };
 
 const refreshAuth = async () => {
-  const { data, headers } = await axiosInstance.put('/auth/refresh');
+  const pastRefreshToken = await getEncryptStorage('refreshToken');
+  const { data, headers } = await axiosInstance.put(
+    '/auth/refresh',
+    {},
+    {
+      headers: {
+        RefreshToken: pastRefreshToken,
+      },
+    },
+  );
   const accessToken = headers.authorization;
   const refreshToken = headers.refreshtoken;
-  console.log('헤더', headers);
+
   if (accessToken && refreshToken) {
     await setAccessToken(accessToken);
     await setEncryptStorage('refreshToken', refreshToken);

@@ -17,11 +17,18 @@ export const ModalMessages = {
     rightButton: '삭제',
     leftButton: '취소',
   },
+  WITHDRAW: {
+    title: '회원 탈퇴',
+    content: '정말 탈퇴하시겠습니까?',
+    rightButton: '탈퇴',
+    leftButton: '취소',
+  },
 };
 
 export const ErrorMessages: { [key: string]: string } = {
   E000: '알 수 없는 오류가 발생했습니다. 다시 시도해 주세요.',
   SELECT_BAG: '가방을 선택해 주세요',
+  MAIL_ERROR: '메일 전송에 실패했습니다.',
 };
 
 export const SharedErrorMessages = {

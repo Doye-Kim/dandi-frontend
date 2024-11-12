@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { LeftIcon } from '@/assets/icons';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import HeaderText from '../../common/HeaderText';
-import CustomText from '../../common/CustomText';
-import CustomModal from '../modal/CustomModal';
+import HeaderText from '@/components/common/HeaderText';
+import CustomModal from '@/components/common/CustomModal';
 
 const CustomItemHeader = ({ itemId }: { itemId?: number }) => {
   const navigation = useNavigation<NavigationProp<BagStackParamList>>();

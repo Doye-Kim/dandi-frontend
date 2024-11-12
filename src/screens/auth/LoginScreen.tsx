@@ -67,7 +67,7 @@ const LoginScreen = ({ navigation }: AuthHomeScreenProps) => {
     try {
       const data = await getUserInfo();
       setDefaultBagId(data.bagId);
-      await setEncryptStorage('user', data);
+      await setEncryptStorage('user', JSON.stringify(data));
       setIsLogin(true);
     } catch (err) {
       console.log(err);

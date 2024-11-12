@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
-import axios from 'axios';
-import styled from 'styled-components/native';
 import DraggableGrid from 'react-native-draggable-grid';
-import { colors } from '@/constants';
+import styled from 'styled-components/native';
+import axios from 'axios';
 import { responsive, showErrorToast } from '@/utils';
-import { CheckIcon } from '@/assets/icons';
 import { ItemKeyProps, StyleItemIcon } from './BagThings';
-import CustomText from '../../common/CustomText';
-import useBagStore from '@/store/useBagStore';
-import DeleteButton from '../DeleteButton';
-import CustomModal from '../modal/CustomModal';
+import { CheckIcon } from '@/assets/icons';
+import { colors } from '@/constants';
 import {
   useBagItemQuery,
   useBagItemOrderMutation,
@@ -20,6 +16,10 @@ import {
   useMoveDrawerItemMutation,
 } from '@/queries/bagQueries';
 import { RequestItemOrderProps } from '@/api/bag';
+import CustomText from '@/components/common/CustomText';
+import useBagStore from '@/store/useBagStore';
+import DeleteButton from '../DeleteButton';
+import CustomModal from '@/components/common/CustomModal';
 
 const BagDrawer = () => {
   const editMode = useBagStore((state) => state.editMode);

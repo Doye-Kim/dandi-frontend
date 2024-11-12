@@ -11,10 +11,7 @@ import {
   ItemKeyProps,
 } from './BagThings';
 import { DoubleAngleIcon, SparkleIcon, TrashRedIcon } from '@/assets/icons';
-import CustomText from '../../common/CustomText';
 import { BagScreenProps } from '@/screens/bag/BagMainScreen';
-import useBagStore from '@/store/useBagStore';
-import CustomModal from '../modal/CustomModal';
 import {
   useBagItemMoveToDrawerMutation,
   useBagItemQuery,
@@ -24,6 +21,9 @@ import {
   useDrawerItemOrderMutation,
 } from '@/queries/bagQueries';
 import { RequestItemOrderProps } from '@/api/bag';
+import CustomModal from '@/components/common/CustomModal';
+import CustomText from '@/components/common/CustomText';
+import useBagStore from '@/store/useBagStore';
 
 const BagThing = ({
   item,

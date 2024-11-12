@@ -5,10 +5,10 @@ import { DeleteBagIcon, BagBurgerIcon } from '@/assets/icons';
 import { colors } from '@/constants';
 import { responsive } from '@/utils';
 import { BagProps } from '@/api/bag';
-import CustomText from '../../common/CustomText';
-import CustomModal from '../modal/CustomModal';
-import BagNameModal from '../modal/BagNameModal';
 import { useDeleteBagMutation } from '@/queries/bagQueries';
+import CustomText from '@/components/common/CustomText';
+import CustomModal from '@/components/common/CustomModal';
+import BagNameModal from '../modal/BagNameModal';
 
 const BagListItem = ({ item, drag }: { item: BagProps; drag: () => void }) => {
   const [isOpenDelete, setIsOpenDelete] = useState<boolean>(false);

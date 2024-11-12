@@ -6,17 +6,17 @@ import axios from 'axios';
 import { colors } from '@/constants';
 import { responsive, showErrorToast } from '@/utils';
 import { ItemProps } from '@/api/bag';
-import useBagStore from '@/store/useBagStore';
-import DeleteButton from '../DeleteButton';
-import CustomText from '../../common/CustomText';
-import BagThing from './BagThing';
 import { BagScreenProps } from '@/screens/bag/BagMainScreen';
-import CustomModal from '../modal/CustomModal';
 import {
   useBagItemQuery,
   useBagItemOrderMutation,
   useDeleteItemMutation,
 } from '@/queries/bagQueries';
+import CustomModal from '@/components/common/CustomModal';
+import CustomText from '@/components/common/CustomText';
+import useBagStore from '@/store/useBagStore';
+import DeleteButton from '../DeleteButton';
+import BagThing from './BagThing';
 
 export interface ItemKeyProps extends ItemProps {
   key: string;

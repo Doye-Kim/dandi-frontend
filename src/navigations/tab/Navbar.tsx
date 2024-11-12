@@ -26,6 +26,7 @@ const NeedTabBarScreens = [
   'PickupList',
   'SOSList',
   'BagMain',
+  'MyMain',
   mainNavigations.MAP,
 ];
 

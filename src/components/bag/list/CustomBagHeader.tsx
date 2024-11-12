@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { AddFolderIcon, LeftIcon } from '@/assets/icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { BagStackParamList } from '@/navigations/stack/BagStackNavigator';
-import HeaderText from '../../common/HeaderText';
-import CustomModal from '../modal/CustomModal';
+import HeaderText from '@/components/common/HeaderText';
+import CustomModal from '@/components/common/CustomModal';
 import BagListModal from '../modal/BagListModal';
 import BagNameModal from '../modal/BagNameModal';
 

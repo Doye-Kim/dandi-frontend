@@ -1,7 +1,7 @@
 import BackgroundTimer from 'react-native-background-timer';
 import axiosInstance from './axios';
 import { setHeader, removeHeader } from '@/utils/axios';
-import { setEncryptStorage } from '@/utils/encryptedStorage';
+import { getEncryptStorage, setEncryptStorage } from '@/utils/encryptedStorage';
 
 const JWT_EXPIRRY_TIME = 24 * 60 * 60 * 1000; //accessToken 만료시간-> 밀리초
 
@@ -20,6 +20,17 @@ export interface UpdatePasswordVerifyProps {
 }
 
 export interface UpdatePasswordProps extends UpdatePasswordVerifyProps {
+  newPassword: string;
+}
+
+export interface PasswordUpdateProps {
+  newPassword: string;
+  pastPassword: string;
+}
+
+export interface PostPasswordVeriProps {
+  verificationNumber: string;
+  email: string;
   newPassword: string;
 }
 
@@ -59,9 +70,11 @@ const login = async (userData: LoginProps, fcmCode: string) => {
   removeHeader('Authorization');
   const { data, headers } = await axiosInstance.post('/auth/login', userData);
   const accessToken = headers.authorization;
-
-  if (accessToken) {
+  const refreshToken = headers.refreshtoken;
+  console.log('헤더', headers);
+  if (accessToken && refreshToken) {
     await setAccessToken(accessToken);
+    await setEncryptStorage('refreshToken', refreshToken);
     await putFCM(fcmCode);
   }
   return data;
@@ -89,12 +102,6 @@ const putPasswordVerifyNum = async (email: string) => {
   return data;
 };
 
-export interface PostPasswordVeriProps {
-  verificationNumber: string;
-  email: string;
-  newPassword: string;
-}
-
 const postPasswordWithVerification = async (
   postInfo: PostPasswordVeriProps,
 ) => {
@@ -108,12 +115,14 @@ const putFCM = async (fcmCode: string) => {
 };
 
 const refreshAuth = async () => {
-  const { data } = await axiosInstance.put('/auth/refresh');
-  return data;
-};
-
-const logout = async () => {
-  const { data } = await axiosInstance.put('/auth/logout');
+  const { data, headers } = await axiosInstance.put('/auth/refresh');
+  const accessToken = headers.authorization;
+  const refreshToken = headers.refreshtoken;
+  console.log('헤더', headers);
+  if (accessToken && refreshToken) {
+    await setAccessToken(accessToken);
+    await setEncryptStorage('refreshToken', refreshToken);
+  }
   return data;
 };
 
@@ -129,12 +138,26 @@ const setAccessToken = async (accessToken: string) => {
   }, JWT_EXPIRRY_TIME - 60000);
 };
 
-export interface PasswordUpdateProps {
-  newPassword: string;
-  pastPassword: string;
-}
 const putUpdatePassword = async (password: PasswordUpdateProps) => {
   const { data } = await axiosInstance.put('/member/password', password);
+  return data;
+};
+
+const putUpdateNickname = async (nickname: string) => {
+  const { data } = await axiosInstance.put('/member/nickname', { nickname });
+  return data;
+};
+
+const logout = async () => {
+  const refreshToken = await getEncryptStorage('refreshToken');
+  const { data } = await axiosInstance.delete('/auth/logout', {
+    headers: { RefreshToken: refreshToken },
+  });
+  return data;
+};
+
+const deleteUser = async () => {
+  const { data } = await axiosInstance.delete('/member');
   return data;
 };
 
@@ -142,16 +165,15 @@ export {
   join,
   postJoinLink,
   postJoinVerify,
-  postPasswordUpdateVerify,
-  postPasswordUpdateVerification,
-  patchPasswordUpdate,
   login,
-  managerLogin,
-  refreshAuth,
-  logout,
   putFCM,
   getUserInfo,
+  managerLogin,
+  refreshAuth,
+  putUpdateNickname,
   putPasswordVerifyNum,
   postPasswordWithVerification,
   putUpdatePassword,
+  logout,
+  deleteUser,
 };

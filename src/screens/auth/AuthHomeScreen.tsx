@@ -44,7 +44,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       const data = await getUserInfo();
       console.log('getUserData', data);
       setDefaultBagId(data.bagId);
-      await setEncryptStorage('user', data);
+      await setEncryptStorage('user', JSON.stringify(data));
       setIsLogin(true);
     } catch (err) {
       console.log(err);

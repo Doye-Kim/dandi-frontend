@@ -9,13 +9,15 @@ import { showCustomErrorToast } from '@/utils/toast';
 
 interface CommentInputBoxProps {
   type: 'SOS' | 'PICKUP';
-  id: number;
+  articleId: number;
+  parentId: number | null;
   onCommentSubmit: () => void;
 }
 
 const CommentInputBox = ({
   type,
-  id,
+  articleId,
+  parentId,
   onCommentSubmit,
 }: CommentInputBoxProps) => {
   const [comment, setComment] = useState('');
@@ -29,21 +31,21 @@ const CommentInputBox = ({
 
     try {
       if (type === 'PICKUP') {
-        await registerPickupComment(id, comment);
+        await registerPickupComment(articleId, parentId, comment);
       } else if (type === 'SOS') {
-        await registerSOSComment(id, comment);
+        await registerSOSComment(articleId, parentId, comment);
       }
       setComment('');
       onCommentSubmit();
     } catch (error) {
-      console.error('Failed to submit comment', error);
+      console.error(error);
     }
   };
 
   return (
     <Container>
       <InputBox
-        placeholder='댓글을 작성해주세요'
+        placeholder={parentId ? '대댓글을 입력하세요.' : '댓글을 입력하세요.'}
         placeholderTextColor={colors.GRAY_400}
         value={comment}
         onChangeText={(text) => setComment(text)}

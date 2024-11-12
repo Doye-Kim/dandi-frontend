@@ -22,7 +22,7 @@ import { AuthHomeScreenProps } from './AuthHomeScreen';
 import styled from 'styled-components/native';
 
 const LoginScreen = ({ navigation }: AuthHomeScreenProps) => {
-  const { setIsLogin, setNickname, setEmail } = useUserStore();
+  const { setIsLogin, setNickname, setEmail, setId } = useUserStore();
 
   const emailRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
@@ -68,6 +68,7 @@ const LoginScreen = ({ navigation }: AuthHomeScreenProps) => {
       setDefaultBagId(data.bagId);
       setNickname(data.nickname);
       setEmail(data.email);
+      setId(data.id);
       setIsLogin(true);
     } catch (err) {
       console.log(err);

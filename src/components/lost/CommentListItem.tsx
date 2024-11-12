@@ -1,40 +1,39 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils/common';
 import { CommentData } from '@/types/lost';
+import { convertDateTimeFormat } from '@/utils/date';
+import useUserStore from '@/store/useUserStore';
 import CustomText from '@/components/common/CustomText';
-import ReplyCommentInput from '@/components/lost/ReplyCommentInput';
 
 interface CommentListItemProps {
   type: 'SOS' | 'PICKUP';
+  onReply: (commentId: number) => void;
   comment: CommentData;
 }
 
-const CommentListItem = ({ type, comment }: CommentListItemProps) => {
-  const [isReplyOpen, setIsReplyOpen] = useState(false);
-
-  const isArticleWriter = (id: number) => {
-    return id == 1;
-  };
+const CommentListItem = ({ type, comment, onReply }: CommentListItemProps) => {
+  // 게시글 작성자와 댓글 작성자가 같은지 확인
+  const { id: userId } = useUserStore();
 
   return (
     <Container>
       <BlankBox />
       <ContentContainer>
         <HeaderContainer>
-          <WriterNameText isArticleWriter={isArticleWriter(comment.writerId)}>
-            {`닉네임(임시)`}
-            {isArticleWriter(comment.writerId) ? '(작성자)' : ''}
+          <WriterNameText isArticleWriter={userId === comment.writerId}>
+            {`닉네임`}
+            {userId === comment.writerId ? '(작성자)' : ''}
           </WriterNameText>
-          <ReplyBox onPress={() => setIsReplyOpen((prev) => !prev)}>
+          <ReplyBox onPress={() => onReply(comment.id)}>
             <ReplyText>대댓글</ReplyText>
           </ReplyBox>
         </HeaderContainer>
         <ContentText>{comment.content}</ContentText>
-        <DateText>{comment.createdAt}</DateText>
-        {isReplyOpen && <ReplyCommentInput type={type} parentId={comment.id} />}
+        <DateText>
+          {convertDateTimeFormat(new Date(comment.createdAt))}
+        </DateText>
       </ContentContainer>
       <BlankBox />
     </Container>

@@ -29,7 +29,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       resetAuthInfo();
     }, []),
   );
-  const { setIsLogin, setEmail, setNickname } = useUserStore();
+  const { setIsLogin, setEmail, setNickname, setId } = useUserStore();
   const { setDefaultBagId } = useBagStore();
   const onPressJoin = () => {
     navigation.navigate(authNavigations.AUTH_EMAIL);
@@ -44,6 +44,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       setDefaultBagId(data.bagId);
       setNickname(data.nickname);
       setEmail(data.email);
+      setId(data.id);
       setIsLogin(true);
     } catch (err) {
       console.log(err);

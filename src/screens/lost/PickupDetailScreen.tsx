@@ -33,6 +33,7 @@ const PickupDetailScreen = ({ route }: PickupDetailScreenProps) => {
   const { id } = route.params;
   const [details, setDetails] = useState<PickupDetailData | null>(null);
   const [comments, setComments] = useState<CommentData[]>([]);
+  const [parentId, setParentId] = useState<number | null>(null);
 
   const fetchComments = async () => {
     try {
@@ -41,6 +42,11 @@ const PickupDetailScreen = ({ route }: PickupDetailScreenProps) => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleCommentSubmit = async () => {
+    fetchComments();
+    setParentId(null);
   };
 
   useEffect(() => {
@@ -119,16 +125,18 @@ const PickupDetailScreen = ({ route }: PickupDetailScreenProps) => {
         {details?.id && (
           <CommentSectionBox
             type='PICKUP'
-            id={details.id}
+            articleId={details.id}
             comments={comments}
+            onReply={(commentId) => setParentId(commentId)}
           />
         )}
       </ScollContainer>
       {details?.id && (
         <CommentInputBox
           type='PICKUP'
-          id={details.id}
-          onCommentSubmit={fetchComments}
+          articleId={details.id}
+          parentId={parentId}
+          onCommentSubmit={handleCommentSubmit}
         />
       )}
     </Container>

@@ -62,6 +62,7 @@ const getMyPickupList = async () => {
 // 습득물 상세정보 조회 API
 const getPickupDetail = async (foundId: number) => {
   const { data } = await axiosInstance.get(`/founds/${foundId}`);
+  console.log(data);
   return data;
 };
 // 습득물 퀴즈 조회 API
@@ -93,6 +94,7 @@ const registerSOS = async (lostParms: RegisterSOSParams) => {
 // SOS 상세정보 조회 API
 const getSOSDetail = async (lostId: number) => {
   const { data } = await axiosInstance.get(`/losts/${lostId}`);
+  console.log(data);
   return data;
 };
 // SOS 댓글 조회 API
@@ -112,8 +114,8 @@ const getPickupComments = async (foundId: number) => {
 // 습득물 댓글 등록 API
 const registerPickupComment = async (
   foundId: number,
-  content: string,
   parentId: number | null = null,
+  content: string,
 ) => {
   const { data } = await axiosInstance.post(`/founds/${foundId}/comments`, {
     parentId,
@@ -124,8 +126,8 @@ const registerPickupComment = async (
 // SOS 댓글 등록 API
 const registerSOSComment = async (
   lostId: number,
-  content: string,
   parentId: number | null = null,
+  content: string,
 ) => {
   const { data } = await axiosInstance.post(`/losts/${lostId}/comments`, {
     parentId,

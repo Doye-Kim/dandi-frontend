@@ -29,6 +29,7 @@ const SOSDetailScreen = ({ route }: SOSDetailScreenProps) => {
   const { id } = route.params;
   const [details, setDetails] = useState<SOSDetailData | null>(null);
   const [comments, setComments] = useState<CommentData[]>([]);
+  const [parentId, setParentId] = useState<number | null>(null);
 
   const fetchComments = async () => {
     try {
@@ -37,6 +38,11 @@ const SOSDetailScreen = ({ route }: SOSDetailScreenProps) => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleCommentSubmit = async () => {
+    fetchComments();
+    setParentId(null);
   };
 
   useEffect(() => {
@@ -87,14 +93,20 @@ const SOSDetailScreen = ({ route }: SOSDetailScreenProps) => {
           }
         />
         {details?.id && (
-          <CommentSectionBox type='SOS' id={details.id} comments={comments} />
+          <CommentSectionBox
+            type='SOS'
+            articleId={details.id}
+            comments={comments}
+            onReply={(commentId) => setParentId(commentId)}
+          />
         )}
       </ScollContainer>
       {details?.id && (
         <CommentInputBox
           type='SOS'
-          id={details.id}
-          onCommentSubmit={fetchComments}
+          articleId={details.id}
+          parentId={parentId}
+          onCommentSubmit={handleCommentSubmit}
         />
       )}
     </Container>

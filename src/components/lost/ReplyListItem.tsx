@@ -1,8 +1,11 @@
 import React from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
+import { responsive } from '@/utils/common';
 import { CommentData } from '@/types/lost';
-import { responsive, responsiveVertical } from '@/utils/common';
+import { convertDateTimeFormat } from '@/utils/date';
+import useUserStore from '@/store/useUserStore';
 import CustomText from '@/components/common/CustomText';
 
 interface ReplyListItemProps {
@@ -10,17 +13,24 @@ interface ReplyListItemProps {
 }
 
 const ReplyListItem = ({ reply }: ReplyListItemProps) => {
-  // todo: 작성자 확인 후 작성자일 경우 표시
+  // 게시글 작성자와 댓글 작성자가 같은지 확인
+  const { id: userId } = useUserStore();
+
+  useEffect(() => {
+    console.log('User ID:', userId); // 업데이트된 userId를 출력하여 확인
+  }, [userId]);
 
   return (
     <Container>
       <FowardBlankBox />
       <ContentContainer>
         <HeaderContainer>
+          <WriterNameText>닉네임(임시)</WriterNameText>
+          <WriterNameText>{userId}</WriterNameText>
           <WriterNameText>{reply.writerId}</WriterNameText>
         </HeaderContainer>
         <ContentText>{reply.content}</ContentText>
-        <DateText>{reply.createdAt}</DateText>
+        <DateText>{convertDateTimeFormat(new Date(reply.createdAt))}</DateText>
       </ContentContainer>
       <BlankBox />
     </Container>

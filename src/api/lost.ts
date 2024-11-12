@@ -71,12 +71,8 @@ const getPickupQuiz = async (foundId: number) => {
   return data;
 };
 // 습득물 퀴즈 제출 API
-const submitPickupQuiz = async (
-  foundId: number,
-  quizId: number,
-  answer: string,
-) => {
-  const { data } = await axiosInstance.post(`/founds/${foundId}/${quizId}`, {
+const submitPickupQuiz = async (foundId: number, answer: string) => {
+  const { data } = await axiosInstance.post(`/founds/${foundId}/quiz`, {
     answer,
   });
   return data;

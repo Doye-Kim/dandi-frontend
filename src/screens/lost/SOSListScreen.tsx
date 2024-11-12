@@ -69,7 +69,9 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
 
   return (
     <Container>
-      {alertList.length === 0 && <EmptyText>등록된 SOS가 없습니다.</EmptyText>}
+      {alertList.length === 0 && (
+        <EmptyText>다른 사용자들이 요청한 SOS가 없어요.</EmptyText>
+      )}
       <AlertList
         data={alertList}
         isSelectMode={selectMode}

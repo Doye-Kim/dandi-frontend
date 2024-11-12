@@ -13,12 +13,8 @@ interface ReplyListItemProps {
 }
 
 const ReplyListItem = ({ reply }: ReplyListItemProps) => {
-  // 게시글 작성자와 댓글 작성자가 같은지 확인
+  // todo: 게시글 작성자와 댓글 작성자가 같은지 확인
   const { id: userId } = useUserStore();
-
-  useEffect(() => {
-    console.log('User ID:', userId); // 업데이트된 userId를 출력하여 확인
-  }, [userId]);
 
   return (
     <Container>

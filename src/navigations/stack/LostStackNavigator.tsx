@@ -11,18 +11,18 @@ import RouteSelectionScreen from '@/screens/lost/RouteSelectionScreen';
 import SOSDetailScreen from '@/screens/lost/SOSDetailScreen';
 
 export type LostStackParamList = {
-  PickupList: undefined;
-  PickupRegister: undefined;
-  PickupDetail: { id: number };
-  SOSList: undefined;
-  SOSRegister: undefined;
-  RouteSelection: {
+  [lostNavigations.PICKUP_LIST]: undefined;
+  [lostNavigations.PICKUP_REGISTER]: undefined;
+  [lostNavigations.PICKUP_DETAIL]: { id: number };
+  [lostNavigations.SOS_LIST]: undefined;
+  [lostNavigations.SOS_REGISTER]: undefined;
+  [lostNavigations.ROUTE_SELECTION]: {
     photoUrl: string;
     explain: string;
     location: string;
     datetime: string;
   };
-  SOSDetail: { id: number };
+  [lostNavigations.SOS_DETAIL]: { id: number };
 };
 
 const Stack = createStackNavigator<LostStackParamList>();

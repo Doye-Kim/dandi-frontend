@@ -64,7 +64,7 @@ const PickupQuizModal = ({
               }}
               renderItem={({ item }) => (
                 <PhotoBoxContainer
-                  isSelected={selectedPhotoId === item.image} // 선택된 사진 표시
+                  isSelected={selectedPhotoId === item.image}
                   onPress={() => handleSelectPhoto(item.image)}>
                   <PhotoBox
                     imgSrc={item.image}

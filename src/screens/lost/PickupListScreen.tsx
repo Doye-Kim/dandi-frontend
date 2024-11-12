@@ -116,11 +116,7 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
     if (!selectedFoundId || !quizData) return;
 
     try {
-      const result = await submitPickupQuiz(
-        selectedFoundId,
-        quizData.id,
-        answer,
-      );
+      const result = await submitPickupQuiz(selectedFoundId, answer);
       if (result.success) {
         navigation.navigate('PickupDetail', { id: selectedFoundId });
         setQuizModalVisible(false);
@@ -147,7 +143,7 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
   return (
     <Container>
       {alertList.length === 0 && (
-        <EmptyText>등록된 습득물이 없습니다.</EmptyText>
+        <EmptyText>다른 사용자들이 등록한 습득물이 없어요.</EmptyText>
       )}
       <AlertList
         data={alertList}

@@ -4,6 +4,8 @@ import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils';
+import { BASE_IMAGE_URL } from '@/api/axios';
+import { showCustomErrorToast } from '@/utils/toast';
 import CustomText from '../common/CustomText';
 import PhotoBox from './PhotoBox';
 import CustomButton from '../common/CustomButton';
@@ -36,11 +38,7 @@ const PickupQuizModal = ({
     if (selectedPhotoId !== null) {
       onSubmit(selectedPhotoId);
     } else {
-      Toast.show({
-        type: 'error',
-        text1: '선택된 사진이 없습니다.',
-        text2: '사진을 선택한 후 제출하세요.',
-      });
+      showCustomErrorToast('퀴즈 정답을 선택해주세요.');
     }
   };
 
@@ -67,7 +65,7 @@ const PickupQuizModal = ({
                   isSelected={selectedPhotoId === item.image}
                   onPress={() => handleSelectPhoto(item.image)}>
                   <PhotoBox
-                    imgSrc={item.image}
+                    imgSrc={`${BASE_IMAGE_URL}${item.image}`}
                     width={responsive(140)}
                     height={responsive(140)}
                   />
@@ -77,11 +75,21 @@ const PickupQuizModal = ({
             />
           </PhotoContainer>
           <ButtonContainer>
-            <CustomButton title='닫기' onPress={onClose} style='disable' />
+            <CustomButton
+              title='닫기'
+              onPress={onClose}
+              style='disable'
+              width={responsive(120)}
+              height={responsive(40)}
+              fontSize={responsive(14)}
+            />
             <CustomButton
               title='제출'
               onPress={handleSubmitQuiz}
               style='enable'
+              width={responsive(120)}
+              height={responsive(40)}
+              fontSize={responsive(14)}
             />
           </ButtonContainer>
         </Container>
@@ -131,6 +139,5 @@ const PhotoBoxContainer = styled.TouchableOpacity<{ isSelected: boolean }>`
 const ButtonContainer = styled.View`
   flex-direction: row;
   justify-content: space-evenly;
-  width: 90%;
-  margin-top: ${responsiveVertical(20)}px;
+  width: 100%;
 `;

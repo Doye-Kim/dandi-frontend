@@ -21,18 +21,16 @@ interface RegisterSOSParams {
   finishRoute: number;
   images: string[];
 }
-// 알람 목록 조회 API
+// 알림 목록 조회 API
 const getAlertList = async (resourceId = 0, types = ['foundItem']) => {
-  const { data } = await axiosInstance.get('/noti', {
-    params: {
-      resourceId,
-      types,
-    },
-    paramsSerializer: (params) =>
-      qs.stringify(params, { arrayFormat: 'repeat' }),
-  });
+  const typesString = qs.stringify({ types }, { arrayFormat: 'repeat' });
+
+  const { data } = await axiosInstance.get(
+    `/noti?resourceId=${resourceId}&${typesString}`,
+  );
   return data;
 };
+
 // 알림 목록 삭제 API
 const deleteAlert = async (alertList: number[]) => {
   const { data } = await axiosInstance.delete('/noti', {
@@ -134,6 +132,7 @@ const registerSOSComment = async (
 
 export {
   getAlertList,
+  deleteAlert,
   getPickupQuiz,
   submitPickupQuiz,
   uploadImage,

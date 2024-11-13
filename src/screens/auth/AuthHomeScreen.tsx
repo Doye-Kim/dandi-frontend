@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
-import { Text, View } from 'react-native';
+import React from 'react';
+import { useState, useCallback } from 'react';
+import { Text, View, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import styled from 'styled-components/native';
@@ -7,7 +8,12 @@ import axios from 'axios';
 import { LogoIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
-import { checkErrorAndViewToast, responsive } from '@/utils';
+import {
+  checkErrorAndViewToast,
+  responsive,
+  responsiveVertical,
+  showErrorToast,
+} from '@/utils';
 import { getUserInfo, managerLogin } from '@/api/auth';
 import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
@@ -25,6 +31,8 @@ export type AuthHomeScreenProps = {
 
 const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
   const { resetAuthInfo } = useAuthStore();
+  // todo: 관리자 로그인 및 관련 모두 삭제
+  const [managerId, setManagerId] = useState<string>('');
   useFocusEffect(
     useCallback(() => {
       resetAuthInfo();
@@ -60,7 +68,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
   const handleLogin = async () => {
     const fcmCode = await getFcmToken();
     try {
-      await managerLogin(fcmCode);
+      await managerLogin(fcmCode, managerId);
       await getUserData();
       setIsLogin(true);
     } catch (error) {
@@ -85,6 +93,24 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       </View>
       <AuthButton title='로그인' onPress={onPressLogin} style='gray' />
       <AuthButton title='회원가입' onPress={onPressJoin} style='enable' />
+      <TextInput
+        placeholder='관리자 ID 입력'
+        value={managerId}
+        onChangeText={setManagerId}
+        style={{
+          width: responsive(352), // Adjusted to match the default width of buttons
+          height: responsiveVertical(60), // Similar height to buttons
+          paddingHorizontal: 15, // Horizontal padding for comfortable typing
+          marginVertical: responsiveVertical(10), // Vertical margin to separate elements
+          borderColor: colors.PRIMARY,
+          borderWidth: 1,
+          borderRadius: responsive(20), // Consistent rounded corners
+          backgroundColor: colors.WHITE, // Background color for a clean look
+          fontSize: responsive(16), // Consistent font size
+          color: colors.BLACK, // Text color
+          fontFamily: 'OAGothic-Regular', // Consistent font style
+        }}
+      />
       <AuthButton
         title='관리자 로그인'
         onPress={onPressManager}

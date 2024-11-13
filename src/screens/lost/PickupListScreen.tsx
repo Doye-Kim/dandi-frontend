@@ -4,15 +4,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
-import { getAlertList, getPickupQuiz, submitPickupQuiz } from '@/api/lost';
+import { isAxiosError } from 'axios';
+import { getAlertList } from '@/api/lost';
 import { colors } from '@/constants';
-import { responsive } from '@/utils';
+import { responsive, showCustomErrorToast } from '@/utils';
 import { RegisterIcon } from '@/assets/icons';
+import { AlertData } from '@/types/lost';
 import CustomText from '@/components/common/CustomText';
 import AlertList from '@/components/lost/AlertList';
 import ListOptopmModal from '@/components/lost/ListOptionModal';
-import PickupQuizModal from '@/components/lost/PickupQuizModal';
 import ChoiceDropdownModal from '@/components/lost/ChoiceDropdownModal';
 
 type PickupListScreenNavigationProp = StackNavigationProp<
@@ -25,13 +25,11 @@ type PickupListScreenProps = {
 };
 
 const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
-  const [alertList, setAlertList] = useState<[]>([]);
-  const [quizData, setQuizData] = useState<null | any>(null);
+  const [alertList, setAlertList] = useState<AlertData[]>([]);
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<number[]>([]);
   const [selectedFoundId, setSelectedFoundId] = useState<null | number>(null);
-  const [quizModalVisible, setQuizModalVisible] = useState<boolean>(false);
-
+  // todo: 알람 기준 ID 동적 처리 필요
   useFocusEffect(
     useCallback(() => {
       const fetchAlertList = async () => {
@@ -40,7 +38,9 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
           console.log(data);
           setAlertList(data);
         } catch (error) {
-          console.error(error);
+          if (isAxiosError(error)) {
+            showCustomErrorToast(error.response?.data.message);
+          }
         }
       };
 
@@ -96,48 +96,10 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
     setSelectMode(false);
     setSelected([]);
   };
-  // 상세 페이지 이동 전 퀴즈 시도 함수
-  const tryQuiz = async (foundId: number) => {
+  // 상세 페이지 이동 함수
+  const tryNavigateToDetail = (foundId: number) => {
     setSelectedFoundId(foundId);
-    try {
-      const quiz = await getPickupQuiz(foundId); // 퀴즈 데이터를 가져옴
-      setQuizData(quiz);
-      setQuizModalVisible(true);
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: '권한이 없습니다.',
-        text2: '퀴즈 데이터를 불러오지 못했습니다.',
-      });
-    }
-  };
-  // 퀴즈 성공 시 상세 페이지로 이동하는 함수
-  const handleQuizSubmit = async (answer: string) => {
-    if (!selectedFoundId || !quizData) return;
-
-    try {
-      const result = await submitPickupQuiz(selectedFoundId, answer);
-      if (result.success) {
-        navigation.navigate('PickupDetail', { id: selectedFoundId });
-        setQuizModalVisible(false);
-        setSelectedFoundId(null);
-        setQuizData(null);
-      } else {
-        setQuizModalVisible(false);
-        setSelectedFoundId(null);
-        setQuizData(null);
-        Toast.show({
-          type: 'error',
-          text1: '퀴즈를 다시 확인해주세요.',
-        });
-      }
-    } catch (error) {
-      // todo: 예외 처리 추가
-      Toast.show({
-        type: 'error',
-        text1: '퀴즈 제출에 실패했습니다.',
-      });
-    }
+    navigation.navigate('PickupDetail', { id: foundId });
   };
 
   return (
@@ -151,15 +113,10 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
         selected={selected}
         handleSelect={handleSelectItem}
         handleLongPress={handleSelectMode}
-        goToDetail={tryQuiz}
+        goToDetail={tryNavigateToDetail}
       />
       <ListOptopmModal isVisible={selectMode} onDelete={deleteAlert} />
-      <PickupQuizModal
-        inVisible={quizModalVisible}
-        quizData={quizData ? quizData.options : []}
-        onClose={() => setQuizModalVisible(false)}
-        onSubmit={handleQuizSubmit}
-      />
+
       <RegisterIconBox onPress={() => navigation.navigate('PickupRegister')}>
         <RegisterIcon width={responsive(48)} height={responsive(48)} />
       </RegisterIconBox>

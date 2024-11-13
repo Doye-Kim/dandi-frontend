@@ -63,9 +63,11 @@ const login = async (userData: LoginProps, fcmCode: string) => {
   return data;
 };
 
-const managerLogin = async (fcmCode: string) => {
+const managerLogin = async (fcmCode: string, nickname: string) => {
   removeHeader('Authorization');
-  const { data } = await axiosInstance.post('/manager/login/manager');
+  const { data } = await axiosInstance.post(`/manager/login/${nickname}`);
+
+  console.log('accessTOkeneeeneene', data);
   if (data) {
     await setAccessToken(data);
     await putFCM(fcmCode);

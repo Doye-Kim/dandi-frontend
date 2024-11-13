@@ -76,7 +76,6 @@ const MyNotiScreen = () => {
   };
 
   const applySettings = async () => {
-    console.log('applySettings');
     const updatedSettings = (Object.keys(settings) as TargetOption[]).reduce(
       (acc, key) => {
         if (settings[key] !== initialSettings[key]) {
@@ -86,7 +85,6 @@ const MyNotiScreen = () => {
       },
       {} as Partial<typeof settings>,
     );
-    console.log(updatedSettings);
     try {
       if (Object.keys(updatedSettings).length > 0) {
         for (const [key, value] of Object.entries(updatedSettings)) {

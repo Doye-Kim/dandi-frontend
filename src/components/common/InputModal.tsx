@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { TextInput } from 'react-native';
-import { Modal, Portal } from 'react-native-paper';
+import React, { useEffect, useRef, useState } from 'react';
+import { Modal, TextInput, Animated } from 'react-native';
 import styled from 'styled-components/native';
 import {
   checkErrorAndViewToast,
@@ -18,6 +17,7 @@ import {
 } from '@/queries/bagQueries';
 import { putUpdateNickname } from '@/api/auth';
 import useUserStore from '@/store/useUserStore';
+import CustomText from './CustomText';
 
 interface InputModalProps {
   visible: boolean;
@@ -28,6 +28,7 @@ interface InputModalProps {
   name?: string;
   nickname?: string;
 }
+
 const InputModal = ({
   visible,
   copyBagId,
@@ -38,6 +39,7 @@ const InputModal = ({
   nickname,
 }: InputModalProps) => {
   const [newName, setNewName] = useState(name ? name : '');
+  const slideAnim = useRef(new Animated.Value(0)).current;
   const nameRef = useRef<TextInput>(null);
   const { setNickname } = useUserStore();
 
@@ -49,9 +51,22 @@ const InputModal = ({
     onClose();
     setNewName(name ? name : nickname ? nickname : '');
   };
+
   useEffect(() => {
-    if (visible && nameRef.current) {
-      nameRef.current.focus();
+    if (visible) {
+      // 모달이 열릴 때 슬라이드 애니메이션
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // 모달이 닫힐 때 슬라이드 애니메이션
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     }
   }, [visible]);
 
@@ -59,8 +74,8 @@ const InputModal = ({
   const copyMutation = useCreateCopyBagMutation();
   const editNameMutation = useEditBagNameMutation();
 
-  const handleCreateBag = async () => {
-    if (!newName || newName === '') {
+  const handleConfirm = async () => {
+    if (!newName) {
       showErrorToast('EMPTY_NAME');
     } else {
       onConfirm();
@@ -83,45 +98,67 @@ const InputModal = ({
   };
 
   return (
-    <Portal>
-      <StyledModal visible={visible} onDismiss={handleDismiss}>
-        <HeaderText>
-          {bagId
-            ? '가방 이름 변경'
-            : nickname
-            ? '닉네임 변경'
-            : '나만의 가방 만들기'}
-        </HeaderText>
-        <TextInputContainer>
-          <StyledTextInput
-            ref={nameRef}
-            placeholder='이름을 입력해 주세요'
-            onChangeText={handleChangeText}
-            value={name}
-          />
-        </TextInputContainer>
-        <AuthButton title='확인' onPress={handleCreateBag} style='enable' />
-      </StyledModal>
-    </Portal>
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType='none'
+      onRequestClose={handleDismiss}>
+      <ModalBackground onPress={handleDismiss}>
+        <AnimatedModalContainer
+          style={{
+            transform: [
+              {
+                translateY: slideAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [500, 0], // 아래에서 위로 슬라이드
+                }),
+              },
+            ],
+          }}>
+          <HeaderText>
+            {bagId
+              ? '가방 이름 변경'
+              : nickname
+              ? '닉네임 변경'
+              : '나만의 가방 만들기'}
+          </HeaderText>
+          <TextInputContainer>
+            <StyledTextInput
+              ref={nameRef}
+              placeholder='이름을 입력해 주세요'
+              onChangeText={handleChangeText}
+              value={newName}
+              keyboardType='default'
+              multiline={true}
+            />
+          </TextInputContainer>
+          <AuthButton title='확인' onPress={handleConfirm} style='enable' />
+        </AnimatedModalContainer>
+      </ModalBackground>
+    </Modal>
   );
 };
 
 export default InputModal;
 
-const StyledModal = styled(Modal).attrs({
-  contentContainerStyle: {
-    width: responsive(372),
-    height: responsiveVertical(240),
-    backgroundColor: colors.WHITE,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    position: 'absolute',
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-  },
-})``;
+const ModalBackground = styled.TouchableOpacity`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const ModalContainer = styled.View`
+  width: ${responsive(372)}px;
+  padding: ${responsive(20)}px;
+  position: absolute;
+  bottom: 0;
+  background-color: ${colors.WHITE};
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  justify-content: center;
+  align-items: center;
+`;
 
 const TextInputContainer = styled.View`
   width: ${responsive(352)}px;
@@ -137,4 +174,19 @@ const StyledTextInput = styled(TextInput)`
   height: ${responsiveVertical(50)}px;
   font-family: 'OAGothic-Medium';
   font-size: 16px;
+  background-color: ${colors.WHITE};
+  padding: 10px;
+  border-radius: 10px;
+`;
+
+const AnimatedModalContainer = styled(Animated.View)`
+  width: ${responsive(372)}px;
+  padding: ${responsive(20)}px;
+  position: absolute;
+  bottom: 0;
+  background-color: ${colors.WHITE};
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  justify-content: center;
+  align-items: center;
 `;

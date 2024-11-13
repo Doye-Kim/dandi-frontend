@@ -4,27 +4,26 @@ import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils/common';
 import { CommentData } from '@/types/lost';
 import { convertDateTimeFormat } from '@/utils/date';
-import useUserStore from '@/store/useUserStore';
 import CustomText from '@/components/common/CustomText';
 
 interface CommentListItemProps {
-  type: 'SOS' | 'PICKUP';
   onReply: (commentId: number) => void;
   comment: CommentData;
+  memberId: number;
 }
 
-const CommentListItem = ({ type, comment, onReply }: CommentListItemProps) => {
-  // 게시글 작성자와 댓글 작성자가 같은지 확인
-  const { id: userId } = useUserStore();
-
+const CommentListItem = ({
+  comment,
+  onReply,
+  memberId,
+}: CommentListItemProps) => {
   return (
     <Container>
       <BlankBox />
       <ContentContainer>
         <HeaderContainer>
-          <WriterNameText isArticleWriter={userId === comment.writerId}>
-            {`닉네임`}
-            {userId === comment.writerId ? '(작성자)' : ''}
+          <WriterNameText isArticleWriter={memberId === comment.writerId}>
+            {memberId === comment.writerId ? '작성자' : comment.nickname}
           </WriterNameText>
           <ReplyBox onPress={() => onReply(comment.id)}>
             <ReplyText>대댓글</ReplyText>

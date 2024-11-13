@@ -6,26 +6,20 @@ import CommentList from '@/components/lost/CommentList';
 
 interface CommentSectionBoxProps {
   type: 'SOS' | 'PICKUP';
-  articleId: number;
+  memberId: number;
   onReply: (commentId: number) => void;
   comments: CommentData[];
 }
 
 const CommentSectionBox = ({
-  type,
-  articleId,
+  memberId,
   comments,
   onReply,
 }: CommentSectionBoxProps) => {
   return (
     <Container>
       <CommentHeader />
-      <CommentList
-        type={type}
-        articleId={articleId}
-        comments={comments}
-        onReply={onReply}
-      />
+      <CommentList memberId={memberId} comments={comments} onReply={onReply} />
     </Container>
   );
 };

@@ -9,6 +9,7 @@ import { LatLng } from 'react-native-maps';
 import DatePicker from 'react-native-date-picker';
 import { BASE_IMAGE_URL } from '@/api/axios';
 import { registerPickup } from '@/api/lost';
+import { getAddress } from '@/api/map';
 import { colors } from '@/constants';
 import { requestCameraAndGalleryPermissions } from '@/utils/permission';
 import { getCurrentLocation } from '@/utils/map';
@@ -42,6 +43,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
   const [keepLocation, setKeepLocation] = useState<string>('');
   const [datetime, setDatetime] = useState<Date>(new Date());
   const [photoUrl, setPhotoUrl] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
   const [isPhotoMethodOpen, setIsPhotoMethodOpen] = useState<boolean>(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState<boolean>(false);
   const [isDatetimeOpen, setIsDatetimeOpen] = useState<boolean>(false);
@@ -60,6 +62,15 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
 
     fetchLocation();
   }, []);
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+      const data = await getAddress(location.latitude, location.longitude);
+      setAddress(data.address);
+    };
+
+    fetchAddress();
+  }, [location]);
 
   const handleRegister = async () => {
     if (photoUrl === '' || explain === '' || keepLocation === '') {
@@ -147,9 +158,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
             </ExplainBox>
             <LocationBox>
               <LabelText>습득 장소</LabelText>
-              <SelectedText>
-                {location.latitude.toFixed(2)},{location.longitude.toFixed(2)}
-              </SelectedText>
+              <SelectedText>{address || '주소 없음'}</SelectedText>
               <IconButton onPress={() => setIsMapModalOpen(true)}>
                 <SimpleMarkerIcon
                   width={responsive(24)}

@@ -14,9 +14,6 @@ interface MyPickupListItemProps {
 }
 
 const MyPickupListItem = ({ item, onPress }: MyPickupListItemProps) => {
-  // todo: 위치 정보 => 주소로 변경
-  // todo: 날짜 정보 => 날짜로 변경
-
   return (
     <Container onPress={onPress}>
       <ContentWrapper>
@@ -31,13 +28,9 @@ const MyPickupListItem = ({ item, onPress }: MyPickupListItemProps) => {
           />
         </ImageBox>
         <SimpleInfoBox>
-          <CustomText
-            numberOfLines={1}
-            ellipsizeMode='tail'>{`${item.foundLocation.lat.toFixed(
-            2,
-          )}, ${item.foundLocation.lon.toFixed(
-            2,
-          )}(주소로 변경 예정)`}</CustomText>
+          <CustomText numberOfLines={1} ellipsizeMode='tail'>
+            {item.address}
+          </CustomText>
           <CustomText
             numberOfLines={1}
             ellipsizeMode='tail'>{`${convertDateTimeFormat(

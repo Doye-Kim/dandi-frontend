@@ -5,25 +5,22 @@ import { colors } from '@/constants';
 import { responsive } from '@/utils/common';
 import { CommentData } from '@/types/lost';
 import { convertDateTimeFormat } from '@/utils/date';
-import useUserStore from '@/store/useUserStore';
 import CustomText from '@/components/common/CustomText';
 
 interface ReplyListItemProps {
   reply: CommentData;
+  memberId: number;
 }
 
-const ReplyListItem = ({ reply }: ReplyListItemProps) => {
-  // todo: 게시글 작성자와 댓글 작성자가 같은지 확인
-  const { id: userId } = useUserStore();
-
+const ReplyListItem = ({ reply, memberId }: ReplyListItemProps) => {
   return (
     <Container>
       <FowardBlankBox />
       <ContentContainer>
         <HeaderContainer>
-          <WriterNameText>닉네임(임시)</WriterNameText>
-          <WriterNameText>{userId}</WriterNameText>
-          <WriterNameText>{reply.writerId}</WriterNameText>
+          <WriterNameText isArticleWriter={memberId === reply.writerId}>
+            {memberId === reply.writerId ? '작성자' : reply.nickname}
+          </WriterNameText>
         </HeaderContainer>
         <ContentText>{reply.content}</ContentText>
         <DateText>{convertDateTimeFormat(new Date(reply.createdAt))}</DateText>
@@ -52,7 +49,9 @@ const HeaderContainer = styled.View`
   flex-direction: row;
 `;
 
-const WriterNameText = styled(CustomText)``;
+const WriterNameText = styled(CustomText)<{ isArticleWriter: boolean }>`
+  color: ${(props) => (props.isArticleWriter ? colors.ACCENT_BLUE : '')};
+`;
 
 const DateText = styled(CustomText)`
   font-size: 8px;

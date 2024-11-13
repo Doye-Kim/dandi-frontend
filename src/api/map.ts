@@ -15,6 +15,8 @@ export interface ResponseRouteListItem {
   track: LatLon[];
   createdAt: string;
   endedAt: string;
+  startAddress: string;
+  endAddress: string;
 }
 
 export interface UseRouteListItem {
@@ -115,6 +117,12 @@ const getSnapshot = async (routeId: number) => {
   return data;
 };
 
+const getAddress = async (lat: number, lon: number) => {
+  const { data } = await axiosInstance.get(`/geo/address`, {
+    params: { lat, lon },
+  });
+  return data;
+};
 // export type skipState = 'Y' | 'N';
 
 export interface Item {
@@ -142,4 +150,5 @@ export {
   getRouteId,
   patchSnapshot,
   getSnapshot,
+  getAddress,
 };

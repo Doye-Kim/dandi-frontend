@@ -52,9 +52,10 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
     try {
       const data = await getPickupComments(id);
       setComments(data.payloads);
-      console.log(data.payloads);
     } catch (error) {
-      console.error(error);
+      if (isAxiosError(error)) {
+        showCustomErrorToast(error.response?.data.message);
+      }
     }
   };
 
@@ -67,6 +68,7 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
     const fetchPickupDetail = async () => {
       try {
         const data = await getPickupDetail(id);
+        console.log(data);
         setDetails(data);
         fetchComments();
       } catch (error) {
@@ -141,7 +143,7 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
             <SimpleMarkIcon width={responsive(18)} height={responsive(18)} />
           }
           subtitle='습득 위치'
-          content='서울특별시 중구 명동2가 1-1(동적 변경 필요)'
+          content={details?.address}
           children={
             <MapView
               provider={PROVIDER_GOOGLE}
@@ -184,7 +186,7 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
         {details?.id && (
           <CommentSectionBox
             type='PICKUP'
-            articleId={details.id}
+            memberId={details.memberId}
             comments={comments}
             onReply={(commentId) => setParentId(commentId)}
           />

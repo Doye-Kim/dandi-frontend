@@ -27,13 +27,8 @@ const RouteListItem = ({
         onLongPress={handleLongPress}
         onPress={() => handlePress(route.track[0])}>
         <RouteBox>
-          <RouteText>
-            {route.track[0].lat.toFixed(2)}, {route.track[0].lon.toFixed(2)}
-          </RouteText>
-          <RouteText>
-            - {route.track[route.track.length - 1].lat.toFixed(2)},
-            {route.track[route.track.length - 1].lon.toFixed(2)}
-          </RouteText>
+          <RouteText>{route.startAddress || '주소 없음'}</RouteText>
+          <RouteText>- {route.endAddress || '주소 없음'}</RouteText>
         </RouteBox>
         <TimeBox>
           <TimeText>

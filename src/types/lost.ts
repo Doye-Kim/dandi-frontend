@@ -23,6 +23,7 @@ export interface PickupDetailData {
   savePoint: string;
   type: string;
   foundAt: string;
+  address: string;
 }
 // SOS 상세정보 데이터 타입 정의
 export interface SOSDetailData {
@@ -31,6 +32,7 @@ export interface SOSDetailData {
   itemDescription: string;
   images: string[];
   lostAt: string; // 날짜 타입으로 변경 필요
+  memberId: number;
 }
 // 댓글 데이터 타입 정의
 export interface CommentData {
@@ -39,4 +41,5 @@ export interface CommentData {
   parentId: number | null;
   content: string;
   createdAt: string;
+  nickname: string;
 }

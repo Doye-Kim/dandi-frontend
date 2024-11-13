@@ -138,6 +138,27 @@ const putUpdateNickname = async (nickname: string) => {
   return data;
 };
 
+export type TargetOption = 'COMMENT' | 'ALL' | 'LOST_ITEM' | 'FOUND_ITEM';
+
+const putUpdateNoti = async ({
+  enabled,
+  target,
+}: {
+  enabled: boolean;
+  target: TargetOption;
+}) => {
+  const { data } = await axiosInstance.put('/member/alarm-settings', {
+    enabled,
+    target,
+  });
+  return data;
+};
+
+const getNotiSetting = async () => {
+  const { data } = await axiosInstance.get('/member/alarm-settings');
+  return data;
+};
+
 const logout = async () => {
   const refreshToken = await getEncryptStorage('refreshToken');
   const { data } = await axiosInstance.delete('/auth/logout', {
@@ -164,6 +185,8 @@ export {
   putPasswordVerifyNum,
   postPasswordWithVerification,
   putUpdatePassword,
+  getNotiSetting,
+  putUpdateNoti,
   logout,
   deleteUser,
 };

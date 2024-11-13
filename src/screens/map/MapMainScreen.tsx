@@ -27,7 +27,9 @@ const MapMainScreen = () => {
   const [defaultId, setDefaultId] = useState<number>();
   const [routeId, setRouteId] = useState<number | undefined>();
   const [date, setDate] = useState(today);
-  const [isOpenChecklist, setIsOpenChecklist] = useState<boolean>(false);
+  const [isOpenStartChecklist, setIsOpenStartChecklist] =
+    useState<boolean>(false);
+  const [isOpenEndChecklist, setIsOpenEndChecklist] = useState<boolean>(false);
   const [isMain, setIsMain] = useState<boolean>(true);
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState<Region>();
@@ -84,21 +86,23 @@ const MapMainScreen = () => {
       const location = await getCurrentLocation();
       if (location) {
         setCurrentLocation(location);
-        mapRef.current?.fitToCoordinates(
-          [
+        if (!routes)
+          mapRef.current?.fitToCoordinates(
+            [
+              {
+                latitude: location.latitude,
+                longitude: location.longitude,
+              },
+            ],
             {
-              latitude: location.latitude,
-              longitude: location.longitude,
+              edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+              animated: true,
             },
-          ],
-          {
-            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-            animated: true,
-          },
-        );
+          );
       }
     };
     fetchLocation();
+    updateMapCenter();
   }, []);
 
   // 현재 위치 갱신 및 동선 수집
@@ -107,6 +111,7 @@ const MapMainScreen = () => {
 
   // 맵 중심 맞추기
   const updateMapCenter = () => {
+    console.log('update map center');
     const allCoordinates = isMain
       ? routes?.routes.flatMap((route) => route.track)
       : route && route.track;
@@ -119,9 +124,14 @@ const MapMainScreen = () => {
       });
     }
   };
+
   useEffect(() => {
-    updateMapCenter();
-  }, [isMain]);
+    if (!isMain) updateMapCenter();
+  }, [isMain, route]);
+
+  useEffect(() => {
+    if (isMain) updateMapCenter();
+  }, [isMain, routes]);
 
   // 상호작용(줌, 이동 등등..)
   const handleRegionChangeComplete = (newRegion: Region) => {
@@ -137,8 +147,13 @@ const MapMainScreen = () => {
     setIsMain((prev) => !prev);
   };
 
-  const onPressMarker = (id: number) => {
-    setIsOpenChecklist(true);
+  const onPressStartMarker = (id: number) => {
+    setIsOpenStartChecklist(true);
+    setRouteId(id);
+  };
+
+  const onPressEndMarker = (id: number) => {
+    setIsOpenEndChecklist(true);
     setRouteId(id);
   };
 
@@ -196,49 +211,78 @@ const MapMainScreen = () => {
 
         {routes?.routes &&
           route &&
-          (isMain ? routes.routes : route && [route]).map((route, index) => (
-            <React.Fragment key={route.id || index}>
-              <CustomPolyline
-                track={route.track}
-                id={route.id}
-                onPress={onPressPolyline}
-              />
-              {routes &&
-              index === routes?.routes.length - 1 &&
-              routes?.nextRouteId ? (
-                <CustomMarker
-                  track={route.track}
-                  isRoute={false}
-                  routeId={route.id}
-                  isLast={true}
-                  nextId={routes?.nextRouteId}
-                  onPress={onPressMarker}
+          (isMain ? routes.routes : route && [route]).map(
+            (currentRoute, index) => (
+              <React.Fragment key={currentRoute.id || index}>
+                <CustomPolyline
+                  track={currentRoute.track}
+                  id={currentRoute.id}
+                  onPress={onPressPolyline}
                 />
-              ) : (
-                <CustomMarker
-                  track={route.track}
-                  isRoute={false}
-                  routeId={route.id}
-                  isLast={false}
-                  onPress={onPressMarker}
-                />
-              )}
-            </React.Fragment>
-          ))}
+                {routes &&
+                index === routes?.routes.length - 1 &&
+                routes?.nextRouteId ? (
+                  <CustomMarker
+                    track={currentRoute.track}
+                    isRoute={false}
+                    routeId={currentRoute.id}
+                    isLast={true}
+                    nextId={routes?.nextRouteId}
+                    onPress={() => onPressEndMarker(routes?.nextRouteId)}
+                  />
+                ) : route && route.nextSnapshot ? (
+                  <CustomMarker
+                    track={currentRoute.track}
+                    isRoute={false}
+                    routeId={currentRoute.id}
+                    isLast={true}
+                    onPress={onPressEndMarker}
+                  />
+                ) : (
+                  <CustomMarker
+                    track={currentRoute.track}
+                    isRoute={false}
+                    routeId={currentRoute.id}
+                    isLast={false}
+                    onPress={onPressStartMarker}
+                  />
+                )}
+              </React.Fragment>
+            ),
+          )}
       </MapView>
-      {isMain && routes ? (
+      {isMain && routes && isOpenStartChecklist ? (
         <CheckListModal
-          visible={isOpenChecklist}
-          onDismiss={() => setIsOpenChecklist(false)}
+          visible={isOpenStartChecklist}
+          onDismiss={() => setIsOpenStartChecklist(false)}
           routeId={routeId}
         />
       ) : (
-        route && (
+        isMain &&
+        routes &&
+        isOpenEndChecklist && (
           <CheckListModal
-            visible={isOpenChecklist}
-            onDismiss={() => setIsOpenChecklist(false)}
+            visible={isOpenEndChecklist}
+            onDismiss={() => setIsOpenEndChecklist(false)}
             routeId={routeId}
-            snapshot={route.startSnapshot}
+          />
+        )
+      )}
+      {!isMain && route && isOpenStartChecklist ? (
+        <CheckListModal
+          visible={isOpenStartChecklist}
+          onDismiss={() => setIsOpenStartChecklist(false)}
+          snapshot={route.startSnapshot}
+          skip={route.skip}
+        />
+      ) : (
+        !isMain &&
+        route &&
+        isOpenEndChecklist && (
+          <CheckListModal
+            visible={isOpenEndChecklist}
+            onDismiss={() => setIsOpenEndChecklist(false)}
+            snapshot={route.nextSnapshot}
             skip={route.skip}
           />
         )

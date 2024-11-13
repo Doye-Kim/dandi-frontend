@@ -53,7 +53,7 @@ const getCurrentLocation = async (): Promise<LatLng | null> => {
           console.log(error);
           reject(error);
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 },
       );
     });
   } else {

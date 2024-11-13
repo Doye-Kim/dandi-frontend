@@ -31,22 +31,8 @@ const CustomHeader = ({
   route?: UseRouteProps;
   setRouteId?: (routeId: number) => void;
 }) => {
-  const [startTime, setStartTime] = useState<string>();
   const [isOpenSelectDate, setIsOpenSelectDate] = useState(false);
-  const [timeDiff, setTimeDiff] = useState<string>();
-  useEffect(() => {
-    if (route) {
-      console.warn('route', route);
-      console.warn(
-        'startTime',
-        convertDateTimeFormat(new Date(route.createdAt)),
-      );
-      setStartTime(convertDateTimeFormat(new Date(route.createdAt)));
-      setTimeDiff(
-        getTimeDifference(new Date(route.createdAt), new Date(route.endedAt)),
-      );
-    }
-  }, []);
+
   const onPressNext = () => {
     if (isMain && !!date && !!setDate && !isSameOrAfter(today, date))
       setDate(changeDateByDays(date, 1));
@@ -98,16 +84,24 @@ const CustomHeader = ({
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            {startTime && (
-              <CustomText style={{ fontSize: 15, color: colors.BLACK }}>
-                {startTime} 출발
-              </CustomText>
-            )}
-            {timeDiff && (
-              <CustomText
-                style={{ marginTop: 2, fontSize: 12, color: colors.GRAY_600 }}>
-                {timeDiff} 이동
-              </CustomText>
+            {route && (
+              <>
+                <CustomText style={{ fontSize: 15, color: colors.BLACK }}>
+                  {convertDateTimeFormat(new Date(route.createdAt))} 출발
+                </CustomText>
+                <CustomText
+                  style={{
+                    marginTop: 2,
+                    fontSize: 12,
+                    color: colors.GRAY_600,
+                  }}>
+                  {getTimeDifference(
+                    new Date(route.createdAt),
+                    new Date(route.endedAt),
+                  )}{' '}
+                  이동
+                </CustomText>
+              </>
             )}
           </View>
         )}

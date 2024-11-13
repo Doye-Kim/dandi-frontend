@@ -35,11 +35,12 @@ const CheckListModal = ({
 }) => {
   const [items, setItems] = useState<Item[]>();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
   const fetchItems = async (routeId: number) => {
     try {
       const data = await getSnapshot(routeId);
-      setItems(data.items);
-      const initiallySelected = data.items
+      setItems(data.snapshot.items);
+      const initiallySelected = data.snapshot.items
         .filter((item: Item) => item.isChecked)
         .map((item: Item) => item.name);
       setSelectedItems(initiallySelected);

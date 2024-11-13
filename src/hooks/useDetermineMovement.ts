@@ -25,7 +25,7 @@ export const useDetermineMovement = (
 ) => {
   const distances = useRef<number[]>([]);
   const speedThreshold = 0.5;
-  const MAX_LOCATIONS_LENGTH = 10;
+  const MAX_LOCATIONS_LENGTH = 60;
   const isMovingRef = useRef(isMoving);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
 
@@ -82,7 +82,7 @@ export const useDetermineMovement = (
   const startMovement = async () => {
     await AsyncStorage.setItem(
       'locations',
-      JSON.stringify(locations.slice(-10)),
+      JSON.stringify(locations.slice(-MAX_LOCATIONS_LENGTH)),
     );
     startMutation.mutate(defaultBagId);
   };
@@ -117,7 +117,7 @@ export const useDetermineMovement = (
         distances.current.shift();
     }
 
-    if (locations.length >= 10) {
+    if (locations.length >= MAX_LOCATIONS_LENGTH) {
       determineMovement();
     }
   }, [locations]);

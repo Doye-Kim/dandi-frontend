@@ -14,20 +14,26 @@ import {
 } from '@/assets/icons';
 import { View, StyleSheet } from 'react-native';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { colors, mainNavigations } from '@/constants';
+import {
+  colors,
+  lostNavigations,
+  mainNavigations,
+  notiNavigations,
+} from '@/constants';
 import MapMainScreen from '@/screens/map/MapMainScreen';
-import NotiMainScreen from '@/screens/noti/NotiMainScreen';
 import LostStackNavigator from '@/navigations/stack/LostStackNavigator';
 import BagStackNavigator from '../stack/BagStackNavigator';
 import MyStackNavigator from '../stack/MyStackNavigator';
+import NotiStackNavigator from '../stack/NotiStackNavigator';
 
 const Tab = createBottomTabNavigator();
 const NeedTabBarScreens = [
-  'PickupList',
-  'SOSList',
+  lostNavigations.PICKUP_LIST,
+  lostNavigations.SOS_LIST,
   'BagMain',
   'MyMain',
   mainNavigations.MAP,
+  notiNavigations.NOTI_MAIN,
 ];
 
 const Navbar = () => {
@@ -79,7 +85,10 @@ const Navbar = () => {
         />
         <Tab.Screen name={mainNavigations.MAP} component={MapMainScreen} />
         <Tab.Screen name={mainNavigations.BAG} component={BagStackNavigator} />
-        <Tab.Screen name={mainNavigations.NOTI} component={NotiMainScreen} />
+        <Tab.Screen
+          name={mainNavigations.NOTI}
+          component={NotiStackNavigator}
+        />
         <Tab.Screen name={mainNavigations.MY} component={MyStackNavigator} />
       </Tab.Navigator>
     </View>

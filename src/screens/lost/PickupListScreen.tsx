@@ -5,9 +5,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
 import { isAxiosError } from 'axios';
-import { getAlertList } from '@/api/lost';
+import { getAlertList, deleteAlert } from '@/api/lost';
 import { colors } from '@/constants';
-import { responsive, showCustomErrorToast } from '@/utils';
+import { responsive, showCustomErrorToast, showToast } from '@/utils';
 import { RegisterIcon } from '@/assets/icons';
 import { AlertData } from '@/types/lost';
 import CustomText from '@/components/common/CustomText';
@@ -91,10 +91,18 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
     });
   };
   // 알람 목록 삭제 함수
-  const deleteAlert = () => {
-    // todo: 삭제 로직 추가
-    setSelectMode(false);
-    setSelected([]);
+  const deleteAlertList = async () => {
+    try {
+      const data = await deleteAlert(selected);
+      console.log(data);
+      setSelectMode(false);
+      setSelected([]);
+      showToast('알림이 삭제되었습니다.');
+    } catch (error) {
+      if (isAxiosError(error)) {
+        showCustomErrorToast(error.response?.data.message);
+      }
+    }
   };
   // 상세 페이지 이동 함수
   const tryNavigateToDetail = (foundId: number) => {
@@ -115,7 +123,7 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
         handleLongPress={handleSelectMode}
         goToDetail={tryNavigateToDetail}
       />
-      <ListOptopmModal isVisible={selectMode} onDelete={deleteAlert} />
+      <ListOptopmModal isVisible={selectMode} onDelete={deleteAlertList} />
 
       <RegisterIconBox onPress={() => navigation.navigate('PickupRegister')}>
         <RegisterIcon width={responsive(48)} height={responsive(48)} />

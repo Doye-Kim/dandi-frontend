@@ -7,6 +7,7 @@ import MyPickupScreen from '@/screens/my/MyPickupScreen';
 import PickupDetailScreen from '@/screens/lost/PickupDetailScreen';
 import MySosScreen from '@/screens/my/MySosScreen';
 import SOSDetailScreen from '@/screens/lost/SOSDetailScreen';
+import MyLatelyScreen from '@/screens/my/MyLatelyScreen';
 
 export type MyStackParamList = {
   [myNavigations.MY_MAIN]: undefined;
@@ -16,6 +17,7 @@ export type MyStackParamList = {
   [myNavigations.MY_SOS]: undefined;
   [lostNavigations.PICKUP_DETAIL]: { id: number };
   [lostNavigations.SOS_DETAIL]: { id: number };
+  [myNavigations.MY_LATELY]: undefined;
 };
 
 const Stack = createStackNavigator<MyStackParamList>();
@@ -82,6 +84,13 @@ function MyStackNavigator() {
         name={lostNavigations.SOS_DETAIL}
         component={SOSDetailScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={myNavigations.MY_LATELY}
+        component={MyLatelyScreen}
+        options={{
+          headerShown: false,
+        }}
       />
     </Stack.Navigator>
   );

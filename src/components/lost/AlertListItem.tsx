@@ -33,7 +33,7 @@ const AlertListItem = ({
         </EmojiBox>
         <TitleBox>
           <CustomText style={{ color: colors.PRIMARY }}>
-            {data.foundItemId ? '습득물' : '분실물'}
+            {data.foundItemId ? '습득물' : data.commentId ? '댓글' : '분실물'}
           </CustomText>
         </TitleBox>
         <TimeBox>
@@ -42,14 +42,21 @@ const AlertListItem = ({
               color: colors.GRAY_500,
               fontSize: responsive(10),
             }}>
-            {/* todo: date 동적 변경 예정 */}
-            {/* {data.date.slice(5, 10)} */}
+            {data.createdAt.slice(5, 10)}
           </CustomText>
         </TimeBox>
       </AlertHeader>
       <AlertContent>
         <BlankBox />
-        <AlertContentText>{data.title}</AlertContentText>
+        {data.commentId ? (
+          <AlertContentText>
+            {data.title === 'foundComment'
+              ? '내가 신고한 분실물에 댓글이 달렸어요!'
+              : '내가 등록한 SOS에 댓글이 달렸어요!'}
+          </AlertContentText>
+        ) : (
+          <AlertContentText>{data.title}</AlertContentText>
+        )}
       </AlertContent>
     </CardContainer>
   );

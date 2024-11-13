@@ -34,9 +34,7 @@ const getAlertList = async (resourceId = 0, types = ['foundItem']) => {
 // 알림 목록 삭제 API
 const deleteAlert = async (alertList: number[]) => {
   const { data } = await axiosInstance.delete('/noti', {
-    params: { alertList },
-    paramsSerializer: (params) =>
-      qs.stringify(params, { arrayFormat: 'repeat' }),
+    data: alertList,
   });
   return data;
 };
@@ -57,6 +55,12 @@ const getMyPickupList = async () => {
   const { data } = await axiosInstance.get('/member/founds');
   return data;
 };
+// 내가 볼 수 있는 습득물 목록 조회 API
+const getMyLatelyList = async () => {
+  const { data } = await axiosInstance.get('/founds');
+  return data;
+};
+
 // 습득물 상세정보 조회 API
 const getPickupDetail = async (foundId: number) => {
   const { data } = await axiosInstance.get(`/founds/${foundId}`);
@@ -129,6 +133,16 @@ const registerSOSComment = async (
   });
   return data;
 };
+// 댓글 id -> 게시글 조회 API
+const getPostByCommentId = async (
+  commentId: number,
+  type: string | undefined,
+) => {
+  const { data } = await axiosInstance.get(`/comments/${commentId}/`, {
+    params: { type },
+  });
+  return data;
+};
 
 export {
   getAlertList,
@@ -138,6 +152,7 @@ export {
   uploadImage,
   registerPickup,
   getMyPickupList,
+  getMyLatelyList,
   getPickupDetail,
   getMySOSList,
   registerSOS,
@@ -146,4 +161,5 @@ export {
   getPickupComments,
   registerPickupComment,
   registerSOSComment,
+  getPostByCommentId,
 };

@@ -9,6 +9,7 @@ export interface AlertData {
   foundItemId?: number;
   commentId?: number;
   routeId?: number;
+  body?: string;
 }
 // 습득물 상세정보 데이터 타입 정의
 export interface PickupDetailData {

@@ -7,6 +7,7 @@ import AlertListItem from '@/components/lost/AlertListItem';
 import { responsive } from '@/utils/common';
 import { AlertData } from '@/types/lost';
 import Toast from 'react-native-toast-message';
+import { showCustomErrorToast } from '@/utils';
 
 interface AlertListProps {
   data: AlertData[];
@@ -14,7 +15,7 @@ interface AlertListProps {
   selected: number[];
   handleSelect: (id: number) => void;
   handleLongPress: (id: number) => void;
-  goToDetail: (itmeId: number) => void;
+  goToDetail: (itmeId: number, type?: string | undefined) => void;
 }
 
 const AlertList = ({
@@ -30,7 +31,8 @@ const AlertList = ({
       <FlatList
         data={data}
         renderItem={({ item }) => {
-          const itemId = item.foundItemId || item.lostItemId;
+          const itemId = item.foundItemId || item.lostItemId || item.commentId;
+          const type = item.commentId ? item.title : undefined;
 
           return (
             <AlertListItem
@@ -41,12 +43,9 @@ const AlertList = ({
               handleLongPress={() => handleLongPress(item.id)}
               goToDetail={() => {
                 if (itemId) {
-                  goToDetail(itemId);
+                  goToDetail(itemId, type);
                 } else {
-                  Toast.show({
-                    type: 'error',
-                    text1: '해당 분실물 정보를 찾을 수 없습니다.',
-                  });
+                  showCustomErrorToast('분실물 정보를 찾을 수 없습니다.');
                 }
               }}
             />

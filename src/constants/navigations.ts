@@ -39,6 +39,11 @@ const myNavigations = {
   MY_NOTI: 'MyNoti',
   MY_PICKUP: 'MyPickup',
   MY_SOS: 'MySOS',
+  MY_LATELY: 'MyLately',
+} as const;
+
+const notiNavigations = {
+  NOTI_MAIN: 'NotiMain',
 } as const;
 
 export {
@@ -46,5 +51,6 @@ export {
   authNavigations,
   bagNavigations,
   lostNavigations,
+  notiNavigations,
   myNavigations,
 };

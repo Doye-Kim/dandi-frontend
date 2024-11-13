@@ -1,22 +1,30 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
+import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { useState } from 'react';
+import { isAxiosError } from 'axios';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import { getAlertList } from '@/api/lost';
+import { getAlertList, getPostByCommentId } from '@/api/lost';
+import { AlertData } from '@/types/lost';
+import { showCustomErrorToast } from '@/utils';
 import CustomText from '@/components/common/CustomText';
+import AlertList from '@/components/lost/AlertList';
 
 const NotiMainScreen = () => {
-  const [AlertList, setAlertList] = useState([]);
+  const [alertList, setAlertList] = useState<AlertData[]>([]);
+  const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
+  const [selected, setSelected] = useState<number[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       const fetchAlertList = async () => {
         try {
           const data = await getAlertList(0, ['comment']);
-          console.log(data);
-          setAlertList(data.items || []);
+          setAlertList(data);
         } catch (error) {
+          if (isAxiosError(error)) {
+            showCustomErrorToast(error.response?.data.message);
+          }
           console.error(error);
         }
       };
@@ -25,14 +33,38 @@ const NotiMainScreen = () => {
     }, []),
   );
 
+  const goToDetail = (commentId: number, type: string | undefined) => {
+    const fetchPostByCommentId = async () => {
+      try {
+        const data = await getPostByCommentId(commentId, type);
+        if (data) {
+          console.log(data);
+        }
+        // TODO: 게시글 상세 페이지로 이동
+      } catch (error) {
+        if (isAxiosError(error)) {
+          showCustomErrorToast(error.response?.data.message);
+        }
+        console.error(error);
+      }
+    };
+    fetchPostByCommentId();
+  };
+
   return (
     <Container>
-      {AlertList.length > 0 ? null : (
-        <EmptyText>최근 알림이 없습니다.</EmptyText>
+      {AlertList.length > 0 ? (
+        <AlertList
+          data={alertList}
+          isSelectMode={isSelectMode}
+          selected={selected}
+          handleSelect={() => {}}
+          handleLongPress={() => {}}
+          goToDetail={goToDetail}
+        />
+      ) : (
+        <EmptyText>댓글 알림이 없습니다.</EmptyText>
       )}
-      <CustomText>1. 댓글 알림</CustomText>
-      <CustomText>해야할 일: 클릭 시, 댓글 달린 글 이동</CustomText>
-      <CustomText>해야할 일2: 댓글에 스크롤 커서 위치</CustomText>
     </Container>
   );
 };

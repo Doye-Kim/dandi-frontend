@@ -43,6 +43,10 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
   const handlePressLost = () => {
     navigation.navigate(myNavigations.MY_PICKUP);
   };
+  const handlePressLately = () => {
+    navigation.navigate(myNavigations.MY_LATELY);
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -116,6 +120,11 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
             label='내가 신고한 분실물'
             showIcon
             onPress={handlePressLost}
+          />
+          <ListItem
+            label='최근 조회한 분실물'
+            showIcon
+            onPress={handlePressLately}
           />
         </Section>
 

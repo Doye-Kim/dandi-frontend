@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import DraggableGrid from 'react-native-draggable-grid';
 import styled from 'styled-components/native';
-import axios from 'axios';
-import { responsive, showErrorToast } from '@/utils';
+import { checkErrorAndViewToast, responsive } from '@/utils';
 import { ItemKeyProps, StyleItemIcon } from './BagThings';
 import { CheckIcon } from '@/assets/icons';
 import { colors } from '@/constants';
@@ -37,7 +36,6 @@ const BagDrawer = () => {
 
   useEffect(() => {
     if (drawerItems) {
-      console.log('drawer', drawerItems);
       setDrawerKeyItems(
         drawerItems.map((item) => ({
           ...item,
@@ -46,9 +44,8 @@ const BagDrawer = () => {
         })),
       );
     }
-    if (axios.isAxiosError(error) && error.response?.data) {
-      const { code } = error.response.data as { code: string; message: string };
-      showErrorToast(code);
+    if (error) {
+      checkErrorAndViewToast(error);
     }
   }, [drawerItems, error]);
 

@@ -41,6 +41,8 @@ export interface RouteProps {
   memberId: number;
   track: LatLon[];
   skip: string;
+  startAddress: string;
+  endAddress: string;
   startSnapshot: {
     bagId: number;
     items: CheckListItemProps[];
@@ -60,6 +62,8 @@ export interface UseRouteProps {
   memberId: number;
   track: LatLng[];
   skip: string;
+  startAddress: string;
+  endAddress: string;
   startSnapshot: {
     bagId: number;
     items: CheckListItemProps[];
@@ -99,6 +103,18 @@ const getRoute = async (routeId: number): Promise<RouteProps> => {
   return data;
 };
 
+const patchSnapshot = async (routeId: number, snapshot: Snapshot) => {
+  const { data } = await axiosInstance.patch(`routes/${routeId}/snapshot`, {
+    snapshot,
+  });
+  return data;
+};
+
+const getSnapshot = async (routeId: number) => {
+  const { data } = await axiosInstance.get(`routes/${routeId}/snapshot`);
+  return data;
+};
+
 // export type skipState = 'Y' | 'N';
 
 export interface Item {
@@ -118,4 +134,12 @@ export interface ResponseSnapshot {
   snapshot: Snapshot;
 }
 
-export { startRoute, endRoute, getRoutes, getRoute, getRouteId };
+export {
+  startRoute,
+  endRoute,
+  getRoutes,
+  getRoute,
+  getRouteId,
+  patchSnapshot,
+  getSnapshot,
+};

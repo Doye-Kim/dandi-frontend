@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { TextInput } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
-import axios from 'axios';
 import {
+  checkErrorAndViewToast,
   responsive,
   responsiveVertical,
-  showCustomErrorToast,
   showErrorToast,
 } from '@/utils';
 import { colors } from '@/constants';
@@ -18,7 +17,6 @@ import {
   useEditBagNameMutation,
 } from '@/queries/bagQueries';
 import { putUpdateNickname } from '@/api/auth';
-import { getEncryptStorage, setEncryptStorage } from '@/utils/encryptedStorage';
 import useUserStore from '@/store/useUserStore';
 
 interface InputModalProps {
@@ -63,27 +61,20 @@ const InputModal = ({
 
   const handleCreateBag = async () => {
     if (!newName || newName === '') {
-      showErrorToast('이름을 입력해 주세요');
+      showErrorToast('EMPTY_NAME');
     } else {
       onConfirm();
       setNewName(name ? name : nickname ? nickname : '');
       if (copyBagId) {
         copyMutation.mutate({ bagId: copyBagId, name: newName });
       } else if (bagId) {
-        console.log('edit', { bagId: bagId, name: newName });
         editNameMutation.mutate({ bagId: bagId, name: newName });
       } else if (nickname) {
         try {
           await putUpdateNickname(newName);
           setNickname(newName);
         } catch (error) {
-          if (axios.isAxiosError(error) && error.response?.data) {
-            const { code, message } = error.response.data as {
-              code: string;
-              message: string;
-            };
-            showCustomErrorToast(message);
-          }
+          checkErrorAndViewToast(error);
         }
       } else {
         createMutation.mutate(newName);

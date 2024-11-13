@@ -27,18 +27,15 @@ const CustomBagHeader = () => {
   const handleMakeCopyBag = () => {
     setIsOpenAddBag(false);
     setIsOpenBagList(true);
-    console.log('Copying bag');
   };
 
   const handleMakeBag = () => {
     setIsOpenAddBag(false);
     setIsOpenBagList(false);
     setIsOpenBagName(true);
-    console.log('Creating empty bag');
   };
 
   const handleFetchMakeBag = () => {
-    console.log('Fetching bag creation');
     setIsOpenBagName(false);
     setCopyBagId(null);
   };

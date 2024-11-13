@@ -2,85 +2,84 @@ import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import styled from 'styled-components/native';
-import axios from 'axios';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useDetermineMovement } from '@/hooks/useDetermineMovement';
 import { CurrentPin, SparkleIcon } from '@/assets/icons';
-import { convertDateFormat, getCurrentLocation, showErrorToast } from '@/utils';
-import { colors } from '@/constants';
-import CustomHeader from '@/components/map/CustomHeader';
 import {
-  LatLng,
-  LatLon,
-  ResponseRouteListItem,
-  RouteProps,
-  UseRouteListItem,
-  UseRouteProps,
-} from '@/api/map';
-import CustomText from '@/components/common/CustomText';
+  checkErrorAndViewToast,
+  convertDateFormat,
+  getCurrentLocation,
+} from '@/utils';
+import { LatLng, LatLon, UseRouteProps, getRoute, getRouteId } from '@/api/map';
+import { useRoutesQuery } from '@/queries/mapQueries';
+import { colors } from '@/constants';
 import CheckListModal from '@/components/map/ChecklistModal';
 import CustomPolyline from '@/components/map/CustomPolyLine';
+import CustomHeader from '@/components/map/CustomHeader';
 import CustomMarker from '@/components/map/CustomMarker';
-import {
-  useRouteIdQuery,
-  useRouteQuery,
-  useRoutesQuery,
-} from '@/queries/mapQueries';
+import CustomText from '@/components/common/CustomText';
 
 const MapMainScreen = () => {
-  const [currentLocation, setCurrentLocation] = useState<LatLng>(); // 사용자의 현재 위치
+  const today = new Date();
+  const [currentLocation, setCurrentLocation] = useState<LatLng>();
   const [locations, setLocations] = useState<LatLon[]>([]); // 사용자의 이동 여부를 확인하기 위한 10분 간의 위치 데이터
   const [isMoving, setIsMoving] = useState<boolean>(false);
-
-  const [defaultRouteId, setDefaultRouteId] = useState();
+  const [defaultId, setDefaultId] = useState<number>();
   const [routeId, setRouteId] = useState<number | undefined>();
+  const [date, setDate] = useState(today);
   const [isOpenChecklist, setIsOpenChecklist] = useState<boolean>(false);
   const [isMain, setIsMain] = useState<boolean>(true);
-  const today = new Date();
-  const [date, setDate] = useState(today);
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState<Region>();
 
+  const [route, setRoute] = useState<UseRouteProps>();
   const { data: routes, error } = useRoutesQuery(convertDateFormat(date));
-  const { data: currentRouteId, error: idError } = useRouteIdQuery();
-  const { data: route, error: routeError } = useRouteQuery(
-    defaultRouteId,
-    !!defaultRouteId,
-  );
+
+  const getCurrentRouteId = async () => {
+    try {
+      const { routeId } = await getRouteId();
+      setRouteId(routeId);
+      setDefaultId(routeId);
+      getCurrentRoute(routeId);
+    } catch (error) {
+      checkErrorAndViewToast(error);
+    }
+  };
+
+  const getCurrentRoute = async (routeId: number) => {
+    try {
+      const routeData = await getRoute(routeId);
+      setRoute({
+        ...routeData,
+        track: routeData.track.map((point) => ({
+          latitude: point.lat,
+          longitude: point.lon,
+        })) as LatLng[],
+      });
+    } catch (error) {
+      checkErrorAndViewToast(error);
+    }
+  };
 
   useEffect(() => {
-    if (axios.isAxiosError(routeError) && routeError.response?.data) {
-      const { code } = routeError.response.data as {
-        code: string;
-        message: string;
-      };
-      showErrorToast(code);
-    }
-  }, [routeError]);
+    getCurrentRouteId();
+  }, []);
 
   useEffect(() => {
-    if (currentRouteId) {
-      setDefaultRouteId(currentRouteId.routeId);
-    }
-    if (axios.isAxiosError(idError) && idError.response?.data) {
-      const { code } = idError.response.data as {
-        code: string;
-        message: string;
-      };
-      showErrorToast(code);
-    }
-  }, [currentRouteId, idError]);
+    if (routeId) getCurrentRoute(routeId);
+  }, [routeId]);
 
   useEffect(() => {
-    if (axios.isAxiosError(error) && error.response?.data) {
-      const { code } = error.response.data as { code: string; message: string };
-      showErrorToast(code);
+    if (routes) {
+      // console.warn('map main routes', JSON.stringify(routes));
+    }
+    if (error) {
+      checkErrorAndViewToast(error);
     }
   }, [routes, error]);
 
   // 현재 위치 초기값 설정
   useEffect(() => {
-    console.log('[] useEffect');
     const fetchLocation = async () => {
       const location = await getCurrentLocation();
       if (location) {
@@ -93,7 +92,7 @@ const MapMainScreen = () => {
             },
           ],
           {
-            edgePadding: { top: 200, right: 200, bottom: 200, left: 200 },
+            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
             animated: true,
           },
         );
@@ -108,7 +107,6 @@ const MapMainScreen = () => {
 
   // 맵 중심 맞추기
   const updateMapCenter = () => {
-    console.log('updateMapCenter');
     const allCoordinates = isMain
       ? routes?.routes.flatMap((route) => route.track)
       : route && route.track;
@@ -122,7 +120,7 @@ const MapMainScreen = () => {
     }
   };
   useEffect(() => {
-    console.log('isMain, currentLocation useEffect');
+    updateMapCenter();
   }, [isMain]);
 
   // 상호작용(줌, 이동 등등..)
@@ -134,7 +132,7 @@ const MapMainScreen = () => {
 
   const onPressToggle = () => {
     if (isMain) {
-      setRouteId(defaultRouteId);
+      setRouteId(defaultId);
     }
     setIsMain((prev) => !prev);
   };
@@ -151,7 +149,7 @@ const MapMainScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {isMain ? (
+      {isMain && routes ? (
         <CustomHeader
           isMain={isMain}
           today={today}
@@ -159,15 +157,17 @@ const MapMainScreen = () => {
           setDate={setDate}
         />
       ) : (
-        <CustomHeader
-          isMain={isMain}
-          today={today}
-          route={route}
-          routeId={routeId}
-          setRouteId={setRouteId}
-        />
+        !isMain &&
+        route && (
+          <CustomHeader
+            isMain={isMain}
+            today={today}
+            route={route}
+            setRouteId={setRouteId}
+          />
+        )
       )}
-      {defaultRouteId && (
+      {routeId && (
         <ToggleButton onPress={onPressToggle}>
           <SparkleIcon />
           <CustomText style={{ marginLeft: 10, color: colors.WHITE }}>
@@ -193,10 +193,10 @@ const MapMainScreen = () => {
             <CurrentPin width={60} height={60} />
           </Marker>
         )}
-        {/* {(isMain ? routes : [route]).map} */}
+
         {routes?.routes &&
           route &&
-          (isMain ? routes.routes : [route]).map((route, index) => (
+          (isMain ? routes.routes : route && [route]).map((route, index) => (
             <React.Fragment key={route.id || index}>
               <CustomPolyline
                 track={route.track}
@@ -226,23 +226,23 @@ const MapMainScreen = () => {
             </React.Fragment>
           ))}
       </MapView>
-      {/* {routeId &&
-        data &&
-        (Array.isArray(data) ? (
+      {isMain && routes ? (
+        <CheckListModal
+          visible={isOpenChecklist}
+          onDismiss={() => setIsOpenChecklist(false)}
+          routeId={routeId}
+        />
+      ) : (
+        route && (
           <CheckListModal
             visible={isOpenChecklist}
             onDismiss={() => setIsOpenChecklist(false)}
             routeId={routeId}
+            snapshot={route.startSnapshot}
+            skip={route.skip}
           />
-        ) : (
-          <CheckListModal
-            visible={isOpenChecklist}
-            onDismiss={() => setIsOpenChecklist(false)}
-            routeId={routeId}
-            snapshot={data.startSnapshot}
-            skip={data.skip}
-          />
-        ))} */}
+        )
+      )}
     </SafeAreaView>
   );
 };

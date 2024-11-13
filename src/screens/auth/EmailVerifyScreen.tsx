@@ -1,10 +1,14 @@
-import { SafeAreaView, TextInput } from 'react-native';
-import axios from 'axios';
-import { AuthHomeScreenProps } from './AuthHomeScreen';
-import { authNavigations } from '@/constants';
-import { responsive, showErrorToast, validateEmail } from '@/utils';
 import { useRef, useState } from 'react';
+import { SafeAreaView, TextInput } from 'react-native';
+import {
+  checkErrorAndViewToast,
+  responsive,
+  showCustomErrorToast,
+  validateEmail,
+} from '@/utils';
+import { AuthHomeScreenProps } from './AuthHomeScreen';
 import { putPasswordVerifyNum } from '@/api/auth';
+import { authNavigations } from '@/constants';
 import InputField from '@/components/auth/InputField';
 import useForm from '@/hooks/useForm';
 import AuthButton from '@/components/auth/AuthButton';
@@ -22,19 +26,14 @@ const EmailVerifyScreen = ({ navigation }: AuthHomeScreenProps) => {
       );
       setIsSendEmail(true);
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as {
-          code: string;
-        };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
   const handlePressConfirm = () => {
     if (!isSendEmail) {
       sendEmail();
     } else {
-      if (!number) showErrorToast('인증 번호를 입력해 주세요');
+      if (!number) showCustomErrorToast('인증 번호를 입력해 주세요');
       else {
         setEmail(checkEmail.getTextInputProps('email').value);
         setVerificationNumber(number);

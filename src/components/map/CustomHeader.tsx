@@ -12,6 +12,7 @@ import {
   getTimeDifference,
   isSameOrAfter,
   responsive,
+  showErrorToast,
 } from '@/utils';
 import { UseRouteProps } from '@/api/map';
 
@@ -21,7 +22,6 @@ const CustomHeader = ({
   date,
   setDate,
   route,
-  routeId,
   setRouteId,
 }: {
   isMain: boolean;
@@ -29,33 +29,38 @@ const CustomHeader = ({
   date?: Date;
   setDate?: (date: Date) => void;
   route?: UseRouteProps;
-  routeId?: number;
   setRouteId?: (routeId: number) => void;
 }) => {
-  const [startTime, setStartTime] = useState(
-    route && convertDateTimeFormat(new Date(route.createdAt)),
-  );
+  const [startTime, setStartTime] = useState<string>();
   const [isOpenSelectDate, setIsOpenSelectDate] = useState(false);
   const [timeDiff, setTimeDiff] = useState<string>();
   useEffect(() => {
-    if (route)
+    if (route) {
+      console.warn('route', route);
+      console.warn(
+        'startTime',
+        convertDateTimeFormat(new Date(route.createdAt)),
+      );
+      setStartTime(convertDateTimeFormat(new Date(route.createdAt)));
       setTimeDiff(
         getTimeDifference(new Date(route.createdAt), new Date(route.endedAt)),
       );
+    }
   }, []);
   const onPressNext = () => {
-    if (isMain && date && setDate && !isSameOrAfter(today, date))
+    if (isMain && !!date && !!setDate && !isSameOrAfter(today, date))
       setDate(changeDateByDays(date, 1));
-    else if (!isMain && route && setRouteId && route.nextRouteId !== null) {
+    else if (!isMain && !!route && !!setRouteId && !!route.nextRouteId) {
       setRouteId(route.nextRouteId);
-    }
+    } else showErrorToast('NO_NEXT');
   };
 
   const onPressPrev = () => {
-    if (isMain && setDate && date) setDate(changeDateByDays(date, -1));
-    else if (!isMain && route && setRouteId && route.previousRouteId !== null) {
+    if (isMain && !!setDate && !!date) setDate(changeDateByDays(date, -1));
+    else if (!isMain && !!route && !!setRouteId && !!route.previousRouteId) {
+      console.log(route.previousRouteId);
       setRouteId(route.previousRouteId);
-    }
+    } else showErrorToast('NO_PREV');
   };
   return (
     <HeaderContainer>
@@ -93,13 +98,17 @@ const CustomHeader = ({
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <CustomText style={{ fontSize: 15, color: colors.BLACK }}>
-              {startTime} 출발
-            </CustomText>
-            <CustomText
-              style={{ marginTop: 2, fontSize: 12, color: colors.GRAY_600 }}>
-              {timeDiff} 이동
-            </CustomText>
+            {startTime && (
+              <CustomText style={{ fontSize: 15, color: colors.BLACK }}>
+                {startTime} 출발
+              </CustomText>
+            )}
+            {timeDiff && (
+              <CustomText
+                style={{ marginTop: 2, fontSize: 12, color: colors.GRAY_600 }}>
+                {timeDiff} 이동
+              </CustomText>
+            )}
           </View>
         )}
       </TouchableOpacity>

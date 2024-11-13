@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { SafeAreaView, TouchableOpacity } from 'react-native';
-import axios from 'axios';
-import { CheckRingIcon } from '@/assets/icons';
-import { authNavigations, colors } from '@/constants';
-import {
-  responsive,
-  responsiveVertical,
-  showCustomErrorToast,
-  showErrorToast,
-} from '@/utils';
-import { AuthHomeScreenProps } from './AuthHomeScreen';
-import CustomText from '@/components/common/CustomText';
-import AuthButton from '@/components/auth/AuthButton';
 import Toast from 'react-native-toast-message';
 import { postJoinLink, postJoinVerify } from '@/api/auth';
+import { AuthHomeScreenProps } from './AuthHomeScreen';
+import { authNavigations, colors } from '@/constants';
+import { CheckRingIcon } from '@/assets/icons';
+import {
+  checkErrorAndViewToast,
+  responsive,
+  responsiveVertical,
+} from '@/utils';
+import CustomText from '@/components/common/CustomText';
+import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
 import LoadingScreen from '../LoadingScreen';
 
@@ -27,8 +25,7 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
   const verify = async () => {
     setIsLoading(true);
     try {
-      const data = await postJoinVerify(email);
-      console.log('data', data);
+      await postJoinVerify(email);
       Toast.show({
         type: 'success',
         text1: '축하합니다! 로그인을 진행해 주세요',
@@ -38,13 +35,7 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
       navigation.reset({ routes: [{ name: authNavigations.LOGIN }] });
     } catch (error) {
       setIsLoading(false);
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code, message } = error.response.data as {
-          code: string;
-          message: string;
-        };
-        showCustomErrorToast(message);
-      }
+      checkErrorAndViewToast(error);
     }
   };
   const onPress = () => {
@@ -53,16 +44,12 @@ const EmailCheckScreen = ({ navigation }: AuthHomeScreenProps) => {
 
   const requestLink = async () => {
     try {
-      const data = await postJoinLink(email);
-      console.log(data);
+      await postJoinLink(email);
       Toast.show({ type: 'success', text1: '이메일이 전송되었습니다.' });
       setTimeLeft(180);
       setIsButtonDisabled(true);
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
   const onResendPress = () => {

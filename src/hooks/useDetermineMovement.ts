@@ -25,7 +25,7 @@ export const useDetermineMovement = (
 ) => {
   const distances = useRef<number[]>([]);
   const speedThreshold = 0.5;
-  const MAX_LOCATIONS_LENGTH = 60;
+  const MAX_LOCATIONS_LENGTH = 10;
   const isMovingRef = useRef(isMoving);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
 
@@ -36,9 +36,23 @@ export const useDetermineMovement = (
   const determineMovement = async () => {
     const averageSpeed = calculateAverageSpeed(distances.current);
     const newIsMoving = averageSpeed > speedThreshold;
-    // console.log('determine', averageSpeed, isMovingRef.current, newIsMoving);
 
     if (newIsMoving && !isMovingRef.current) {
+      const routeIdString = await AsyncStorage.getItem('routeId');
+      console.log('routeIdString', routeIdString);
+      const routeId =
+        routeIdString !== null && routeIdString !== undefined
+          ? Number(routeIdString)
+          : routeIdString;
+
+      if (routeId) {
+        const trackString = await AsyncStorage.getItem('locations');
+        const track = trackString ? (JSON.parse(trackString) as LatLon[]) : [];
+
+        endMutation.mutate({ routeId, track });
+        await AsyncStorage.removeItem('routeId');
+        await AsyncStorage.removeItem('locations');
+      }
       await startMovement();
       console.log('move');
       updateMovingState(true);
@@ -66,8 +80,6 @@ export const useDetermineMovement = (
 
   const startMutation = useStartRouteMutation();
   const startMovement = async () => {
-    const newRouteId = 1;
-    await AsyncStorage.setItem('routeId', String(newRouteId));
     await AsyncStorage.setItem(
       'locations',
       JSON.stringify(locations.slice(-10)),
@@ -78,11 +90,13 @@ export const useDetermineMovement = (
   const endMutation = useEndRouteMutation();
   const stopMovement = async () => {
     setIsMoving(false);
-    const routeId = Number(await AsyncStorage.getItem('routeId'));
+    const routeIdString = await AsyncStorage.getItem('routeId');
+    const routeId = Number(routeIdString);
+    console.log('routeId', routeId);
     const trackString = await AsyncStorage.getItem('locations');
     const track = trackString ? (JSON.parse(trackString) as LatLon[]) : [];
 
-    console.log({ routeId }, { track });
+    console.log('endMutate', { routeId }, { track });
     endMutation.mutate({ routeId, track });
     await AsyncStorage.removeItem('routeId');
     await AsyncStorage.removeItem('locations');

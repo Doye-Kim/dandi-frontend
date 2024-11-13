@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { DraggableGrid } from 'react-native-draggable-grid';
 import styled from 'styled-components/native';
-import axios from 'axios';
 import { colors } from '@/constants';
-import { responsive, showErrorToast } from '@/utils';
+import { checkErrorAndViewToast, responsive } from '@/utils';
 import { ItemProps } from '@/api/bag';
 import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import {
@@ -37,7 +36,6 @@ const BagThings = ({ navigation }: BagScreenProps) => {
 
   useEffect(() => {
     if (bagItems) {
-      console.log(bagItems);
       setBagKeyItems(
         bagItems.map((item) => ({
           ...item,
@@ -46,9 +44,8 @@ const BagThings = ({ navigation }: BagScreenProps) => {
         })),
       );
     }
-    if (axios.isAxiosError(error) && error.response?.data) {
-      const { code } = error.response.data as { code: string };
-      showErrorToast(code);
+    if (error) {
+      checkErrorAndViewToast(error);
     }
   }, [bagItems, error]);
 

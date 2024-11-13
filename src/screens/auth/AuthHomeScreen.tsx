@@ -7,13 +7,14 @@ import axios from 'axios';
 import { LogoIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
-import { responsive, showErrorToast } from '@/utils';
+import { checkErrorAndViewToast, responsive } from '@/utils';
 import { getUserInfo, managerLogin } from '@/api/auth';
 import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
 import useUserStore from '@/store/useUserStore';
 import messaging from '@react-native-firebase/messaging';
 import useBagStore from '@/store/useBagStore';
+import Toast from 'react-native-toast-message';
 
 export type AuthHomeScreenProps = {
   navigation: StackNavigationProp<
@@ -53,7 +54,6 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
 
   const getFcmToken = useCallback(async () => {
     const data = await messaging().getToken();
-    console.log('fcm', data);
     return data;
   }, []);
 
@@ -64,10 +64,7 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       await getUserData();
       setIsLogin(true);
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
   const onPressManager = async () => {

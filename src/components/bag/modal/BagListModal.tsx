@@ -2,9 +2,13 @@ import { useEffect } from 'react';
 import { FlatList } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
-import axios from 'axios';
 import { colors } from '@/constants';
-import { responsive, responsiveVertical, showErrorToast } from '@/utils';
+import {
+  checkErrorAndViewToast,
+  responsive,
+  responsiveVertical,
+  showErrorToast,
+} from '@/utils';
 import HeaderText from '../../common/HeaderText';
 import CustomModalButton from './CustomModalButton';
 import BagListModalItem from './BagListModalItem';
@@ -27,11 +31,10 @@ const BagListModal = ({
   const { data: bagList, error } = useBagQuery();
 
   useEffect(() => {
-    if (axios.isAxiosError(error) && error.response?.data) {
-      const { code } = error.response.data as { code: string };
-      showErrorToast(code);
+    if (error) {
+      checkErrorAndViewToast(error);
     }
-  }, [bagList, error]);
+  }, [error]);
 
   const handlePressConfirm = () => {
     if (copyBagId === null) {

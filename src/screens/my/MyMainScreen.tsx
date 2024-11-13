@@ -3,10 +3,9 @@ import { ScrollView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Mailer from 'react-native-mail';
-import axios from 'axios';
 import { MyStackParamList } from '@/navigations/stack/MyStackNavigator';
 import { removeEncryptStorage } from '@/utils/encryptedStorage';
-import { showErrorToast, showToast } from '@/utils';
+import { checkErrorAndViewToast, showErrorToast, showToast } from '@/utils';
 import { deleteUser, logout } from '@/api/auth';
 import { myNavigations } from '@/constants';
 import CustomModal from '@/components/common/CustomModal';
@@ -52,12 +51,7 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
       removeEncryptStorage('refreshToken');
       showToast('로그아웃 되었습니다.');
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as {
-          code: string;
-        };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
 
@@ -69,12 +63,7 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
       removeEncryptStorage('refreshToken');
       showToast('탈퇴되었습니다.');
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as {
-          code: string;
-        };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
   const [isOpenWithdraw, setIsOpenWithdraw] = useState<boolean>(false);

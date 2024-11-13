@@ -1,3 +1,4 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   endRoute,
   getRoute,
@@ -7,9 +8,7 @@ import {
   LatLon,
   startRoute,
 } from '@/api/map';
-import { showErrorToast } from '@/utils';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { checkErrorAndViewToast } from '@/utils';
 
 export const useRoutesQuery = (date: string) => {
   return useQuery({
@@ -34,8 +33,8 @@ export const useRouteQuery = (
 ) => {
   return useQuery({
     queryKey: ['route', routeId],
-    queryFn: () => getRoute(routeId as number), // routeId가 확실히 존재할 때만 실행
-    enabled, // enabled 옵션 추가
+    queryFn: () => getRoute(routeId as number),
+    enabled,
     select: (data) => ({
       ...data,
       track: data.track.map((point) => ({
@@ -59,10 +58,7 @@ export const useStartRouteMutation = () => {
     mutationFn: (bagId: number) => startRoute(bagId),
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -74,14 +70,13 @@ export const useEndRouteMutation = () => {
       endRoute(routeId, track),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['routes'] });
+      queryClient.invalidateQueries({
+        queryKey: ['routes', 'routeId', 'route'],
+      });
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };

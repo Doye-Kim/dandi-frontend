@@ -17,33 +17,37 @@ const CustomMarker = ({
   isLast: boolean;
   nextId?: number;
   onPress: (id: number) => void;
-}) => (
-  <>
-    <Marker
-      onPress={() => onPress(routeId)}
-      coordinate={{
-        latitude: track[0].latitude,
-        longitude: track[0].longitude,
-      }}
-      anchor={{ x: 0.5, y: 1 }}>
-      <TouchableOpacity>
-        <MarkerIcon width={30} height={30} />
-      </TouchableOpacity>
-    </Marker>
-
-    {isRoute ||
-      (isLast && (
+}) => {
+  return (
+    <>
+      {track[0] && (
         <Marker
-          onPress={() => onPress(nextId ? nextId : routeId)}
+          onPress={() => onPress(routeId)}
           coordinate={{
-            latitude: track[track.length - 1].latitude,
-            longitude: track[track.length - 1].longitude,
+            latitude: track[0].latitude,
+            longitude: track[0].longitude,
           }}
           anchor={{ x: 0.5, y: 1 }}>
-          <MarkerIcon width={30} height={30} />
+          <TouchableOpacity>
+            <MarkerIcon width={30} height={30} />
+          </TouchableOpacity>
         </Marker>
-      ))}
-  </>
-);
+      )}
+
+      {isRoute ||
+        (isLast && track[track.length - 1] && (
+          <Marker
+            onPress={() => onPress(nextId ? nextId : routeId)}
+            coordinate={{
+              latitude: track[track.length - 1].latitude,
+              longitude: track[track.length - 1].longitude,
+            }}
+            anchor={{ x: 0.5, y: 1 }}>
+            <MarkerIcon width={30} height={30} />
+          </Marker>
+        ))}
+    </>
+  );
+};
 
 export default CustomMarker;

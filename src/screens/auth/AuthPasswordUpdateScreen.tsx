@@ -7,8 +7,8 @@ import { postPasswordWithVerification } from '@/api/auth';
 import {
   validatePassword,
   validatePasswordConfirm,
-  showErrorToast,
   showToast,
+  checkErrorAndViewToast,
 } from '@/utils';
 import AuthButton from '@/components/auth/AuthButton';
 import InputField from '@/components/auth/InputField';
@@ -45,13 +45,7 @@ const AuthPasswordUpdateScreen = ({ navigation }: AuthHomeScreenProps) => {
       navigation.navigate(authNavigations.LOGIN);
       showToast('비밀번호가 변경되었습니다.');
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as {
-          code: string;
-          message: string;
-        };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
 

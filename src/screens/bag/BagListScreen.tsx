@@ -3,14 +3,13 @@ import { SafeAreaView, View } from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
 } from 'react-native-draggable-flatlist';
-import axios from 'axios';
+import { useBagOrderMutation, useBagQuery } from '@/queries/bagQueries';
+import { checkErrorAndViewToast } from '@/utils';
+import { BagProps } from '@/api/bag';
 import CustomBagHeader from '@/components/bag/list/CustomBagHeader';
 import BagListItem from '@/components/bag/list/BagListItem';
-import { BagProps, getBags } from '@/api/bag';
-import useBagStore from '@/store/useBagStore';
-import { showErrorToast } from '@/utils';
-import { useBagOrderMutation, useBagQuery } from '@/queries/bagQueries';
 import CustomText from '@/components/common/CustomText';
+import useBagStore from '@/store/useBagStore';
 
 const BagListScreen = () => {
   const [sortedBagData, setSortedBagData] = useState<BagProps[]>([]);
@@ -23,10 +22,7 @@ const BagListScreen = () => {
       setSortedBagData(sortedData);
     }
     if (error) {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   }, [bagList, error]);
 

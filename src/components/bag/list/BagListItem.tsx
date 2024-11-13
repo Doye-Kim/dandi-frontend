@@ -28,11 +28,9 @@ const BagListItem = ({ item, drag }: { item: BagProps; drag: () => void }) => {
   };
   const handlePressTitle = () => {
     setIsOpenBagName(true);
-    console.log('onPressTitle');
   };
 
   const handleEditBagName = () => {
-    console.log('new!');
     setIsOpenBagName(false);
   };
 

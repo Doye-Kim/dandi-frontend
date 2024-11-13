@@ -92,8 +92,8 @@ class LocationService : Service() {
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Location Service")
-            .setContentText("Location is being tracked")
+            .setContentTitle("위치 정보 서비스")
+            .setContentText("백그라운드 위치 정보를 수집 중입니다.")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .build()
 

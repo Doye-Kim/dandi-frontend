@@ -1,18 +1,19 @@
-import AuthButton from '@/components/auth/AuthButton';
-import InputField from '@/components/auth/InputField';
-import MyHeader from '@/components/my/MyHeader';
+import { useRef } from 'react';
+import { SafeAreaView, TextInput, View } from 'react-native';
 import { myNavigations } from '@/constants';
-import useForm from '@/hooks/useForm';
 import {
   validatePastPassword,
   validatePassword,
   validatePasswordUpdate,
   showToast,
+  checkErrorAndViewToast,
 } from '@/utils';
-import { useRef } from 'react';
-import { SafeAreaView, TextInput, View } from 'react-native';
+import AuthButton from '@/components/auth/AuthButton';
+import InputField from '@/components/auth/InputField';
+import MyHeader from '@/components/my/MyHeader';
 import { MyScreenProps } from './MyMainScreen';
 import { putUpdatePassword } from '@/api/auth';
+import useForm from '@/hooks/useForm';
 
 const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
   const pastPasswordRef = useRef<TextInput | null>(null);
@@ -47,7 +48,7 @@ const PasswordUpdateScreen = ({ navigation }: MyScreenProps) => {
       navigation.navigate(myNavigations.MY_MAIN);
       showToast('비밀번호 변경 완료');
     } catch (error) {
-      console.log(error);
+      checkErrorAndViewToast(error);
     }
   };
 

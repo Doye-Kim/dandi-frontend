@@ -87,7 +87,6 @@ const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
   const createMutation = useCreateBagItemMutation();
 
   const handlePressConfirm = () => {
-    console.log('confirm', selectEmoji, name, colorKey);
     if (!name) {
       Toast.show({
         type: 'error',

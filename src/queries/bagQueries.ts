@@ -22,9 +22,8 @@ import {
   RequestItemOrderProps,
   RequestItemProps,
 } from '@/api/bag';
-import { showErrorToast } from '@/utils';
+import { checkErrorAndViewToast } from '@/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 
 export const useBagQuery = () => {
   return useQuery({
@@ -64,10 +63,7 @@ export const useCreateBagItemMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -89,10 +85,7 @@ export const useEditBagItemMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -109,10 +102,7 @@ export const useDrawerItemOrderMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -133,10 +123,7 @@ export const useBagItemOrderMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -151,10 +138,7 @@ export const useBagOrderMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -169,10 +153,7 @@ export const useCopyToDefaultMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -193,10 +174,7 @@ export const useMoveDrawerItemMutation = () => {
     },
 
     onError: (error) => {
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as { code: string };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     },
   });
 };

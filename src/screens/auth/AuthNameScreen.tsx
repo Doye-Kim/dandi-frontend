@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react';
 import { SafeAreaView, TextInput, View } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
-import axios from 'axios';
 import { authNavigations, colors } from '@/constants';
-import { responsive, showErrorToast, validateName } from '@/utils';
+import { checkErrorAndViewToast, responsive, validateName } from '@/utils';
 import { AuthHomeScreenProps } from './AuthHomeScreen';
 import { TitleText } from '@/styles';
 import { join } from '@/api/auth';
@@ -29,21 +28,13 @@ const AuthNameScreen = ({ navigation }: AuthHomeScreenProps) => {
       password,
       nickname: checkName.getTextInputProps('name').value,
     };
-    console.log(userData);
     try {
-      const { data } = await join(userData);
-      console.log(data);
+      await join(userData);
       setIsLoading(false);
       navigation.navigate(authNavigations.EMAIL_CHECK);
     } catch (error) {
       setIsLoading(false);
-      if (axios.isAxiosError(error) && error.response?.data) {
-        const { code } = error.response.data as {
-          code: string;
-          message: string;
-        };
-        showErrorToast(code);
-      }
+      checkErrorAndViewToast(error);
     }
   };
   const onPress = () => {

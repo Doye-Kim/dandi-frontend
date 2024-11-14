@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import Geolocation from '@react-native-community/geolocation';
 import {
   NativeModules,
@@ -23,19 +23,19 @@ export const useLocationTracking = (
       const hasPermission = await requestLocationPermission();
       if (hasPermission) {
         watchId = Geolocation.watchPosition(
-          pos => {
+          (pos) => {
             console.log('current position:', pos.coords);
             setCurrentLocation({
               latitude: Number(pos.coords.latitude.toFixed(4)),
               longitude: Number(pos.coords.longitude.toFixed(4)),
             });
           },
-          err => console.error('Geolocation error:', err),
+          (err) => console.error('Geolocation error:', err),
           {
             enableHighAccuracy: true,
             timeout: 5000,
             maximumAge: 0,
-            distanceFilter: 5,
+            distanceFilter: 10,
           },
         );
 
@@ -43,7 +43,7 @@ export const useLocationTracking = (
 
         subscription = locationEventEmitter.addListener(
           'LocationUpdated',
-          locationData => {
+          (locationData) => {
             setLocations((prev: LatLon[]) => {
               const newLocations = [
                 ...prev,

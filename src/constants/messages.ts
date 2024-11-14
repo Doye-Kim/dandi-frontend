@@ -66,11 +66,11 @@ export const ErrorMessages: { [key: string]: string } = {
 };
 
 export const NotiTitleMessages: { [key: string]: string } = {
-  routeSaved: '잠깐, 소지품은 다 챙기셨나요?',
+  route: '잠깐, 소지품은 다 챙기셨나요?',
 };
 
 export const NotiBodyMessages: { [key: string]: string } = {
-  routeSaved: '체크리스트를 작성해 보세요!',
+  route: '체크리스트를 작성해 보세요!',
 };
 
 export const SharedErrorMessages = {

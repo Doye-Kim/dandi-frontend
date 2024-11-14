@@ -65,12 +65,19 @@ class LocationService : Service() {
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null)
     }
 
+
     private fun setupLocationCallback() {
         locationCallback = object : LocationCallback() {
+            private var lastUpdateTime = 0L
+            private val updateInterval = 10000L // 10초 간격
+
             override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                for (location in locationResult.locations) {
-                    sendLocationToReactNative(location)
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastUpdateTime >= updateInterval) {
+                    lastUpdateTime = currentTime
+                    for (location in locationResult.locations) {
+                        sendLocationToReactNative(location)
+                    }
                 }
             }
         }

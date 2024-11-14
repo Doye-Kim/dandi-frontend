@@ -3,6 +3,8 @@ import notifee, {
   AndroidImportance,
   AndroidColor,
   EventType,
+  Notification,
+  NotificationPressAction,
 } from '@notifee/react-native';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import { triggerModal } from '../../App';
@@ -19,21 +21,26 @@ export const displayNotification = async (
     importance: AndroidImportance.HIGH,
   });
 
+  const actions =
+    title === 'route'
+      ? [
+          {
+            title: '건너뛰기',
+            pressAction: { id: 'skip' },
+          },
+        ]
+      : undefined;
+
   await notifee.displayNotification({
-    title: NotiTitleMessages[title],
-    body: NotiBodyMessages[title],
+    title: NotiTitleMessages[title] || title,
+    body: NotiBodyMessages[title] || body,
     android: {
       channelId: channelAnoucement,
       smallIcon: 'ic_launcher',
       pressAction: {
         id: 'default',
       },
-      actions: [
-        {
-          title: '건너뛰기',
-          pressAction: { id: 'skip' },
-        },
-      ],
+      actions,
     },
     data: {
       title,
@@ -42,12 +49,24 @@ export const displayNotification = async (
   });
 };
 
-notifee.onForegroundEvent(async ({ type, detail }) => {
-  console.error('type', type, 'detail', detail);
+type CustomNotificationEvent = {
+  type: EventType;
+  detail: {
+    notification?: Notification;
+    pressAction?: NotificationPressAction;
+  };
+};
+
+const handleNotificationEvent = async ({
+  type,
+  detail,
+}: CustomNotificationEvent) => {
+  console.log({ type, detail });
   if (type === EventType.PRESS) {
-    console.error('press');
+    console.log('press');
     const { title, body } = detail.notification?.data || {};
-    if (title === 'routeSaved') {
+    console.log({ title, body });
+    if (title === 'routeSaved' || title === 'route') {
       if (triggerModal) {
         console.log('trigger');
         triggerModal(body as string);
@@ -62,4 +81,6 @@ notifee.onForegroundEvent(async ({ type, detail }) => {
       await notifee.cancelNotification(detail.notification.id);
     }
   }
-});
+};
+notifee.onForegroundEvent(handleNotificationEvent);
+notifee.onBackgroundEvent(handleNotificationEvent);

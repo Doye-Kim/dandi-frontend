@@ -4,6 +4,7 @@ import { colors } from '@/constants';
 import { responsive } from '@/utils/common';
 import { AlertData } from '@/types/lost';
 import CustomText from '@/components/common/CustomText';
+import { convertTimeFormat } from '@/utils/date';
 
 interface AlertListItemProps {
   data: AlertData;
@@ -37,13 +38,11 @@ const AlertListItem = ({
           </CustomText>
         </TitleBox>
         <TimeBox>
-          <CustomText
-            style={{
-              color: colors.GRAY_500,
-              fontSize: responsive(10),
-            }}>
-            {data.createdAt.slice(5, 10)}
-          </CustomText>
+          <TimeText>{`${data.createdAt.slice(5, 7)}월 ${data.createdAt.slice(
+            8,
+            10,
+          )}일`}</TimeText>
+          <TimeText>{convertTimeFormat(data.createdAt)}</TimeText>
         </TimeBox>
       </AlertHeader>
       <AlertContent>
@@ -85,8 +84,13 @@ const TitleBox = styled.View`
 `;
 
 const TimeBox = styled.View`
-  flex: 2;
+  flex: 3;
   align-items: flex-end;
+`;
+
+const TimeText = styled(CustomText)`
+  color: ${colors.GRAY_500};
+  font-size: ${responsive(10)}px;
 `;
 
 const AlertContent = styled.View`

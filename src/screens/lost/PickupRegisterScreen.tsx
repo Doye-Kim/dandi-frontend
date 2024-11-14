@@ -4,18 +4,18 @@ import { KeyboardAvoidingView, ScrollView, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
 import { LatLng } from 'react-native-maps';
 import DatePicker from 'react-native-date-picker';
 import { BASE_IMAGE_URL } from '@/api/axios';
 import { registerPickup } from '@/api/lost';
 import { getAddress } from '@/api/map';
+import { isAxiosError } from 'axios';
 import { colors } from '@/constants';
 import { requestCameraAndGalleryPermissions } from '@/utils/permission';
 import { getCurrentLocation } from '@/utils/map';
 import { responsive, responsiveVertical } from '@/utils';
 import { convertDateTimeFormat } from '@/utils/date';
-import { showCustomErrorToast } from '@/utils/toast';
+import { showCustomErrorToast, showToast } from '@/utils/toast';
 import { CameraIcon } from '@/assets/icons';
 import { WarningIcon } from '@/assets/icons';
 import { SimpleMarkerIcon } from '@/assets/icons';
@@ -73,8 +73,14 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
   }, [location]);
 
   const handleRegister = async () => {
-    if (photoUrl === '' || explain === '' || keepLocation === '') {
-      showCustomErrorToast('모든 항목을 입력해주세요.');
+    if (photoUrl === '') {
+      showCustomErrorToast('사진을 등록해주세요.');
+      return;
+    } else if (explain === '') {
+      showCustomErrorToast('습득물에 대한 상세설명을 적어주세요.');
+      return;
+    } else if (keepLocation === '') {
+      showCustomErrorToast('습득물을 보관한 장소를 적어주세요.');
       return;
     }
     try {
@@ -89,17 +95,12 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
         storageDesc: keepLocation,
         itemDesc: explain,
       });
-      Toast.show({
-        type: 'success',
-        text1: '습득물이 성공적으로 등록되었습니다.',
-      });
+      showToast('습득물이 성공적으로 등록되었습니다.');
       navigation.navigate('PickupList');
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: '습득물 등록에 실패했습니다. 다시 시도해 주세요.',
-      });
-      console.error(error);
+      if (isAxiosError(error)) {
+        showCustomErrorToast(error.response?.data.message);
+      }
     }
   };
   // 카메라, 갤러리 권한 요청 및 선택 모달 열기
@@ -158,7 +159,9 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
             </ExplainBox>
             <LocationBox>
               <LabelText>습득 장소</LabelText>
-              <SelectedText>{address || '주소 없음'}</SelectedText>
+              <SelectedText numberOfLines={1} ellipsizeMode='tail'>
+                {address || '주소 없음'}
+              </SelectedText>
               <IconButton onPress={() => setIsMapModalOpen(true)}>
                 <SimpleMarkerIcon
                   width={responsive(24)}
@@ -189,7 +192,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
               <LabelText>습득 날짜</LabelText>
               <SelectedText>{selectedDatetime}</SelectedText>
               <IconButton onPress={() => setIsDatetimeOpen(true)}>
-                <CalendarIcon width={24} height={24} />
+                <CalendarIcon width={responsive(24)} height={responsive(24)} />
               </IconButton>
             </DatetimeBox>
             {/* 날짜 선택 모달 */}
@@ -212,7 +215,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
               <CustomButton
                 title='등록'
                 style='enable'
-                height={48}
+                height={responsiveVertical(40)}
                 onPress={handleRegister}
               />
             </RegisterButton>
@@ -281,6 +284,7 @@ const ExplainInput = styled.TextInput`
 `;
 
 const LocationBox = styled.View`
+  width: 100%;
   flex-direction: row;
   justify-content: space-between;
 `;
@@ -304,6 +308,8 @@ const DatetimeBox = styled.View`
 `;
 
 const SelectedText = styled(CustomText)`
+  width: 66%;
+  text-align: center;
   color: ${colors.GRAY_900};
   font-size: ${responsive(14)}px;
 `;

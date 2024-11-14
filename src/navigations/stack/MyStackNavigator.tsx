@@ -71,7 +71,10 @@ function MyStackNavigator() {
       <Stack.Screen
         name={lostNavigations.PICKUP_DETAIL}
         component={PickupDetailScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerTitle: '습득물',
+          headerTitleAlign: 'center',
+        }}
       />
       <Stack.Screen
         name={myNavigations.MY_SOS}
@@ -83,7 +86,10 @@ function MyStackNavigator() {
       <Stack.Screen
         name={lostNavigations.SOS_DETAIL}
         component={SOSDetailScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerTitle: 'SOS',
+          headerTitleAlign: 'center',
+        }}
       />
       <Stack.Screen
         name={myNavigations.MY_LATELY}

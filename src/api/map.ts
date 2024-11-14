@@ -118,9 +118,9 @@ const getSnapshot = async (routeId: number) => {
 };
 
 const getAddress = async (lat: number, lon: number) => {
-  const { data } = await axiosInstance.get(`/geo/address`, {
-    params: { lat, lon },
-  });
+  const { data } = await axiosInstance.get(
+    `/geo/address?lat=${lat}&lon=${lon}`,
+  );
   return data;
 };
 // export type skipState = 'Y' | 'N';

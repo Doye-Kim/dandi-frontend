@@ -6,7 +6,6 @@ import { colors } from '@/constants';
 import AlertListItem from '@/components/lost/AlertListItem';
 import { responsive } from '@/utils/common';
 import { AlertData } from '@/types/lost';
-import Toast from 'react-native-toast-message';
 import { showCustomErrorToast } from '@/utils';
 
 interface AlertListProps {
@@ -16,6 +15,8 @@ interface AlertListProps {
   handleSelect: (id: number) => void;
   handleLongPress: (id: number) => void;
   goToDetail: (itmeId: number, type?: string | undefined) => void;
+  onEndReached?: () => void;
+  onEndReachedThreshold?: number;
 }
 
 const AlertList = ({
@@ -25,11 +26,16 @@ const AlertList = ({
   handleSelect,
   handleLongPress,
   goToDetail,
+  onEndReached,
+  onEndReachedThreshold,
 }: AlertListProps) => {
   return (
     <Container>
       <FlatList
+        removeClippedSubviews={false}
+        initialNumToRender={20}
         data={data}
+        extraData={data}
         renderItem={({ item }) => {
           const itemId = item.foundItemId || item.lostItemId || item.commentId;
           const type = item.commentId ? item.title : undefined;
@@ -51,10 +57,12 @@ const AlertList = ({
             />
           );
         }}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => `${item.id}`}
         contentContainerStyle={
-          !isSelectMode ? {} : { paddingBottom: responsive(70) }
+          isSelectMode && { paddingBottom: responsive(70) }
         }
+        onEndReached={onEndReached}
+        onEndReachedThreshold={onEndReachedThreshold}
       />
     </Container>
   );

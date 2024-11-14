@@ -138,7 +138,8 @@ const getPostByCommentId = async (
   commentId: number,
   type: string | undefined,
 ) => {
-  const { data } = await axiosInstance.get(`/comments/${commentId}/`, {
+  console.log(commentId, type);
+  const { data } = await axiosInstance.get(`/comments/${commentId}`, {
     params: { type },
   });
   return data;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
@@ -12,7 +13,7 @@ import { RegisterIcon } from '@/assets/icons';
 import { AlertData } from '@/types/lost';
 import CustomText from '@/components/common/CustomText';
 import AlertList from '@/components/lost/AlertList';
-import ListOptopmModal from '@/components/lost/ListOptionModal';
+import ListOptionModal from '@/components/lost/ListOptionModal';
 import ChoiceDropdownModal from '@/components/lost/ChoiceDropdownModal';
 
 type PickupListScreenNavigationProp = StackNavigationProp<
@@ -28,25 +29,8 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
   const [alertList, setAlertList] = useState<AlertData[]>([]);
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [selectedFoundId, setSelectedFoundId] = useState<null | number>(null);
-  // todo: 알람 기준 ID 동적 처리 필요
-  useFocusEffect(
-    useCallback(() => {
-      const fetchAlertList = async () => {
-        try {
-          const data = await getAlertList(0, ['foundItem']);
-          console.log(data);
-          setAlertList(data);
-        } catch (error) {
-          if (isAxiosError(error)) {
-            showCustomErrorToast(error.response?.data.message);
-          }
-        }
-      };
-
-      fetchAlertList();
-    }, []),
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMoreData, setHasMoreData] = useState(true);
 
   useEffect(() => {
     navigation.setOptions({
@@ -68,8 +52,40 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
       ),
     });
   }, [navigation, selectMode]);
+  // 알림 목록 불러오기 함수
+  const fetchAlertList = async (resourceId: number) => {
+    if (isLoading || !hasMoreData) return;
 
-  // 선택 모드 전환 함수(버튼 클릭)
+    setIsLoading(true);
+    try {
+      const data = await getAlertList(resourceId, ['foundItem']);
+      setAlertList((prev) =>
+        resourceId === 0 ? [...data] : [...prev, ...data],
+      );
+      console.log(data);
+      setHasMoreData(data.length >= 20);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        showCustomErrorToast(error.response?.data.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // 화면 진입 시 알람 목록 불러오기
+  useFocusEffect(
+    useCallback(() => {
+      fetchAlertList(0);
+    }, [navigation]),
+  );
+  // 더보기 함수
+  const handleLoadMore = () => {
+    if (!hasMoreData || alertList.length === 0) return;
+
+    const lastId = alertList[alertList.length - 1].id;
+    fetchAlertList(lastId);
+  };
+  // 선택 모드 전환 함수(편집, 완료)
   const toggleSelectMode = () => {
     setSelectMode((prev) => !prev);
     setSelected([]);
@@ -92,42 +108,57 @@ const PickupListScreen = ({ navigation }: PickupListScreenProps) => {
   };
   // 알람 목록 삭제 함수
   const deleteAlertList = async () => {
+    if (selected.length === 0) {
+      showCustomErrorToast('삭제할 알림을 선택해주세요.');
+      return;
+    }
     try {
-      const data = await deleteAlert(selected);
-      console.log(data);
+      await deleteAlert(selected);
+      showToast('알림이 삭제되었습니다.');
+      setAlertList((prev) =>
+        prev.filter((item) => !selected.includes(item.id)),
+      );
       setSelectMode(false);
       setSelected([]);
-      showToast('알림이 삭제되었습니다.');
+      setIsLoading(true);
+      await fetchAlertList(0);
     } catch (error) {
       if (isAxiosError(error)) {
         showCustomErrorToast(error.response?.data.message);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
   // 상세 페이지 이동 함수
   const tryNavigateToDetail = (foundId: number) => {
-    setSelectedFoundId(foundId);
     navigation.navigate('PickupDetail', { id: foundId });
   };
 
   return (
     <Container>
-      {alertList.length === 0 && (
-        <EmptyText>다른 사용자들이 등록한 습득물이 없어요.</EmptyText>
+      {isLoading ? (
+        <ActivityIndicator size='large' color={colors.PRIMARY} />
+      ) : alertList.length === 0 ? (
+        <EmptyText>다른 사용자가 등록한 습득물이 없어요.</EmptyText>
+      ) : (
+        <AlertList
+          data={alertList}
+          isSelectMode={selectMode}
+          selected={selected}
+          handleSelect={handleSelectItem}
+          handleLongPress={handleSelectMode}
+          goToDetail={tryNavigateToDetail}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+        />
       )}
-      <AlertList
-        data={alertList}
-        isSelectMode={selectMode}
-        selected={selected}
-        handleSelect={handleSelectItem}
-        handleLongPress={handleSelectMode}
-        goToDetail={tryNavigateToDetail}
-      />
-      <ListOptopmModal isVisible={selectMode} onDelete={deleteAlertList} />
-
-      <RegisterIconBox onPress={() => navigation.navigate('PickupRegister')}>
-        <RegisterIcon width={responsive(48)} height={responsive(48)} />
-      </RegisterIconBox>
+      <ListOptionModal isVisible={selectMode} onDelete={deleteAlertList} />
+      {!selectMode && (
+        <RegisterIconBox onPress={() => navigation.navigate('PickupRegister')}>
+          <RegisterIcon width={responsive(48)} height={responsive(48)} />
+        </RegisterIconBox>
+      )}
     </Container>
   );
 };

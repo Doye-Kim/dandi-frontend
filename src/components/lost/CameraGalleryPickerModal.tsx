@@ -4,9 +4,11 @@ import ImagePicker from 'react-native-image-crop-picker';
 import styled from 'styled-components/native';
 import Toast from 'react-native-toast-message';
 import { colors } from '@/constants/colors';
+import { isAxiosError } from 'axios';
 import { responsive } from '@/utils/common';
 import { uploadImage } from '@/api/lost';
 import CustomText from '../common/CustomText';
+import { showCustomErrorToast } from '@/utils';
 
 interface CameraGalleryPickerModalProps {
   itemType: 'FOUND' | 'LOST';
@@ -34,30 +36,16 @@ const CameraGalleryPickerModal = ({
 
     try {
       const data = await uploadImage(formData, itemType);
-      Toast.show({
-        type: 'success',
-        position: 'top',
-        text1: '사진이 성공적으로 업로드되었습니다.',
-      });
-      console.log(data);
       handlePhotoUrl(data);
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        position: 'top',
-        text1: '사진 업로드가 실패했습니다. 다시 시도해 주세요.',
-      });
-      console.error(error);
+      if (isAxiosError(error)) {
+        showCustomErrorToast(error.response?.data.message);
+      }
     }
   };
   // 파일 크기 초과 토스트 메시지
   const showToastFileSizeExceeded = () => {
-    Toast.show({
-      type: 'error',
-      position: 'top',
-      text1: '10MB 이하의 파일만 업로드 가능합니다.',
-      visibilityTime: 4000,
-    });
+    showCustomErrorToast('10MB 이하의 파일만 업로드 가능합니다.');
   };
 
   // 카메라로 사진 촬영

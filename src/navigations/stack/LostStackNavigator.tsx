@@ -1,4 +1,3 @@
-// LostStackNavigator.tsx
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { lostNavigations, colors } from '@/constants';
@@ -80,6 +79,7 @@ function LostStackNavigator() {
         options={{
           headerTitle: 'SOS 목록',
           headerTitleAlign: 'center',
+          headerLeft: () => null,
         }}
       />
       {/* SOS 등록 화면 */}
@@ -100,7 +100,6 @@ function LostStackNavigator() {
           headerTitleAlign: 'center',
         }}
       />
-
       {/* SOS 상세 화면 */}
       <Stack.Screen
         name={lostNavigations.SOS_DETAIL}

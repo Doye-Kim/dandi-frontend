@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import styled from 'styled-components/native';
@@ -18,6 +18,9 @@ import CustomPolyline from '@/components/map/CustomPolyLine';
 import CustomHeader from '@/components/map/CustomHeader';
 import CustomMarker from '@/components/map/CustomMarker';
 import CustomText from '@/components/common/CustomText';
+
+const MemoizedCurrentPin = memo(CurrentPin);
+const MemoizedSparkleIcon = memo(SparkleIcon);
 
 const MapMainScreen = () => {
   const today = new Date();
@@ -184,7 +187,7 @@ const MapMainScreen = () => {
       )}
       {routeId && (
         <ToggleButton onPress={onPressToggle}>
-          <SparkleIcon />
+          <MemoizedSparkleIcon />
           <CustomText style={{ marginLeft: 10, color: colors.WHITE }}>
             {isMain ? '동선 상세 보기' : '동선 모아 보기'}
           </CustomText>
@@ -199,13 +202,14 @@ const MapMainScreen = () => {
         style={{ flex: 1 }}>
         {currentLocation && (
           <Marker
+            tracksViewChanges={false}
             coordinate={{
               latitude: currentLocation.latitude,
               longitude: currentLocation.longitude,
             }}
             zIndex={10}
             anchor={{ x: 0.5, y: 0.5 }}>
-            <CurrentPin width={60} height={60} />
+            <MemoizedCurrentPin width={60} height={60} />
           </Marker>
         )}
 

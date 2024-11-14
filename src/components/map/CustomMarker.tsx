@@ -22,6 +22,7 @@ const CustomMarker = ({
     <>
       {track[0] && (
         <Marker
+          tracksViewChanges={false}
           onPress={() => onPress(routeId)}
           coordinate={{
             latitude: track[0].latitude,
@@ -37,6 +38,7 @@ const CustomMarker = ({
       {isRoute ||
         (isLast && track[track.length - 1] && (
           <Marker
+            tracksViewChanges={false}
             onPress={() => onPress(nextId ? nextId : routeId)}
             coordinate={{
               latitude: track[track.length - 1].latitude,

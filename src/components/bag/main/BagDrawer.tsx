@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import DraggableGrid from 'react-native-draggable-grid';
 import styled from 'styled-components/native';
 import { checkErrorAndViewToast, responsive } from '@/utils';
@@ -29,9 +30,17 @@ const BagDrawer = () => {
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(0);
 
-  const { data: drawerItems, error } = useDrawerItemQuery(
-    selectBagId,
-    defaultBagId,
+  const {
+    data: drawerItems,
+    error,
+    refetch,
+  } = useDrawerItemQuery(selectBagId, defaultBagId);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('drawer refetch');
+      refetch();
+    }, [refetch]),
   );
 
   useEffect(() => {

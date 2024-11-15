@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { DraggableGrid } from 'react-native-draggable-grid';
+import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import { checkErrorAndViewToast, responsive } from '@/utils';
@@ -32,7 +33,11 @@ const BagThings = ({ navigation }: BagScreenProps) => {
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(0);
 
-  const { data: bagItems, error } = useBagItemQuery(selectBagId, defaultBagId);
+  const {
+    data: bagItems,
+    error,
+    refetch,
+  } = useBagItemQuery(selectBagId, defaultBagId);
 
   useEffect(() => {
     if (bagItems) {
@@ -48,6 +53,13 @@ const BagThings = ({ navigation }: BagScreenProps) => {
       checkErrorAndViewToast(error);
     }
   }, [bagItems, error]);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('bagThing refetch');
+      refetch();
+    }, [refetch]),
+  );
 
   useEffect(() => {
     if (bagItems) {

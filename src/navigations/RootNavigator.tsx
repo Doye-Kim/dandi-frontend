@@ -9,8 +9,10 @@ import { getUserInfo, refreshAuth } from '@/api/auth';
 import AuthStackNavigator from './stack/AuthStackNavigator';
 import useUserStore from '@/store/useUserStore';
 import useBagStore from '@/store/useBagStore';
+import { useNavigationContainerRef } from '@react-navigation/native';
 
 function RootNavigator() {
+  const navigationRef = useNavigationContainerRef();
   const { isLogin, setIsLogin } = useUserStore();
   const { setDefaultBagId } = useBagStore();
   const { setNickname, setEmail } = useUserStore();
@@ -44,6 +46,15 @@ function RootNavigator() {
   useEffect(() => {
     autoLogin();
   }, []);
+
+  useEffect(() => {
+    if (!isLogin && navigationRef.isReady()) {
+      navigationRef.reset({
+        index: 0,
+        routes: [{ name: 'AuthStackNavigator' }],
+      });
+    }
+  }, [isLogin, navigationRef]);
 
   return <>{isLogin ? <Navbar /> : <AuthStackNavigator />}</>;
 }

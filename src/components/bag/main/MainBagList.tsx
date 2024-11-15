@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { FlatList } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
 import {
@@ -13,7 +14,7 @@ import { useBagQuery } from '@/queries/bagQueries';
 
 const MainBagList = () => {
   const { selectBagId, defaultBagId, setSelectBagId } = useBagStore();
-  const { data: bagList, error } = useBagQuery();
+  const { data: bagList, error, refetch } = useBagQuery();
 
   useEffect(() => {
     if (bagList) {
@@ -23,6 +24,12 @@ const MainBagList = () => {
       checkErrorAndViewToast(error);
     }
   }, [bagList, error]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   return (
     <FlatList

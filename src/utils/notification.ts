@@ -1,7 +1,5 @@
-import { AppState } from 'react-native';
 import notifee, {
   AndroidImportance,
-  AndroidColor,
   EventType,
   Notification,
   NotificationPressAction,
@@ -9,12 +7,16 @@ import notifee, {
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import { triggerModal } from '../../App';
 import { NotiBodyMessages, NotiTitleMessages } from '@/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const displayNotification = async (
   message: FirebaseMessagingTypes.RemoteMessage,
 ) => {
   const title: string = message.notification?.title ?? '';
   const body: string = message.notification?.body ?? '';
+  if (title === 'route') {
+    AsyncStorage.setItem('routeId', JSON.stringify(JSON.parse(body).routeId));
+  }
   const channelAnoucement = await notifee.createChannel({
     id: 'default',
     name: 'dandi',

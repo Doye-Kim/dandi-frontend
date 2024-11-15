@@ -13,6 +13,7 @@ import InputModal from '@/components/common/InputModal';
 import ListItem from '@/components/my/ListItem';
 import useUserStore from '@/store/useUserStore';
 import Section from '@/components/my/Section';
+import useBagStore from '@/store/useBagStore';
 
 export type MyScreenProps = {
   navigation: StackNavigationProp<
@@ -26,7 +27,6 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
   const nickname = useUserStore((state) => state.nickname);
   const email = useUserStore((state) => state.email);
   const [isOpenNameUpdate, setIsOpenNameUpdate] = useState(false);
-  const { setIsLogin } = useUserStore();
 
   const handlePressNickname = () => {
     setIsOpenNameUpdate(true);
@@ -47,10 +47,13 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
     navigation.navigate(myNavigations.MY_LATELY);
   };
 
+  const { reset } = useUserStore();
+  const { resetBag } = useBagStore();
   const handleLogout = async () => {
     try {
       await logout();
-      setIsLogin(false);
+      reset();
+      resetBag();
       removeEncryptStorage('accessToken');
       removeEncryptStorage('refreshToken');
       showToast('로그아웃 되었습니다.');
@@ -62,7 +65,7 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
   const handlePressWithDrawConfirm = async () => {
     try {
       await deleteUser();
-      setIsLogin(false);
+      reset();
       removeEncryptStorage('accessToken');
       removeEncryptStorage('refreshToken');
       showToast('탈퇴되었습니다.');

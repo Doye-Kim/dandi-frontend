@@ -10,7 +10,7 @@ interface BagState {
   setIsEditComplete: (isEditComplete: boolean) => void;
   setSelectBagId: (selectBagId: number) => void;
   setDefaultBagId: (defaultBagId: number) => void;
-  reset: () => void;
+  resetBag: () => void;
 }
 const useBagStore = create<BagState>((set) => ({
   editMode: false,
@@ -29,7 +29,7 @@ const useBagStore = create<BagState>((set) => ({
   setDefaultBagId: (defaultBagId: number) => {
     set({ defaultBagId });
   },
-  reset: () => set({ editMode: false, selectBagId: -1, defaultBagId: -1 }),
+  resetBag: () => set({ editMode: false, selectBagId: -1, defaultBagId: -1 }),
 }));
 
 export default useBagStore;

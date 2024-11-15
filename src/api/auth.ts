@@ -1,7 +1,11 @@
 import BackgroundTimer from 'react-native-background-timer';
 import axiosInstance from './axios';
 import { setHeader, removeHeader } from '@/utils/axios';
-import { getEncryptStorage, setEncryptStorage } from '@/utils/encryptedStorage';
+import {
+  getEncryptStorage,
+  removeEncryptStorage,
+  setEncryptStorage,
+} from '@/utils/encryptedStorage';
 
 const JWT_EXPIRRY_TIME = 24 * 60 * 60 * 1000; //accessToken 만료시간-> 밀리초
 
@@ -51,6 +55,8 @@ const postJoinVerify = async (email: string) => {
 
 const login = async (userData: LoginProps, fcmCode: string) => {
   removeHeader('Authorization');
+  removeEncryptStorage('refreshToken');
+  removeEncryptStorage('accessToken');
   const { data, headers } = await axiosInstance.post('/auth/login', userData);
   const accessToken = headers.authorization;
   const refreshToken = headers.refreshtoken;

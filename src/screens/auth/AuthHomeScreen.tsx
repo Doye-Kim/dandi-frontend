@@ -54,7 +54,6 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       setNickname(data.nickname);
       setEmail(data.email);
       setId(data.id);
-      setIsLogin(true);
     } catch (err) {
       console.log(err);
     }

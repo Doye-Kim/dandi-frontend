@@ -90,7 +90,7 @@ const App = () => {
   triggerModal = (body: string) => {
     setModalVisible(true);
     setStartMovementData(body);
-    AsyncStorage.setItem('routeId', JSON.parse(body).routeId);
+    AsyncStorage.setItem('routeId', JSON.stringify(JSON.parse(body).routeId));
   };
 
   return (

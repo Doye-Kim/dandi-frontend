@@ -14,7 +14,7 @@ export const displayNotification = async (
 ) => {
   const title: string = message.notification?.title ?? '';
   const body: string = message.notification?.body ?? '';
-  if (title === 'route') {
+  if (title === 'route' && body) {
     AsyncStorage.setItem('routeId', JSON.stringify(JSON.parse(body).routeId));
   }
   const channelAnoucement = await notifee.createChannel({

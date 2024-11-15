@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   ImageBackground,
   TouchableOpacity,
@@ -35,7 +36,7 @@ const CheckListModal = ({
 }) => {
   const [items, setItems] = useState<Item[]>();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const fetchItems = async (routeId: number) => {
     try {
       const data = await getSnapshot(routeId);
@@ -118,6 +119,11 @@ const CheckListModal = ({
     onDismiss();
   };
 
+  useEffect(() => {
+    if (items) {
+      setIsLoading(false);
+    }
+  }, [items]);
   const Item = ({ name }: { name: string }) => (
     <TouchableOpacity
       style={{ flexDirection: 'row' }}
@@ -172,7 +178,9 @@ const CheckListModal = ({
                 건너뛴 항목으로, 이전과 동일한 데이터입니다
               </CustomText>
             )}
-            {items && items.length > 0 ? (
+            {isLoading ? (
+              <ActivityIndicator size={30} color='#B22222' />
+            ) : items && items.length > 0 ? (
               <FlatList
                 data={items}
                 renderItem={({ item }) => <Item name={item.name} />}

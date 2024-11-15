@@ -14,7 +14,7 @@ axiosInstance.interceptors.request.use(
     console.log('Request URL:', config.url);
     console.log('Request Method:', config.method);
     console.log('Request Headers:', config.headers);
-    console.log('Request Body:', config.data);
+    console.log('Request Body:', JSON.stringify(config.data));
     return config;
   },
   (error) => {

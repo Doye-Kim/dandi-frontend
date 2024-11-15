@@ -86,7 +86,7 @@ const startRoute = async (bagId: number) => {
 };
 
 const endRoute = async (routeId: number, track: LatLon[]) => {
-  const { data } = await axiosInstance.patch(`/routes/${routeId}`, { track });
+  const { data } = await axiosInstance.put(`/routes/${routeId}`, { track });
   return data;
 };
 
@@ -105,8 +105,8 @@ const getRoute = async (routeId: number): Promise<RouteProps> => {
   return data;
 };
 
-const patchSnapshot = async (routeId: number, snapshot: Snapshot) => {
-  const { data } = await axiosInstance.patch(`routes/${routeId}/snapshot`, {
+const putSnapshot = async (routeId: number, snapshot: Snapshot) => {
+  const { data } = await axiosInstance.put(`routes/${routeId}/snapshot`, {
     snapshot,
   });
   return data;
@@ -148,7 +148,7 @@ export {
   getRoutes,
   getRoute,
   getRouteId,
-  patchSnapshot,
+  putSnapshot,
   getSnapshot,
   getAddress,
 };

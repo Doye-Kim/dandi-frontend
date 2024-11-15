@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import styled from 'styled-components/native';
@@ -18,6 +18,7 @@ import CustomPolyline from '@/components/map/CustomPolyLine';
 import CustomHeader from '@/components/map/CustomHeader';
 import CustomMarker from '@/components/map/CustomMarker';
 import CustomText from '@/components/common/CustomText';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MemoizedCurrentPin = memo(CurrentPin);
 const MemoizedSparkleIcon = memo(SparkleIcon);
@@ -43,9 +44,12 @@ const MapMainScreen = () => {
   const getCurrentRouteId = async () => {
     try {
       const { routeId } = await getRouteId();
-      setRouteId(routeId);
-      setDefaultId(routeId);
-      getCurrentRoute(routeId);
+      if (routeId) {
+        console.log('routeId', routeId);
+        setRouteId(routeId);
+        setDefaultId(routeId);
+        getCurrentRoute(routeId);
+      }
     } catch (error) {
       checkErrorAndViewToast(error);
     }
@@ -67,10 +71,6 @@ const MapMainScreen = () => {
   };
 
   useEffect(() => {
-    getCurrentRouteId();
-  }, []);
-
-  useEffect(() => {
     if (routeId) getCurrentRoute(routeId);
   }, [routeId]);
 
@@ -84,29 +84,31 @@ const MapMainScreen = () => {
   }, [routes, error]);
 
   // 현재 위치 초기값 설정
-  useEffect(() => {
-    const fetchLocation = async () => {
-      const location = await getCurrentLocation();
-      if (location) {
-        setCurrentLocation(location);
-        if (!routes)
-          mapRef.current?.fitToCoordinates(
-            [
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLocation = async () => {
+        const location = await getCurrentLocation();
+        if (location) {
+          setCurrentLocation(location);
+          if (!routes) {
+            mapRef.current?.animateToRegion(
               {
                 latitude: location.latitude,
                 longitude: location.longitude,
+                latitudeDelta: 0.1, // 화면에 보이는 위도 범위 (값이 클수록 줌아웃)
+                longitudeDelta: 0.1, // 화면에 보이는 경도 범위 (값이 클수록 줌아웃)
               },
-            ],
-            {
-              edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-              animated: true,
-            },
-          );
-      }
-    };
-    fetchLocation();
-    updateMapCenter();
-  }, []);
+              1000, // 애니메이션 지속 시간 (밀리초)
+            );
+          }
+        }
+      };
+
+      fetchLocation();
+      updateMapCenter();
+      getCurrentRouteId();
+    }, [routes, mapRef]), // Ensure proper dependencies
+  );
 
   // 현재 위치 갱신 및 동선 수집
   useLocationTracking(setLocations, setCurrentLocation);

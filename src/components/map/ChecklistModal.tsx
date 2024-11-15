@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
-import { getSnapshot, patchSnapshot, Snapshot } from '@/api/map';
+import { getSnapshot, putSnapshot, Snapshot } from '@/api/map';
 import { CheckIcon, CrossButton } from '@/assets/icons';
 import { colors } from '@/constants';
 import { Item } from '@/api/map';
@@ -51,7 +51,7 @@ const CheckListModal = ({
 
   const sendSnapshot = async (routeId: number, snapshot: Snapshot) => {
     try {
-      await patchSnapshot(routeId, snapshot);
+      await putSnapshot(routeId, snapshot);
     } catch (error) {
       checkErrorAndViewToast(error);
     }

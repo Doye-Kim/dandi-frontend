@@ -70,13 +70,16 @@ class LocationService : Service() {
         locationCallback = object : LocationCallback() {
             private var lastUpdateTime = 0L
             private val updateInterval = 10000L // 10초 간격
+            private val accuracyThreshold = 100 // 100m 기준
 
             override fun onLocationResult(locationResult: LocationResult) {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastUpdateTime >= updateInterval) {
                     lastUpdateTime = currentTime
                     for (location in locationResult.locations) {
-                        sendLocationToReactNative(location)
+                        if (location.accuracy <= accuracyThreshold) {
+                            sendLocationToReactNative(location)
+                        }
                     }
                 }
             }

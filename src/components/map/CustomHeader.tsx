@@ -95,11 +95,7 @@ const CustomHeader = ({
                     fontSize: 12,
                     color: colors.GRAY_600,
                   }}>
-                  {getTimeDifference(
-                    new Date(route.createdAt),
-                    new Date(route.endedAt),
-                  )}{' '}
-                  이동
+                  {getTimeDifference(route.createdAt, route.endedAt)}
                 </CustomText>
               </>
             )}

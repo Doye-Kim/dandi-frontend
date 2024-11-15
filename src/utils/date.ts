@@ -36,16 +36,20 @@ const convertTimeFormat = (isoString: string) => {
 
 // #todo: 파라미터 형식을 string으로 바꿔서 함수 내부에서 Date 형식으로 변환하거나
 // 호출할 때 Date 형식으로 하거나 둘 중 하나만 하기
-function getTimeDifference(startTime: Date, endTime: Date) {
+function getTimeDifference(start: string, end: string) {
+  if (end === null) return '이동 시간 없음';
+  const startTime = new Date(start);
+  const endTime = new Date(end);
+
   const differenceInMilliseconds = endTime.getTime() - startTime.getTime();
 
   const hours = Math.floor(differenceInMilliseconds / (1000 * 60) / 60);
   const minutes = Math.floor((differenceInMilliseconds / (1000 * 60)) % 60);
 
   if (hours > 0) {
-    return `${hours}시간 ${minutes}분`;
+    return `${hours}시간 ${minutes}분 이동`;
   } else {
-    return `${minutes}분`;
+    return `${minutes}분 이동`;
   }
 }
 

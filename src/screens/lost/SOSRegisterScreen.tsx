@@ -7,7 +7,7 @@ import styled from 'styled-components/native';
 import DatePicker from 'react-native-date-picker';
 import { colors } from '@/constants';
 import { BASE_IMAGE_URL } from '@/api/axios';
-import { responsive, responsiveVertical } from '@/utils';
+import { responsive, responsiveVertical, showToast } from '@/utils';
 import { requestCameraAndGalleryPermissions } from '@/utils/permission';
 import { convertDateTimeFormat } from '@/utils/date';
 import { CameraIcon } from '@/assets/icons';
@@ -16,7 +16,6 @@ import { CalendarIcon } from '@/assets/icons';
 import CustomText from '@/components/common/CustomText';
 import CustomButton from '@/components/common/CustomButton';
 import CameraGalleryPickerModal from '@/components/lost/CameraGalleryPickerModal';
-import Toast from 'react-native-toast-message';
 
 type SOSRegisterScreenNavigationProp = StackNavigationProp<
   LostStackParamList,
@@ -38,15 +37,14 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
     () => convertDateTimeFormat(datetime),
     [datetime],
   );
-
   // 경로 선택 화면 이동 함수
   const goToRouteSelection = () => {
-    if (!photoUrl || !explain || !location) {
-      Toast.show({
-        type: 'error',
-        text1: '모든 항목을 입력해주세요.',
-      });
-      return;
+    if (!photoUrl) {
+      showToast('사진을 등록해주세요.');
+    } else if (!explain) {
+      showToast('분실물 상세 설명을 입력해주세요.');
+    } else if (!location) {
+      showToast('분실 위치를 입력해주세요.');
     }
     navigation.navigate('RouteSelection', {
       photoUrl,
@@ -55,7 +53,6 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
       datetime: datetime.toISOString(),
     });
   };
-
   // 카메라, 갤러리 권한 요청 및 선택 모달 열기
   const uploadPhoto = async () => {
     const hasPermission = await requestCameraAndGalleryPermissions();
@@ -92,7 +89,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
             onClose={() => setIsPhotoMethodOpen(false)}
           />
           <WarningBox>
-            <WarningIcon width={24} height={24} />
+            <WarningIcon width={responsive(24)} height={responsive(24)} />
             <WarningText>
               신분증, 카드 등 민감 정보 포함 사진은 등록하지마세요.
             </WarningText>
@@ -126,7 +123,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
               <LabelText>분실 날짜</LabelText>
               <SelectedText>{selectedDatetime}</SelectedText>
               <IconButton onPress={() => setIsDatetimeOpen(true)}>
-                <CalendarIcon width={24} height={24} />
+                <CalendarIcon width={responsive(24)} height={responsive(24)} />
               </IconButton>
             </DatetimeBox>
             {/* 날짜 선택 모달 */}
@@ -149,7 +146,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
               <CustomButton
                 title='경로 선택'
                 style='enable'
-                height={48}
+                height={responsiveVertical(40)}
                 onPress={goToRouteSelection}
               />
             </RegisterButton>

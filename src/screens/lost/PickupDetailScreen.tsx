@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { isAxiosError } from 'axios';
 import { RouteProp } from '@react-navigation/native';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
@@ -47,8 +48,10 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
   const [parentId, setParentId] = useState<number | null>(null);
   const [quizModalVisible, setQuizModalVisible] = useState<boolean>(false);
   const [quizData, setQuizData] = useState<null | any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchComments = async () => {
+    setLoading(true);
     try {
       const data = await getPickupComments(id);
       setComments(data.payloads);
@@ -56,6 +59,8 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
       if (isAxiosError(error)) {
         showCustomErrorToast(error.response?.data.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,13 +71,12 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
 
   useEffect(() => {
     const fetchPickupDetail = async () => {
+      setLoading(true);
       try {
         const data = await getPickupDetail(id);
-        console.log(data);
         setDetails(data);
         fetchComments();
       } catch (error) {
-        console.error(error);
         if (isAxiosError(error)) {
           const errorData = error.response?.data;
           if (errorData.code === 'E407') {
@@ -83,10 +87,13 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
             showCustomErrorToast(error.response?.data.message);
           }
         }
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchPickupDetail();
-  }, [id, quizModalVisible]);
+  }, [id]);
 
   // 퀴즈 데이터 조회 함수
   const tryQuiz = async (foundId: number) => {
@@ -122,6 +129,10 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
       }
     }
   };
+
+  if (loading) {
+    return <ActivityIndicator size='large' color={colors.PRIMARY} />;
+  }
 
   return (
     <Container>

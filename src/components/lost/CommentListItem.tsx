@@ -23,7 +23,7 @@ const CommentListItem = ({
       <ContentContainer>
         <HeaderContainer>
           <WriterNameText isArticleWriter={memberId === comment.writerId}>
-            {memberId === comment.writerId ? '작성자' : comment.nickname}
+            {memberId === comment.writerId ? '익명(작성자)' : comment.nickname}
           </WriterNameText>
           <ReplyBox onPress={() => onReply(comment.id)}>
             <ReplyText>대댓글</ReplyText>

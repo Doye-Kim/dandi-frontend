@@ -15,11 +15,11 @@ const LostRouteMap = ({ routeData }: { routeData: LatLon[] | null }) => {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         }}>
-        {routeData && (
+        {routeData && routeData.length > 0 && (
           <CustomPolyline
             track={routeData.map((point) => ({
-              latitude: point.lat,
-              longitude: point.lon,
+              latitude: point.lat || 35.0894681,
+              longitude: point.lon || 128.8535056,
             }))}
             id={routeData[0].lat}
             onPress={() => {}}

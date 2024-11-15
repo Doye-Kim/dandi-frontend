@@ -58,7 +58,6 @@ const PickupQuizModal = ({
               contentContainerStyle={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: responsive(22),
               }}
               renderItem={({ item }) => (
                 <PhotoBoxContainer
@@ -110,18 +109,18 @@ const Overlay = styled.View`
 
 const Container = styled.View`
   background-color: ${colors.WHITE};
-  justify-content: center;
-  flex-direction: row;
   flex-wrap: wrap;
   width: ${responsive(340)}px;
   height: ${responsiveVertical(445)}px;
   border-radius: 30px;
+  padding-vertical: ${responsive(4)}px;
 `;
 
 const QuizHeader = styled(CustomText)`
   font-size: ${responsive(16)}px;
   padding: ${responsive(14)}px;
   color: ${colors.BLACK};
+  text-align: center;
 `;
 
 const PhotoContainer = styled.View`
@@ -133,7 +132,8 @@ const PhotoBoxContainer = styled.TouchableOpacity<{ isSelected: boolean }>`
   border-width: ${({ isSelected }) => (isSelected ? 1 : 0)}px;
   border-color: ${({ isSelected }) =>
     isSelected ? colors.PRIMARY : colors.WHITE};
-  border-radius: 30px;
+  border-radius: 10px;
+  margin: ${responsive(10)}px;
 `;
 
 const ButtonContainer = styled.View`

@@ -19,7 +19,7 @@ const ReplyListItem = ({ reply, memberId }: ReplyListItemProps) => {
       <ContentContainer>
         <HeaderContainer>
           <WriterNameText isArticleWriter={memberId === reply.writerId}>
-            {memberId === reply.writerId ? '작성자' : reply.nickname}
+            {memberId === reply.writerId ? '익명(작성자)' : reply.nickname}
           </WriterNameText>
         </HeaderContainer>
         <ContentText>{reply.content}</ContentText>

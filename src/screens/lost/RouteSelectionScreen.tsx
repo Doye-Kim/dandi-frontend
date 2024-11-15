@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
 import { isAxiosError } from 'axios';
 import { colors } from '@/constants';
 import { RouteProp } from '@react-navigation/native';
@@ -10,7 +9,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { registerSOS } from '@/api/lost';
 import { LatLon, getRoutes } from '@/api/map';
 import { convertDateFormat } from '@/utils/date';
-import { showCustomErrorToast } from '@/utils/toast';
+import { showCustomErrorToast, showToast } from '@/utils/toast';
 import { responsive, responsiveVertical } from '@/utils';
 import { ResponseRouteListItem } from '@/api/map';
 import CustomButton from '@/components/common/CustomButton';
@@ -51,10 +50,11 @@ const RouteSelectionScreen = ({
         const data = await getRoutes(convertDateFormat(new Date(datetime)));
         if (data.routes && data.routes.length > 0) {
           setRoutes(data.routes);
+          console.log(data.routes);
           setDisplayedRoute(data.routes[0].track);
         } else {
           showCustomErrorToast('분실 날짜에 이동한 경로가 없습니다.');
-          setTimeout(() => navigation.navigate('SOSRegister'), 3000);
+          setTimeout(() => navigation.navigate('SOSRegister'), 1000);
         }
       } catch (error) {
         console.error(error);
@@ -63,6 +63,7 @@ const RouteSelectionScreen = ({
 
     fetchRoutes();
   }, []);
+
   // SOS 등록
   const handleRegisterSOS = async () => {
     if (startRoute !== null && endRoute !== null) {
@@ -71,54 +72,41 @@ const RouteSelectionScreen = ({
           situationDesc: location,
           itemDesc: explain,
           lostAt: datetime,
-          startRoute,
-          finishRoute: endRoute,
+          startRoute: startRoute,
+          endRoute: endRoute,
           images: [photoUrl],
         });
         console.log(data);
         navigation.navigate('SOSList');
-        Toast.show({
-          type: 'success',
-          text1: 'SOS 등록이 완료되었습니다.',
-        });
+        showToast('SOS 등록이 완료되었습니다.');
       } catch (error) {
         if (isAxiosError(error) && error.response?.data.code === 'E302') {
-          Toast.show({
-            type: 'error',
-            text1: 'SOS 등록은 하루에 한 번만 가능합니다.',
-          });
+          showCustomErrorToast('SOS 등록은 하루에 한 번만 가능합니다.');
           navigation.navigate('SOSList');
         }
       }
     } else {
-      Toast.show({
-        type: 'error',
-        text1: '경로를 선택해주세요.',
-      });
+      showToast('경로를 선택해주세요.');
       return;
     }
   };
-
+  // 경로 선택 모드
   const handleLongPress = () => {
-    if (selectMode) {
-      setSelectMode(false);
-      setSelectedRoutes([]);
-      setStartRoute(null);
-      setEndRoute(null);
-    } else {
-      setSelectMode(true);
-    }
+    setSelectMode(!selectMode);
+    setSelectedRoutes([]);
+    setStartRoute(null);
+    setEndRoute(null);
   };
   // 전체 선택
   const handleSelectAll = () => {
-    if (routes) {
+    if (routes && routes.length > 0 && selectMode) {
       const allRouteIds = routes.map((route) => route.id);
       setSelectedRoutes(allRouteIds);
       setStartRoute(allRouteIds[0]);
       setEndRoute(allRouteIds[allRouteIds.length - 1]);
     }
   };
-
+  // 경로 선택
   const handlePress = (routeId: number) => {
     if (selectMode) {
       if (startRoute === null) {
@@ -144,6 +132,7 @@ const RouteSelectionScreen = ({
         setSelectedRoutes([routeId]);
       }
     }
+    // 경로 선택 시 지도에 표시
     const selectedRouteData = routes?.find((route) => route.id === routeId);
     if (selectedRouteData) {
       setDisplayedRoute(selectedRouteData.track);
@@ -155,13 +144,14 @@ const RouteSelectionScreen = ({
       <MapBox>
         <LostRouteMap routeData={displayedRoute} />
       </MapBox>
-      {selectMode && (
-        <AllButtonBox>
-          <AllButton onPress={handleSelectAll}>
-            <CustomText>전체 선택</CustomText>
-          </AllButton>
-        </AllButtonBox>
-      )}
+      <SelectHeader>
+        <AllButton visible={selectMode} onPress={handleSelectAll}>
+          <SelectText>전체 선택</SelectText>
+        </AllButton>
+        <SelectedButton onPress={handleLongPress}>
+          <SelectText>경로 선택</SelectText>
+        </SelectedButton>
+      </SelectHeader>
       <ListContainer>
         <FlatList
           data={routes}
@@ -181,7 +171,7 @@ const RouteSelectionScreen = ({
         <CustomButton
           title='등록'
           style='enable'
-          height={48}
+          height={responsiveVertical(40)}
           onPress={handleRegisterSOS}
         />
       </RegisterButton>
@@ -202,6 +192,12 @@ const MapBox = styled.View`
   overflow: hidden;
 `;
 
+const SelectText = styled(CustomText)``;
+
+const SelectedButton = styled.TouchableOpacity`
+  align-self: flex-end;
+`;
+
 const RegisterButton = styled.View`
   bottom: 0;
   padding: ${responsive(10)}px 0;
@@ -209,13 +205,18 @@ const RegisterButton = styled.View`
   background-color: ${colors.WHITE};
 `;
 
-const AllButtonBox = styled.View`
+const SelectHeader = styled.View`
   width: 100%;
-  padding: ${responsive(8)}px;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: ${responsive(12)}px;
 `;
 
 const ListContainer = styled.View`
   flex: 1;
 `;
 
-const AllButton = styled.TouchableOpacity``;
+const AllButton = styled.TouchableOpacity<{ visible: boolean }>`
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
+  pointer-events: ${({ visible }) => (visible ? 'auto' : 'none')};
+`;

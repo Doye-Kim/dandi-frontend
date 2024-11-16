@@ -62,8 +62,10 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchAlertList(0);
-    }, [navigation]),
+      if (alertList.length === 0) {
+        fetchAlertList(0);
+      }
+    }, [navigation, alertList.length]),
   );
   // 더보기 함수
   const handleLoadMore = () => {

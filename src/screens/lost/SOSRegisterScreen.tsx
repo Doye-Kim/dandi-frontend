@@ -45,13 +45,14 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
       showToast('분실물 상세 설명을 입력해주세요.');
     } else if (!location) {
       showToast('분실 위치를 입력해주세요.');
+    } else {
+      navigation.navigate('RouteSelection', {
+        photoUrl,
+        explain,
+        location,
+        datetime: datetime.toISOString(),
+      });
     }
-    navigation.navigate('RouteSelection', {
-      photoUrl,
-      explain,
-      location,
-      datetime: datetime.toISOString(),
-    });
   };
   // 카메라, 갤러리 권한 요청 및 선택 모달 열기
   const uploadPhoto = async () => {
@@ -146,7 +147,8 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
               <CustomButton
                 title='경로 선택'
                 style='enable'
-                height={responsiveVertical(40)}
+                height={responsiveVertical(60)}
+                fontSize={responsiveVertical(16)}
                 onPress={goToRouteSelection}
               />
             </RegisterButton>

@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import MapView, { LatLng, Marker, MapPressEvent } from 'react-native-maps';
 import { colors } from '@/constants';
 import CustomButton from '../common/CustomButton';
+import { responsive, responsiveVertical } from '@/utils';
 
 interface PickupMapModalProps {
   visible: boolean;
@@ -55,9 +56,9 @@ const PickupMapModal = ({
             <CustomButton
               title='위치 선택'
               style='enable'
-              width={100}
-              height={40}
-              fontSize={12}
+              width={responsive(100)}
+              height={responsiveVertical(48)}
+              fontSize={responsiveVertical(12)}
               onPress={() => {
                 onSelectLocation(selectedLocation);
                 onClose();
@@ -81,7 +82,7 @@ const Container = styled.View`
 
 const MapContainer = styled.View`
   width: 90%;
-  height: 40%;
+  height: 50%;
   border-radius: 10px;
   background-color: ${colors.WHITE};
   overflow: hidden;

@@ -171,7 +171,8 @@ const RouteSelectionScreen = ({
         <CustomButton
           title='등록'
           style='enable'
-          height={responsiveVertical(40)}
+          height={responsiveVertical(60)}
+          fontSize={responsiveVertical(16)}
           onPress={handleRegisterSOS}
         />
       </RegisterButton>

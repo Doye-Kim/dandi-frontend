@@ -10,8 +10,11 @@ import RootNavigator from './src/navigations/RootNavigator';
 import { displayNotification } from '@/utils/notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckListModal from '@/components/map/ChecklistModal';
+import { createNavigationContainerRef } from '@react-navigation/native';
+import { NotificationHandler } from '@/utils/notification';
 
 const queryClient = new QueryClient();
+export const navigationRef = createNavigationContainerRef();
 
 const toastConfig = {
   success: (props: any) => {
@@ -97,7 +100,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <PaperProvider>
         <View style={styles.container}>
-          <NavigationContainer>
+          <NavigationContainer ref={navigationRef}>
             <RootNavigator />
             {startMovementData && (
               <CheckListModal
@@ -106,6 +109,7 @@ const App = () => {
                 body={startMovementData}
               />
             )}
+            <NotificationHandler />
           </NavigationContainer>
         </View>
         <Toast config={toastConfig} />

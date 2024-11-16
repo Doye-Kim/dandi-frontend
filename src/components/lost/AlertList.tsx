@@ -32,8 +32,8 @@ const AlertList = ({
   return (
     <Container>
       <FlatList
-        removeClippedSubviews={false}
-        initialNumToRender={20}
+        removeClippedSubviews={true}
+        initialNumToRender={10}
         data={data}
         extraData={data}
         renderItem={({ item }) => {

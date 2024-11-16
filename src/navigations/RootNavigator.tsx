@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
 import Navbar from './tab/Navbar';
 
 import {
@@ -6,13 +7,25 @@ import {
   removeEncryptStorage,
 } from '@/utils/encryptedStorage';
 import { getUserInfo, refreshAuth } from '@/api/auth';
+import { navigationRef } from '../../App';
 import AuthStackNavigator from './stack/AuthStackNavigator';
+import LostStackNavigator from './stack/LostStackNavigator';
 import useUserStore from '@/store/useUserStore';
 import useBagStore from '@/store/useBagStore';
-import { useNavigationContainerRef } from '@react-navigation/native';
+import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
+
+export type RootStackParamList = {
+  Main: undefined;
+  AuthStackNavigator: undefined;
+  LostStackNavigator: {
+    screen: keyof LostStackParamList;
+    params?: LostStackParamList[keyof LostStackParamList];
+  };
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
-  const navigationRef = useNavigationContainerRef();
   const { isLogin, setIsLogin } = useUserStore();
   const { setDefaultBagId } = useBagStore();
   const { setNickname, setEmail } = useUserStore();
@@ -56,7 +69,24 @@ function RootNavigator() {
     }
   }, [isLogin, navigationRef]);
 
-  return <>{isLogin ? <Navbar /> : <AuthStackNavigator />}</>;
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isLogin ? (
+        <>
+          <Stack.Screen name='Main' component={Navbar} />
+          <Stack.Screen
+            name='LostStackNavigator'
+            component={LostStackNavigator}
+          />
+        </>
+      ) : (
+        <Stack.Screen
+          name='AuthStackNavigator'
+          component={AuthStackNavigator}
+        />
+      )}
+    </Stack.Navigator>
+  );
 }
 
 export default RootNavigator;

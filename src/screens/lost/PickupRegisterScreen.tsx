@@ -157,18 +157,18 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
                 }}
               />
             </ExplainBox>
-            <LocationBox>
-              <LabelText>습득 장소</LabelText>
-              <SelectedText numberOfLines={1} ellipsizeMode='tail'>
+            <LabelText>습득 장소</LabelText>
+            <GetLocationInput>
+              <LocationText numberOfLines={1} ellipsizeMode='tail'>
                 {address || '주소 없음'}
-              </SelectedText>
+              </LocationText>
               <IconButton onPress={() => setIsMapModalOpen(true)}>
                 <SimpleMarkerIcon
                   width={responsive(24)}
                   height={responsive(24)}
                 />
               </IconButton>
-            </LocationBox>
+            </GetLocationInput>
             {/* 위치 선택 모달 */}
             <PickupMapModal
               visible={isMapModalOpen}
@@ -215,7 +215,8 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
               <CustomButton
                 title='등록'
                 style='enable'
-                height={responsiveVertical(40)}
+                height={responsiveVertical(60)}
+                fontSize={responsiveVertical(16)}
                 onPress={handleRegister}
               />
             </RegisterButton>
@@ -283,10 +284,9 @@ const ExplainInput = styled.TextInput`
   padding: ${responsive(16)}px;
 `;
 
-const LocationBox = styled.View`
+const GetLocationInput = styled.View`
   width: 100%;
   flex-direction: row;
-  justify-content: space-between;
 `;
 
 const KeepExplainBox = styled.View`
@@ -312,6 +312,10 @@ const SelectedText = styled(CustomText)`
   text-align: center;
   color: ${colors.GRAY_900};
   font-size: ${responsive(14)}px;
+`;
+
+const LocationText = styled(CustomText)`
+  flex: 1;
 `;
 
 const IconButton = styled.TouchableOpacity`

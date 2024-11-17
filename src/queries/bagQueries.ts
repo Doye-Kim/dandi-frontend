@@ -187,7 +187,7 @@ export const useCreateBagMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['bags'] });
     },
     onError: (error) => {
-      console.error('Error deleting item:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -201,7 +201,7 @@ export const useCreateCopyBagMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['bags'] });
     },
     onError: (error) => {
-      console.error('Error deleting item:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -215,7 +215,7 @@ export const useEditBagNameMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['bags'] });
     },
     onError: (error) => {
-      console.error('Error deleting item:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -229,7 +229,7 @@ export const useDeleteBagMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['bags'] });
     },
     onError: (error) => {
-      console.error('Error deleting item:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -249,7 +249,7 @@ export const useBagItemMoveToDrawerMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['drawerItems'] });
     },
     onError: (error) => {
-      console.error('Error deleting item:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -264,7 +264,7 @@ export const useDeleteItemMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['bagItems'] });
     },
     onError: (error) => {
-      console.error('Error deleting item:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };
@@ -280,7 +280,7 @@ export const useDeleteItemsMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['bagItems'] });
     },
     onError: (error) => {
-      console.error('Error deleting items:', error);
+      checkErrorAndViewToast(error);
     },
   });
 };

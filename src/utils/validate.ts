@@ -55,14 +55,13 @@ function validatePasswordUpdate(values: {
   } else if (!values.pastPassword) {
     errors.pastPassword = '비밀번호를 입력해 주세요';
   } else if (
-    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W_]{8,}$/.test(values.password)
+    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W_]{8,20}$/.test(values.password)
   ) {
     errors.password =
-      '비밀번호는 영어 대소문자, 숫자 포함 8자 이상으로 설정해 주세요';
+      '비밀번호는 영어 대소문자, 숫자 포함 8자 이상, 20자 이하로 설정해 주세요';
   } else if (values.pastPassword === values.password) {
     errors.password = '새 비밀번호는 현재 비밀번호와 달라야 합니다';
   }
-
   if (values.password !== values.passwordConfirm) {
     errors.passwordConfirm = '비밀번호와 일치하지 않습니다.';
   }
@@ -82,10 +81,10 @@ function validatePasswordConfirm(values: {
   if (!values.password) {
     errors.password = '비밀번호를 입력해 주세요';
   } else if (
-    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W_]{8,}$/.test(values.password)
+    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W_]{8,20}$/.test(values.password)
   ) {
     errors.password =
-      '비밀번호는 영어 대소문자, 숫자 포함 8자 이상으로 설정해 주세요';
+      '비밀번호는 영어 대소문자, 숫자 포함 8자 이상, 20자 이하로 설정해 주세요';
   }
 
   if (values.password !== values.passwordConfirm) {
@@ -124,11 +123,46 @@ function validateName(values: { name: string }) {
     name: '',
   };
   if (!/^.{1,12}$/.test(values.name)) {
-    errors.name = '닉네임은 12자 이하로 입력해 주세요';
+    errors.name = '닉네임은 최소 1자, 최대 12자까지 가능합니다.';
+  }
+  if (/\s/.test(values.name)) {
+    errors.name = '이름에 공백이 포함될 수 없습니다.';
+  }
+  if (/\r|\n/.test(values.name)) {
+    errors.name = '이름에 줄바꿈이 포함될 수 없습니다.';
   }
 
   return errors;
 }
+
+function validateBagName(values: { name: string }) {
+  const errors = {
+    name: '',
+  };
+  if (!/^.{1,12}$/.test(values.name)) {
+    errors.name = '가방 이름은 최소 1자, 최대 12자까지 가능합니다.';
+  }
+  if (/\s/.test(values.name)) {
+    errors.name = '이름에 공백이 포함될 수 없습니다.';
+  }
+  if (/\r|\n/.test(values.name)) {
+    errors.name = '이름에 줄바꿈이 포함될 수 없습니다.';
+  }
+
+  return errors;
+}
+
+function validateItemName(values: { name: string }) {
+  const errors = {
+    name: '',
+  };
+  if (!/^.{1,12}$/.test(values.name)) {
+    errors.name = '소지품 이름은 최소 1자, 최대 12자까지 가능합니다.';
+  }
+
+  return errors;
+}
+
 export {
   validateEmail,
   validateLogin,
@@ -139,4 +173,5 @@ export {
   validatePhone,
   validatePhoneAuthNum,
   validateName,
+  validateBagName,
 };

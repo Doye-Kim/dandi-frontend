@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import DraggableGrid from 'react-native-draggable-grid';
 import styled from 'styled-components/native';
-import { checkErrorAndViewToast, responsive } from '@/utils';
+import {
+  checkErrorAndViewToast,
+  responsive,
+  responsiveVertical,
+} from '@/utils';
 import { ItemKeyProps, StyleItemIcon } from './BagThings';
-import { CheckIcon } from '@/assets/icons';
+import { CheckIcon, DeleteBagIcon } from '@/assets/icons';
 import { colors } from '@/constants';
 import {
   useBagItemQuery,
@@ -21,7 +25,13 @@ import useBagStore from '@/store/useBagStore';
 import DeleteButton from '../DeleteButton';
 import CustomModal from '@/components/common/CustomModal';
 
-const BagDrawer = () => {
+const BagDrawer = ({
+  visible,
+  onDismiss,
+}: {
+  visible: boolean;
+  onDismiss: () => void;
+}) => {
   const editMode = useBagStore((state) => state.editMode);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
@@ -158,88 +168,93 @@ const BagDrawer = () => {
     return !item.disabledDrag ? (
       <StyleView>
         {editMode && (
-          <DeleteButton onPressDelete={() => handlePressDelete(item)} />
+          <TouchableOpacity
+            onPress={() => handlePressDelete(item)}
+            style={{ position: 'absolute', zIndex: 10, top: 0, left: 5 }}>
+            <DeleteBagIcon width={15} height={15} />
+          </TouchableOpacity>
         )}
         <StyleItemIcon color={color}>
-          <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
+          <Text style={{ fontSize: 24 }}>{item.emoticon}</Text>
         </StyleItemIcon>
-        <CustomText
-          style={{
-            fontSize: item.name.length > 4 ? 9 : 11,
-          }}>
-          {item.name}
-        </CustomText>
+        <StyledNameText length={item.name.length}>{item.name}</StyledNameText>
       </StyleView>
     ) : (
       <StyleTouchable onPress={() => handlePressItem(item)}>
         {isSelected ? (
           <StyleSelectItemIcon>
-            <Text style={{ fontSize: 28, position: 'absolute', opacity: 0.5 }}>
+            <Text style={{ fontSize: 20, position: 'absolute' }}>
               {item.emoticon}
             </Text>
             <CheckIcon width={40} height={40} />
           </StyleSelectItemIcon>
         ) : (
           <StyleItemIcon color={color}>
-            <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
+            <Text style={{ fontSize: 24 }}>{item.emoticon}</Text>
           </StyleItemIcon>
         )}
-        <CustomText
-          style={{
-            fontSize: item.name.length > 4 ? 9 : 11,
-          }}>
-          {item.name}
-        </CustomText>
+        <StyledNameText length={item.name.length}>{item.name}</StyledNameText>
       </StyleTouchable>
     );
   };
 
   return (
-    <StyleContainer>
-      {drawerKeyItems.length > 0 ? (
-        <>
-          <ScrollView>
-            <DraggableGrid
-              numColumns={4}
-              style={{ margin: 20, flexWrap: 'wrap' }}
-              renderItem={renderItem}
-              data={drawerKeyItems}
-              onDragRelease={(updatedData) => {
-                setDrawerKeyItems(updatedData);
-                drawerOrderMutation.mutate(
-                  updatedData.map((item, index) => ({
-                    itemId: item.itemId,
-                    orderId: index + 1,
-                  })),
-                );
-              }}
-            />
-          </ScrollView>
-          {selectItems.length > 0 && (
-            <StylePutBag onPress={handlePutBag}>
-              <CustomText style={{ color: colors.WHITE, fontSize: 12 }}>
-                가방에 넣기
-              </CustomText>
-            </StylePutBag>
-          )}
-        </>
-      ) : (
-        <StyleEmptyItemText>서랍에 보관된 소지품이 없어요</StyleEmptyItemText>
-      )}
-      {isOpenDeleteModal && (
-        <CustomModal
-          visible={isOpenDeleteModal}
-          onClose={() => setIsOpenDeleteModal(false)}
-          onCancel={() => setIsOpenDeleteModal(false)}
-          onConfirm={handleDelete}
-          category={'DELETE_ITEM'}
-        />
-      )}
-    </StyleContainer>
+    <ModalBackground onPress={onDismiss}>
+      <StyleContainer>
+        {drawerKeyItems.length > 0 ? (
+          <>
+            <View style={{ maxHeight: responsiveVertical(720) }}>
+              <ScrollView>
+                <DraggableGrid
+                  numColumns={7}
+                  style={{ margin: 20, flexWrap: 'wrap' }}
+                  itemHeight={responsiveVertical(75)}
+                  renderItem={renderItem}
+                  data={drawerKeyItems}
+                  onDragRelease={(updatedData) => {
+                    setDrawerKeyItems(updatedData);
+                    drawerOrderMutation.mutate(
+                      updatedData.map((item, index) => ({
+                        itemId: item.itemId,
+                        orderId: index + 1,
+                      })),
+                    );
+                  }}
+                />
+              </ScrollView>
+            </View>
+            {selectItems.length > 0 && (
+              <StylePutBag onPress={handlePutBag}>
+                <CustomText style={{ color: colors.WHITE, fontSize: 12 }}>
+                  가방에 넣기
+                </CustomText>
+              </StylePutBag>
+            )}
+          </>
+        ) : (
+          <StyleEmptyItemText>서랍에 보관된 소지품이 없어요</StyleEmptyItemText>
+        )}
+        {isOpenDeleteModal && (
+          <CustomModal
+            visible={isOpenDeleteModal}
+            onClose={() => setIsOpenDeleteModal(false)}
+            onCancel={() => setIsOpenDeleteModal(false)}
+            onConfirm={handleDelete}
+            category={'DELETE_ITEM'}
+          />
+        )}
+      </StyleContainer>
+    </ModalBackground>
   );
 };
 
 export default BagDrawer;
+
+const ModalBackground = styled.TouchableOpacity`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+`;
 
 const StyleEmptyItemText = styled(CustomText)`
   padding: 10px;
@@ -248,10 +263,10 @@ const StyleEmptyItemText = styled(CustomText)`
   color: ${colors.BEIGE_500};
 `;
 const StyleContainer = styled.View`
-  width: ${responsive(320)}px;
+  width: ${responsive(352)}px;
   border-radius: 30px;
   position: absolute;
-  right: 20px;
+  right: 10px;
   bottom: 90px;
   background-color: ${colors.BEIGE_300};
   elevation: 8;
@@ -259,24 +274,22 @@ const StyleContainer = styled.View`
 const StyleView = styled.View`
   justify-content: center;
   align-items: center;
-  width: ${responsive(280 / 4)}px;
-  padding: 10px;
+  width: ${responsive(352 / 7)}px;
+  height: ${responsiveVertical(75)}px;
 `;
 
 const StyleTouchable = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
-  width: ${responsive(280 / 4)}px;
-  padding: 10px;
+  width: ${responsive(352 / 7)}px;
+  height: ${responsiveVertical(75)}px;
 `;
 
 const StyleSelectItemIcon = styled.View`
   border-radius: 20px;
   background-color: 'rgba(139, 88, 67, 0.5)';
-  width: 45px;
-  height: 50px;
-  // border-width: 2px;
-  // border-style: dashed;
+  width: ${responsive(38)}px;
+  height: ${responsiveVertical(42)}px;
   border-color: ${colors.BEIGE_500};
   justify-content: center;
   align-items: center;
@@ -293,4 +306,10 @@ const StylePutBag = styled.TouchableOpacity`
   border-radius: 20px;
   padding: 5px;
   width: 100px;
+`;
+
+const StyledNameText = styled(CustomText)<{ length: number }>`
+  margin-top: 3px;
+  height: 28px;
+  font-size: ${({ length }) => (length > 4 ? 9 : 11)};
 `;

@@ -14,7 +14,6 @@ import ListItem from '@/components/my/ListItem';
 import useUserStore from '@/store/useUserStore';
 import Section from '@/components/my/Section';
 import useBagStore from '@/store/useBagStore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type MyScreenProps = {
   navigation: StackNavigationProp<
@@ -57,8 +56,6 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
       resetBag();
       removeEncryptStorage('accessToken');
       removeEncryptStorage('refreshToken');
-      AsyncStorage.removeItem('routeId');
-      AsyncStorage.removeItem('locations');
       showToast('로그아웃 되었습니다.');
     } catch (error) {
       checkErrorAndViewToast(error);
@@ -140,19 +137,23 @@ const MyMainScreen = ({ navigation }: MyScreenProps) => {
           <ListItem label='문의하기' onPress={handleSendMail} />
         </Section>
       </ScrollView>
-      <CustomModal
-        visible={isOpenWithdraw}
-        category='WITHDRAW'
-        onClose={() => setIsOpenWithdraw(false)}
-        onCancel={() => setIsOpenWithdraw(false)}
-        onConfirm={handlePressWithDrawConfirm}
-      />
-      <InputModal
-        visible={isOpenNameUpdate}
-        onClose={() => setIsOpenNameUpdate(false)}
-        onConfirm={() => setIsOpenNameUpdate(false)}
-        nickname={nickname}
-      />
+      {isOpenWithdraw && (
+        <CustomModal
+          visible={isOpenWithdraw}
+          category='WITHDRAW'
+          onClose={() => setIsOpenWithdraw(false)}
+          onCancel={() => setIsOpenWithdraw(false)}
+          onConfirm={handlePressWithDrawConfirm}
+        />
+      )}
+      {isOpenNameUpdate && (
+        <InputModal
+          visible={isOpenNameUpdate}
+          onClose={() => setIsOpenNameUpdate(false)}
+          onConfirm={() => setIsOpenNameUpdate(false)}
+          nickname={nickname}
+        />
+      )}
     </SafeAreaView>
   );
 };

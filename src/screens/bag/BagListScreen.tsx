@@ -42,7 +42,7 @@ const BagListScreen = () => {
 
   return (
     <SafeAreaView>
-      <CustomBagHeader />
+      <CustomBagHeader length={bagList && bagList.length} />
       {sortedBagData.length > 0 ? (
         <DraggableFlatList
           data={sortedBagData}

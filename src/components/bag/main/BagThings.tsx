@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { DraggableGrid } from 'react-native-draggable-grid';
 import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import { checkErrorAndViewToast, responsive } from '@/utils';
+import {
+  checkErrorAndViewToast,
+  responsive,
+  responsiveVertical,
+} from '@/utils';
 import { ItemProps } from '@/api/bag';
 import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import {
@@ -25,7 +29,6 @@ export interface ItemKeyProps extends ItemProps {
 
 const BagThings = ({ navigation }: BagScreenProps) => {
   const editMode = useBagStore((state) => state.editMode);
-  const isEditComplete = useBagStore((state) => state.isEditComplete);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
 
@@ -96,7 +99,7 @@ const BagThings = ({ navigation }: BagScreenProps) => {
       <StyleView>
         <DeleteButton onPressDelete={() => handlePressDelete(item)} />
         <StyleItemIcon color={color}>
-          <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
+          <Text style={{ fontSize: 24 }}>{item.emoticon}</Text>
         </StyleItemIcon>
         <CustomText
           style={{
@@ -106,15 +109,6 @@ const BagThings = ({ navigation }: BagScreenProps) => {
           }}>
           {item.name}
         </CustomText>
-        {isOpenDeleteModal && (
-          <CustomModal
-            visible={isOpenDeleteModal}
-            onClose={() => setIsOpenDeleteModal(false)}
-            onCancel={() => setIsOpenDeleteModal(false)}
-            onConfirm={handleDelete}
-            category={'DELETE_ITEM'}
-          />
-        )}
       </StyleView>
     ) : (
       <BagThing item={item} navigation={navigation} />
@@ -124,26 +118,38 @@ const BagThings = ({ navigation }: BagScreenProps) => {
   return (
     <View>
       {bagKeyItems.length > 0 ? (
-        <DraggableGrid
-          numColumns={5}
-          renderItem={renderItem}
-          data={bagKeyItems}
-          onDragRelease={(updatedData) => {
-            setBagKeyItems(updatedData);
-            orderMutation.mutate({
-              bagId: selectBagId,
-              requestItems: updatedData.map((item, index) => ({
-                itemId: item.itemId,
-                orderId: index + 1,
-              })),
-            });
-          }}
-        />
+        <ScrollView>
+          <DraggableGrid
+            style={{ flex: 1 }}
+            numColumns={5}
+            renderItem={renderItem}
+            data={bagKeyItems}
+            onDragRelease={(updatedData) => {
+              setBagKeyItems(updatedData);
+              orderMutation.mutate({
+                bagId: selectBagId,
+                requestItems: updatedData.map((item, index) => ({
+                  itemId: item.itemId,
+                  orderId: index + 1,
+                })),
+              });
+            }}
+          />
+        </ScrollView>
       ) : (
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           <CustomText>현재 가방에 들어있는 소지품이 없어요</CustomText>
           <CustomText>서랍에서 꺼내오거나, 추가해 보세요!</CustomText>
         </View>
+      )}
+      {isOpenDeleteModal && (
+        <CustomModal
+          visible={isOpenDeleteModal}
+          onClose={() => setIsOpenDeleteModal(false)}
+          onCancel={() => setIsOpenDeleteModal(false)}
+          onConfirm={handleDelete}
+          category={'DELETE_ITEM'}
+        />
       )}
     </View>
   );
@@ -171,5 +177,6 @@ export const StyleTouchable = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
   width: ${responsive(352 / 5)}px;
+  height: ${responsiveVertical(85)}px;
   padding-horizontal: 3px;
 `;

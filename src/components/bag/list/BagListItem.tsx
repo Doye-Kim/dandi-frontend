@@ -47,21 +47,25 @@ const BagListItem = ({ item, drag }: { item: BagProps; drag: () => void }) => {
           <BagBurgerIcon />
         </TouchableOpacity>
       </StyleTitleContainer>
-      <CustomModal
-        visible={isOpenDelete}
-        category='DELETE_BAG'
-        onClose={() => setIsOpenDelete(false)}
-        onCancel={() => setIsOpenDelete(false)}
-        onConfirm={handleDeleteBag}
-        name={item.name}
-      />
-      <InputModal
-        visible={isOpenBagName}
-        onClose={() => setIsOpenBagName(false)}
-        onConfirm={handleEditBagName}
-        bagId={item.id}
-        name={item.name}
-      />
+      {isOpenDelete && (
+        <CustomModal
+          visible={isOpenDelete}
+          category='DELETE_BAG'
+          onClose={() => setIsOpenDelete(false)}
+          onCancel={() => setIsOpenDelete(false)}
+          onConfirm={handleDeleteBag}
+          name={item.name}
+        />
+      )}
+      {isOpenBagName && (
+        <InputModal
+          visible={isOpenBagName}
+          onClose={() => setIsOpenBagName(false)}
+          onConfirm={handleEditBagName}
+          bagId={item.id}
+          name={item.name}
+        />
+      )}
     </Container>
   );
 };

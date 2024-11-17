@@ -4,12 +4,7 @@ import { Modal, Portal } from 'react-native-paper';
 import styled from 'styled-components/native';
 import { BlurView } from '@react-native-community/blur';
 import { bagNavigations, colors } from '@/constants';
-import {
-  StyleView,
-  StyleItemIcon,
-  StyleTouchable,
-  ItemKeyProps,
-} from './BagThings';
+import { StyleItemIcon, StyleTouchable, ItemKeyProps } from './BagThings';
 import { DoubleAngleIcon, SparkleIcon, TrashRedIcon } from '@/assets/icons';
 import { BagScreenProps } from '@/screens/bag/BagMainScreen';
 import {
@@ -24,6 +19,7 @@ import { RequestItemOrderProps } from '@/api/bag';
 import CustomModal from '@/components/common/CustomModal';
 import CustomText from '@/components/common/CustomText';
 import useBagStore from '@/store/useBagStore';
+import { responsive, responsiveVertical } from '@/utils';
 
 const BagThing = ({
   item,
@@ -32,7 +28,6 @@ const BagThing = ({
   item: ItemKeyProps;
   navigation: BagScreenProps['navigation'];
 }) => {
-  const editMode = useBagStore((state) => state.editMode);
   const selectBagId = useBagStore((state) => state.selectBagId);
   const defaultBagId = useBagStore((state) => state.defaultBagId);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
@@ -69,8 +64,8 @@ const BagThing = ({
   };
 
   // 포지션 계산
-  const itemTop = 170 + 90 * Math.floor(item.itemOrder / 5);
-  const top = 170 + 90 * (Math.floor((item.itemOrder - 1) / 5) + 1);
+  const itemTop =
+    170 + responsiveVertical(75) * Math.floor((item.itemOrder - 1) / 5);
 
   const position = (() => {
     const orderInRow = (item.itemOrder - 1) % 5;
@@ -80,18 +75,8 @@ const BagThing = ({
 
   const itemPosition = (() => {
     const orderInRow = (item.itemOrder - 1) % 5;
-
-    if (orderInRow === 0) {
-      return { left: 0 };
-    } else if (orderInRow === 1) {
-      return { left: 372 / 5 };
-    } else if (orderInRow === 2) {
-      return { left: (372 / 5) * 2 };
-    } else if (orderInRow === 3) {
-      return { right: 372 / 5 };
-    } else {
-      return { right: 0 };
-    }
+    const spacing = responsive(372) / 5;
+    return { left: orderInRow * spacing };
   })();
 
   const moveMutation = useBagItemMoveToDrawerMutation();
@@ -163,19 +148,17 @@ const BagThing = ({
   return (
     <>
       <StyleTouchable onLongPress={handleLongPress}>
-        <StyleView>
-          <StyleItemIcon color={color}>
-            <Text style={{ fontSize: 28 }}>{item.emoticon}</Text>
-          </StyleItemIcon>
-          <CustomText
-            style={{
-              marginTop: 2,
-              height: 28,
-              fontSize: item.name.length > 4 ? 11 : 14,
-            }}>
-            {item.name}
-          </CustomText>
-        </StyleView>
+        <StyleItemIcon color={color}>
+          <Text style={{ fontSize: 24 }}>{item.emoticon}</Text>
+        </StyleItemIcon>
+        <CustomText
+          style={{
+            marginTop: 2,
+            height: 28,
+            fontSize: item.name.length > 4 ? 11 : 14,
+          }}>
+          {item.name}
+        </CustomText>
       </StyleTouchable>
       {isOpenActionModal && (
         <Portal>
@@ -276,7 +259,7 @@ const StyledTouchableOpacityIng = styled(StyledTouchableOpacity)`
 
 const StyleText = styled(CustomText)`
   color: ${colors.WHITE};
-  font-size: 11px;
+  font-size: 11;
 `;
 
 const StyleTextRed = styled(StyleText)`

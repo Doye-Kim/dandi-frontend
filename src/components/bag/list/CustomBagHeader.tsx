@@ -8,8 +8,9 @@ import HeaderText from '@/components/common/HeaderText';
 import CustomModal from '@/components/common/CustomModal';
 import BagListModal from '../modal/BagListModal';
 import InputModal from '../../common/InputModal';
+import { showCustomErrorToast } from '@/utils';
 
-const CustomBagHeader = () => {
+const CustomBagHeader = ({ length }: { length?: number }) => {
   const [isOpenAddBag, setIsOpenAddBag] = useState(false);
   const [isOpenBagList, setIsOpenBagList] = useState(false);
   const [isOpenBagName, setIsOpenBagName] = useState(false);
@@ -17,7 +18,13 @@ const CustomBagHeader = () => {
 
   const navigation = useNavigation<NavigationProp<BagStackParamList>>();
 
-  const openAddBagModal = () => setIsOpenAddBag(true);
+  const openAddBagModal = () => {
+    if (length && length < 10) setIsOpenAddBag(true);
+    else
+      showCustomErrorToast(
+        '최대 개수에 도달했어요. 가방을 삭제하고 추가해 주세요!',
+      );
+  };
   const closeModal = () => {
     setIsOpenAddBag(false);
     setIsOpenBagList(false);

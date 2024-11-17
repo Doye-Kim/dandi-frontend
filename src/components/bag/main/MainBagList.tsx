@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { FlatList } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
@@ -15,6 +15,7 @@ import { useBagQuery } from '@/queries/bagQueries';
 const MainBagList = () => {
   const { selectBagId, defaultBagId, setSelectBagId } = useBagStore();
   const { data: bagList, error, refetch } = useBagQuery();
+  const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     if (bagList) {
@@ -31,9 +32,23 @@ const MainBagList = () => {
     }, [refetch]),
   );
 
+  useEffect(() => {
+    if (bagList && flatListRef.current) {
+      const index = bagList.findIndex((item) => item.id === selectBagId);
+      if (index !== -1) {
+        flatListRef.current.scrollToIndex({
+          index,
+          animated: true,
+          viewPosition: 0.5,
+        });
+      }
+    }
+  }, [selectBagId, bagList]);
+
   return (
     <FlatList
       data={bagList}
+      ref={flatListRef}
       horizontal
       showsHorizontalScrollIndicator={false}
       renderItem={({ item }) => {

@@ -102,7 +102,12 @@ const BagMainScreen = ({ navigation }: BagScreenProps) => {
         }}>
         <DrawerIcon width={60} height={60} />
       </AnimatedTouchableOpacity>
-      {isOpenDrawer && <BagDrawer />}
+      {isOpenDrawer && (
+        <BagDrawer
+          visible={isOpenDrawer}
+          onDismiss={() => setIsOpenDrawer(false)}
+        />
+      )}
     </SafeAreaView>
   );
 };

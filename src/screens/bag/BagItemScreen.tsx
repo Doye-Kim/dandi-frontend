@@ -66,7 +66,10 @@ const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
   };
 
   const handleChangeText = (text: string) => {
-    setName(text);
+    const filteredText = text.replace(/[\s\r\n]/g, '');
+    const limitedText = filteredText.slice(0, 12);
+
+    setName(limitedText);
   };
 
   const handleToggleDropdown = () => {

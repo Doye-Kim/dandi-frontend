@@ -18,9 +18,16 @@ function useForm<T>({ initialValue, validate }: UseFormProps<T>) {
   };
 
   const handleBlur = (name: keyof T) => {
+    const cleanedValue = values[name]?.toString().replace(/[\s\r\n]/g, '');
+
     setTouched({
       ...touched,
       [name]: true,
+    });
+
+    setValues({
+      ...values,
+      [name]: cleanedValue,
     });
   };
 
@@ -37,7 +44,13 @@ function useForm<T>({ initialValue, validate }: UseFormProps<T>) {
     setErrors(newErrors);
   }, [validate, values]);
 
-  return { values, errors, touched, getTextInputProps };
+  const reset = () => {
+    setValues(initialValue);
+    setTouched({});
+    setErrors({});
+  };
+
+  return { values, errors, touched, getTextInputProps, reset };
 }
 
 export default useForm;

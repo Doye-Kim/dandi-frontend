@@ -23,9 +23,11 @@ import { responsive, responsiveVertical } from '@/utils';
 
 const BagThing = ({
   item,
+  index,
   navigation,
 }: {
   item: ItemKeyProps;
+  index: number;
   navigation: BagScreenProps['navigation'];
 }) => {
   const selectBagId = useBagStore((state) => state.selectBagId);
@@ -64,17 +66,16 @@ const BagThing = ({
   };
 
   // 포지션 계산
-  const itemTop =
-    170 + responsiveVertical(75) * Math.floor((item.itemOrder - 1) / 5);
+  const itemTop = 170 + responsiveVertical(75) * Math.floor(index / 5);
 
   const position = (() => {
-    const orderInRow = (item.itemOrder - 1) % 5;
+    const orderInRow = index % 5;
     if (orderInRow <= 2) return { left: 0 };
     else return { right: 0 };
   })();
 
   const itemPosition = (() => {
-    const orderInRow = (item.itemOrder - 1) % 5;
+    const orderInRow = index % 5;
     const spacing = responsive(372) / 5;
     return { left: orderInRow * spacing };
   })();

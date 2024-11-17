@@ -92,7 +92,7 @@ const BagThings = ({ navigation }: BagScreenProps) => {
     }
   };
 
-  const renderItem = (item: ItemKeyProps) => {
+  const renderItem = (item: ItemKeyProps, index: number) => {
     const color = colors[`THINGS_${item.colorKey}` as keyof typeof colors];
 
     return editMode ? (
@@ -111,7 +111,7 @@ const BagThings = ({ navigation }: BagScreenProps) => {
         </CustomText>
       </StyleView>
     ) : (
-      <BagThing item={item} navigation={navigation} />
+      <BagThing item={item} index={index} navigation={navigation} />
     );
   };
 
@@ -122,7 +122,7 @@ const BagThings = ({ navigation }: BagScreenProps) => {
           <DraggableGrid
             style={{ flex: 1 }}
             numColumns={5}
-            renderItem={renderItem}
+            renderItem={(item, index) => renderItem(item, index)}
             data={bagKeyItems}
             onDragRelease={(updatedData) => {
               setBagKeyItems(updatedData);

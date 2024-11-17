@@ -102,6 +102,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
                 multiline
                 placeholder='분실물에 대한 설명을 적어주세요!'
                 onChangeText={setExplain}
+                maxLength={255}
                 style={{
                   fontFamily: 'OAGothic-Medium',
                   textAlignVertical: 'top',
@@ -114,6 +115,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
                 multiline
                 placeholder='물건을 분실한 장소에 대해 적어주세요!'
                 onChangeText={setLocation}
+                maxLength={255}
                 style={{
                   fontFamily: 'OAGothic-Medium',
                   textAlignVertical: 'top',

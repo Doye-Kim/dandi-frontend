@@ -91,9 +91,10 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
         setLoading(false);
       }
     };
-
-    fetchPickupDetail();
-  }, [id]);
+    if (!quizModalVisible) {
+      fetchPickupDetail();
+    }
+  }, [id, quizModalVisible]);
 
   // 퀴즈 데이터 조회 함수
   const tryQuiz = async (foundId: number) => {
@@ -199,7 +200,14 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
             type='PICKUP'
             memberId={details.memberId}
             comments={comments}
-            onReply={(commentId) => setParentId(commentId)}
+            onReply={(commentId) => {
+              if (parentId === null) {
+                setParentId(commentId);
+              } else {
+                setParentId(null);
+              }
+            }}
+            parentId={parentId}
           />
         )}
       </ScollContainer>

@@ -9,17 +9,24 @@ interface CommentSectionBoxProps {
   memberId: number;
   onReply: (commentId: number) => void;
   comments: CommentData[];
+  parentId: number | null;
 }
 
 const CommentSectionBox = ({
   memberId,
   comments,
   onReply,
+  parentId,
 }: CommentSectionBoxProps) => {
   return (
     <Container>
       <CommentHeader />
-      <CommentList memberId={memberId} comments={comments} onReply={onReply} />
+      <CommentList
+        memberId={memberId}
+        comments={comments}
+        onReply={onReply}
+        parentId={parentId}
+      />
     </Container>
   );
 };

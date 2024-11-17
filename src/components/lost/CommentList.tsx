@@ -8,9 +8,15 @@ interface CommentListProps {
   memberId: number;
   onReply: (commentId: number) => void;
   comments: CommentData[];
+  parentId: number | null;
 }
 
-const CommentList = ({ memberId, comments, onReply }: CommentListProps) => {
+const CommentList = ({
+  memberId,
+  comments,
+  onReply,
+  parentId,
+}: CommentListProps) => {
   return (
     <FlatList
       data={comments}
@@ -20,6 +26,7 @@ const CommentList = ({ memberId, comments, onReply }: CommentListProps) => {
             memberId={memberId}
             comment={item}
             onReply={onReply}
+            parentId={parentId}
           />
         ) : (
           <ReplyListItem reply={item} memberId={memberId} />

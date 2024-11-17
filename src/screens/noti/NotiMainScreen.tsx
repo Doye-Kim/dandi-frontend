@@ -1,4 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+} from 'react';
 import { ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { isAxiosError } from 'axios';
@@ -30,7 +35,7 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <EditButton onPress={toggleSelectMode}>
@@ -46,11 +51,16 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
     setIsLoading(true);
     try {
       const data = await getAlertList(resourceId, ['comment']);
-      setAlertList((prev) =>
-        resourceId === 0 ? [...data] : [...prev, ...data],
-      );
-      console.log(data);
+      setAlertList((prev) => {
+        const mergedData =
+          resourceId === 0 ? [...data, ...prev] : [...prev, ...data];
+        return mergedData.filter(
+          (item, index, self) =>
+            self.findIndex((t) => t.id === item.id) === index,
+        );
+      });
       setHasMoreData(data.length >= 20);
+      console.log(alertList);
     } catch (error) {
       if (isAxiosError(error)) {
         showCustomErrorToast(error.response?.data.message);
@@ -62,17 +72,24 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (alertList.length === 0) {
-        fetchAlertList(0);
-      }
-    }, [navigation, alertList.length]),
+      fetchAlertList(0);
+    }, [navigation]),
   );
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchAlertList(0);
+  //   }, [navigation]),
+  // );
+
   // 더보기 함수
   const handleLoadMore = () => {
-    if (!hasMoreData || alertList.length === 0) return;
+    if (isLoading || !hasMoreData || alertList.length === 0) return;
 
-    const lastId = alertList[alertList.length - 1].id;
-    fetchAlertList(lastId);
+    const lastId = alertList[alertList.length - 1]?.id;
+    if (lastId) {
+      fetchAlertList(lastId);
+    }
   };
   // 선택 모드 전환 함수(편집, 완료)
   const toggleSelectMode = () => {
@@ -153,7 +170,7 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
           handleLongPress={handleSelectMode}
           goToDetail={goToDetail}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.8}
         />
       )}
       <ListOptionModal isVisible={selectMode} onDelete={deleteAlertList} />

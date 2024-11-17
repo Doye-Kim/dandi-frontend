@@ -150,7 +150,7 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
           handleLongPress={handleSelectMode}
           goToDetail={goToDetail}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.8}
         />
       )}
       <ListOptionModal isVisible={selectMode} onDelete={deleteAlertList} />

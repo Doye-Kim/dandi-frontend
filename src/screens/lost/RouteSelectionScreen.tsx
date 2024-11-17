@@ -7,6 +7,7 @@ import { RouteProp } from '@react-navigation/native';
 import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { registerSOS } from '@/api/lost';
+import { getSnapshot } from '@/api/map';
 import { LatLon, getRoutes } from '@/api/map';
 import { convertDateFormat } from '@/utils/date';
 import { showCustomErrorToast, showToast } from '@/utils/toast';
@@ -16,6 +17,8 @@ import CustomButton from '@/components/common/CustomButton';
 import RouteListItem from '@/components/lost/RouteListItem';
 import LostRouteMap from '@/components/lost/LostRouteMap';
 import CustomText from '@/components/common/CustomText';
+import CheckListModal from '@/components/map/ChecklistModal';
+import { se } from 'rn-emoji-keyboard';
 
 type RouteSelectionScreenRouteProp = RouteProp<
   LostStackParamList,
@@ -43,6 +46,11 @@ const RouteSelectionScreen = ({
   const [selectedRoutes, setSelectedRoutes] = useState<number[]>([]);
   const [routes, setRoutes] = useState<ResponseRouteListItem[] | null>(null);
   const [displayedRoute, setDisplayedRoute] = useState<LatLon[] | null>(null);
+  const [diesplayedRouteId, setDisplayedRouteId] = useState<number | null>(
+    null,
+  );
+  const [isOpenStartChecklist, setIsOpenStartChecklist] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchRoutes = async () => {
@@ -50,8 +58,8 @@ const RouteSelectionScreen = ({
         const data = await getRoutes(convertDateFormat(new Date(datetime)));
         if (data.routes && data.routes.length > 0) {
           setRoutes(data.routes);
-          console.log(data.routes);
           setDisplayedRoute(data.routes[0].track);
+          setDisplayedRouteId(data.routes[0].id);
         } else {
           showCustomErrorToast('분실 날짜에 이동한 경로가 없습니다.');
           setTimeout(() => navigation.navigate('SOSRegister'), 1000);
@@ -66,7 +74,7 @@ const RouteSelectionScreen = ({
 
   // SOS 등록
   const handleRegisterSOS = async () => {
-    if (startRoute !== null && endRoute !== null) {
+    if (startRoute !== null) {
       try {
         const data = await registerSOS({
           situationDesc: location,
@@ -136,13 +144,43 @@ const RouteSelectionScreen = ({
     const selectedRouteData = routes?.find((route) => route.id === routeId);
     if (selectedRouteData) {
       setDisplayedRoute(selectedRouteData.track);
+      setDisplayedRouteId(selectedRouteData.id);
+    }
+  };
+  // snapshot 가져오기
+  const getSnapshotData = async (routeId: number) => {
+    if (!routeId || routeId <= 0) {
+      console.error('Invalid routeId:', routeId);
+      return;
+    }
+    try {
+      const data = await getSnapshot(routeId);
+      console.log(data);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        showCustomErrorToast(error.response?.data.message);
+      }
+    }
+  };
+
+  const handlePressSnapshot = (routeId: number) => {
+    if (routeId !== null && routeId > 0 && Number.isInteger(routeId)) {
+      getSnapshotData(routeId);
+      setDisplayedRouteId(routeId);
+      setIsOpenStartChecklist(true);
+    } else {
+      console.error('Invalid routeId for snapshot:', routeId);
     }
   };
 
   return (
     <Container>
       <MapBox>
-        <LostRouteMap routeData={displayedRoute} />
+        <LostRouteMap
+          routeData={displayedRoute}
+          routeId={diesplayedRouteId}
+          onPress={handlePressSnapshot}
+        />
       </MapBox>
       <SelectHeader>
         <AllButton visible={selectMode} onPress={handleSelectAll}>
@@ -176,6 +214,13 @@ const RouteSelectionScreen = ({
           onPress={handleRegisterSOS}
         />
       </RegisterButton>
+      {diesplayedRouteId !== null && (
+        <CheckListModal
+          visible={isOpenStartChecklist}
+          onDismiss={() => setIsOpenStartChecklist(false)}
+          routeId={diesplayedRouteId | 0}
+        />
+      )}
     </Container>
   );
 };

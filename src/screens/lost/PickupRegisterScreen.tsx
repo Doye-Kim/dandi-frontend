@@ -151,6 +151,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
                 multiline
                 placeholder='습득물에 대한 설명을 적어주세요!'
                 onChangeText={setExplain}
+                maxLength={255}
                 style={{
                   fontFamily: 'OAGothic-Medium',
                   textAlignVertical: 'top',
@@ -182,6 +183,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
                 multiline
                 placeholder='습득물을 보관한 장소를 적어주세요!'
                 onChangeText={setKeepLocation}
+                maxLength={255}
                 style={{
                   fontFamily: 'OAGothic-Medium',
                   textAlignVertical: 'top',

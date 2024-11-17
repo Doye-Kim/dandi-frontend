@@ -18,7 +18,7 @@ interface RegisterSOSParams {
   itemDesc: string;
   lostAt: string;
   startRoute: number;
-  endRoute: number;
+  endRoute: number | null;
   images: string[];
 }
 // 알림 목록 조회 API

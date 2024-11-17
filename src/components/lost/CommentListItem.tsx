@@ -10,13 +10,17 @@ interface CommentListItemProps {
   onReply: (commentId: number) => void;
   comment: CommentData;
   memberId: number;
+  parentId: number | null;
 }
 
 const CommentListItem = ({
   comment,
   onReply,
   memberId,
+  parentId,
 }: CommentListItemProps) => {
+  const isReply = comment.id === parentId;
+
   return (
     <Container>
       <BlankBox />
@@ -26,7 +30,7 @@ const CommentListItem = ({
             {memberId === comment.writerId ? '익명(작성자)' : comment.nickname}
           </WriterNameText>
           <ReplyBox onPress={() => onReply(comment.id)}>
-            <ReplyText>대댓글</ReplyText>
+            <ReplyText>{isReply ? '취소' : '대댓글'}</ReplyText>
           </ReplyBox>
         </HeaderContainer>
         <ContentText>{comment.content}</ContentText>

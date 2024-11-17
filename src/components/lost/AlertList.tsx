@@ -32,10 +32,9 @@ const AlertList = ({
   return (
     <Container>
       <FlatList
+        initialNumToRender={20}
         removeClippedSubviews={true}
-        initialNumToRender={10}
         data={data}
-        extraData={data}
         renderItem={({ item }) => {
           const itemId = item.foundItemId || item.lostItemId || item.commentId;
           const type = item.commentId ? item.title : undefined;
@@ -57,9 +56,9 @@ const AlertList = ({
             />
           );
         }}
-        keyExtractor={(item) => `${item.id}`}
+        keyExtractor={(item, index) => `${item.id.toString() + index}`}
         contentContainerStyle={
-          isSelectMode && { paddingBottom: responsive(70) }
+          isSelectMode && { paddingBottom: responsive(70), flexGrow: 1 }
         }
         onEndReached={onEndReached}
         onEndReachedThreshold={onEndReachedThreshold}

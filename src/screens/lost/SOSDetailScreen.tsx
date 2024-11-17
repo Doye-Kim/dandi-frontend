@@ -101,7 +101,14 @@ const SOSDetailScreen = ({ route }: SOSDetailScreenProps) => {
             type='SOS'
             memberId={details.memberId}
             comments={comments}
-            onReply={(commentId) => setParentId(commentId)}
+            onReply={(commentId) => {
+              if (parentId === null) {
+                setParentId(commentId);
+              } else {
+                setParentId(null);
+              }
+            }}
+            parentId={parentId}
           />
         )}
       </ScollContainer>

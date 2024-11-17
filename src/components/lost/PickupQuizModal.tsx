@@ -57,7 +57,7 @@ const PickupQuizModal = ({
               numColumns={2}
               contentContainerStyle={{
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'space-evenly',
               }}
               renderItem={({ item }) => (
                 <PhotoBoxContainer
@@ -78,17 +78,17 @@ const PickupQuizModal = ({
               title='닫기'
               onPress={onClose}
               style='disable'
-              width={responsive(120)}
-              height={responsive(40)}
-              fontSize={responsive(14)}
+              width={responsive(100)}
+              height={responsiveVertical(50)}
+              fontSize={responsiveVertical(14)}
             />
             <CustomButton
               title='제출'
               onPress={handleSubmitQuiz}
               style='enable'
-              width={responsive(120)}
-              height={responsive(40)}
-              fontSize={responsive(14)}
+              width={responsive(100)}
+              height={responsiveVertical(50)}
+              fontSize={responsiveVertical(14)}
             />
           </ButtonContainer>
         </Container>
@@ -109,16 +109,15 @@ const Overlay = styled.View`
 
 const Container = styled.View`
   background-color: ${colors.WHITE};
-  flex-wrap: wrap;
-  width: ${responsive(340)}px;
-  height: ${responsiveVertical(445)}px;
+  width: 90%;
+  height: 62%;
   border-radius: 30px;
   padding-vertical: ${responsive(4)}px;
 `;
 
 const QuizHeader = styled(CustomText)`
   font-size: ${responsive(16)}px;
-  padding: ${responsive(14)}px;
+  padding: ${responsive(10)}px;
   color: ${colors.BLACK};
   text-align: center;
 `;
@@ -140,4 +139,5 @@ const ButtonContainer = styled.View`
   flex-direction: row;
   justify-content: space-evenly;
   width: 100%;
+  align-items: center;
 `;

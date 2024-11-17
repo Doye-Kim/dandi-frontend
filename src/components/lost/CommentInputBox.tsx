@@ -48,6 +48,7 @@ const CommentInputBox = ({
         placeholder={parentId ? '대댓글을 입력하세요.' : '댓글을 입력하세요.'}
         placeholderTextColor={colors.GRAY_400}
         value={comment}
+        maxLength={255}
         onChangeText={(text) => setComment(text)}
         onFocus={() => setIsComment(true)}
         onBlur={() => setIsComment(false)}

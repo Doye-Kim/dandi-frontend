@@ -1,10 +1,11 @@
-import React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   TextInput,
   TextInputProps,
   TouchableOpacity,
   View,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {
   NavigationProp,
@@ -68,7 +69,6 @@ const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
   const handleChangeText = (text: string) => {
     const filteredText = text.replace(/[\s\r\n]/g, '');
     const limitedText = filteredText.slice(0, 12);
-
     setName(limitedText);
   };
 
@@ -78,12 +78,20 @@ const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
     setIsOpenDropdown((prev) => !prev);
   };
 
+  const handleCloseDropdown = () => {
+    if (isOpenDropdown) {
+      setIsOpenDropdown(false);
+    }
+    Keyboard.dismiss();
+  };
+
   useEffect(() => {
     setBackColor(colors[`THINGS_BACK_${colorKey}` as keyof typeof colors]);
   }, [colorKey]);
 
   const onSelectOption = (option: number) => {
     setColorKey(option);
+    setIsOpenDropdown(false);
   };
 
   const editMutation = useEditBagItemMutation();
@@ -122,57 +130,59 @@ const BagItemScreen = ({ route }: { route: BagItemScreenRouteProp }) => {
   };
 
   return (
-    <StyledContainer>
-      <CustomItemHeader {...(item ? { itemId: item.itemId } : {})} />
-      <View style={{ padding: 40 }}>
-        <StyleOptionContainer>
-          <StyleTitleText>아이콘</StyleTitleText>
-          <TouchableOpacity onPress={handlePressEmoji}>
-            <CustomText style={{ fontSize: 50 }}>{selectEmoji}</CustomText>
-          </TouchableOpacity>
-        </StyleOptionContainer>
-        <StyleOptionContainer>
-          <StyleTitleText>이름</StyleTitleText>
-          <StyleTextInput
-            ref={nameRef}
-            onChangeText={handleChangeText}
-            onFocus={handleFocusInput}
-            value={name}
-            placeholder='ex) 지갑'
-          />
-        </StyleOptionContainer>
-        <StyleOptionContainer>
-          <StyleTitleText>대표색</StyleTitleText>
-          <StyleTouchableDropdown onPress={handleToggleDropdown}>
-            <StyleDropdownColor backColor={backColor} />
-            <DropdownIcon />
-          </StyleTouchableDropdown>
-        </StyleOptionContainer>
-        {isOpenDropdown && (
-          <StyleDropdownContainer>
-            {[0, 1, 2, 3, 4, 5, 6].map((option) => (
-              <StyledDropdownContent
-                option={option}
-                key={option}
-                onPress={() => onSelectOption(option)}
-              />
-            ))}
-          </StyleDropdownContainer>
-        )}
-      </View>
-      <EmojiPicker
-        onEmojiSelected={handlePick}
-        open={isOpenEmojiPicker}
-        onClose={() => setIsOpenEmojiPicker(false)}
-      />
-      <View style={{ position: 'absolute', bottom: 20 }}>
-        <AuthButton
-          title={'확인'}
-          onPress={handlePressConfirm}
-          style={'enable'}
+    <TouchableWithoutFeedback onPress={handleCloseDropdown}>
+      <StyledContainer>
+        <CustomItemHeader {...(item ? { itemId: item.itemId } : {})} />
+        <View style={{ padding: 40 }}>
+          <StyleOptionContainer>
+            <StyleTitleText>아이콘</StyleTitleText>
+            <TouchableOpacity onPress={handlePressEmoji}>
+              <CustomText style={{ fontSize: 50 }}>{selectEmoji}</CustomText>
+            </TouchableOpacity>
+          </StyleOptionContainer>
+          <StyleOptionContainer>
+            <StyleTitleText>이름</StyleTitleText>
+            <StyleTextInput
+              ref={nameRef}
+              onChangeText={handleChangeText}
+              onFocus={handleFocusInput}
+              value={name}
+              placeholder='ex) 지갑'
+            />
+          </StyleOptionContainer>
+          <StyleOptionContainer>
+            <StyleTitleText>대표색</StyleTitleText>
+            <StyleTouchableDropdown onPress={handleToggleDropdown}>
+              <StyleDropdownColor backColor={backColor} />
+              <DropdownIcon />
+            </StyleTouchableDropdown>
+          </StyleOptionContainer>
+          {isOpenDropdown && (
+            <StyleDropdownContainer>
+              {[0, 1, 2, 3, 4, 5, 6].map((option) => (
+                <StyledDropdownContent
+                  option={option}
+                  key={option}
+                  onPress={() => onSelectOption(option)}
+                />
+              ))}
+            </StyleDropdownContainer>
+          )}
+        </View>
+        <EmojiPicker
+          onEmojiSelected={handlePick}
+          open={isOpenEmojiPicker}
+          onClose={() => setIsOpenEmojiPicker(false)}
         />
-      </View>
-    </StyledContainer>
+        <View style={{ position: 'absolute', bottom: 20 }}>
+          <AuthButton
+            title={'확인'}
+            onPress={handlePressConfirm}
+            style={'enable'}
+          />
+        </View>
+      </StyledContainer>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -188,6 +198,7 @@ const StyleTitleText = styled(CustomText)`
   text-align: center;
   width: ${responsive(70)}px;
 `;
+
 const StyleTextInput = React.forwardRef<TextInput, TextInputProps>(
   (props, ref) => <StyledInput {...props} ref={ref} />,
 );

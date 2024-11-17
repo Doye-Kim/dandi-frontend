@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import {
   checkErrorAndViewToast,
   responsive,
+  showCustomErrorToast,
   validateBagName,
   validateName,
 } from '@/utils';
@@ -43,7 +44,6 @@ const InputModal = ({
   const nameRef = useRef<TextInput>(null);
   const { setNickname } = useUserStore();
 
-  console.log('이름 날아온거', name);
   const checkName = useForm({
     initialValue: { name: nickname || '' },
     validate: validateName,
@@ -79,29 +79,33 @@ const InputModal = ({
   const editNameMutation = useEditBagNameMutation();
 
   const handleConfirm = async () => {
-    onConfirm();
-    try {
-      if (copyBagId) {
-        await copyMutation.mutateAsync({
-          bagId: copyBagId,
-          name: checkBagName.values.name,
-        });
-      } else if (bagId) {
-        await editNameMutation.mutateAsync({
-          bagId: bagId,
-          name: checkBagName.values.name,
-        });
-      } else if (nickname) {
-        await putUpdateNickname(checkName.values.name);
-        setNickname(checkName.values.name);
-      } else {
-        await createMutation.mutateAsync(checkBagName.values.name);
+    if (checkBagName.errors.name || checkName.errors.name)
+      showCustomErrorToast('이름은 공백 없이 1-12자로 입력해 주세요');
+    else {
+      onConfirm();
+      try {
+        if (copyBagId) {
+          await copyMutation.mutateAsync({
+            bagId: copyBagId,
+            name: checkBagName.values.name,
+          });
+        } else if (bagId) {
+          await editNameMutation.mutateAsync({
+            bagId: bagId,
+            name: checkBagName.values.name,
+          });
+        } else if (nickname) {
+          await putUpdateNickname(checkName.values.name);
+          setNickname(checkName.values.name);
+        } else {
+          await createMutation.mutateAsync(checkBagName.values.name);
+        }
+      } catch (error) {
+        checkErrorAndViewToast(error);
+      } finally {
+        checkName.reset();
+        checkBagName.reset();
       }
-    } catch (error) {
-      checkErrorAndViewToast(error);
-    } finally {
-      checkName.reset();
-      checkBagName.reset();
     }
   };
 

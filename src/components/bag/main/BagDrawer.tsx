@@ -183,7 +183,7 @@ const BagDrawer = ({
       <StyleTouchable onPress={() => handlePressItem(item)}>
         {isSelected ? (
           <StyleSelectItemIcon>
-            <Text style={{ fontSize: 20, position: 'absolute' }}>
+            <Text style={{ fontSize: 24, position: 'absolute' }}>
               {item.emoticon}
             </Text>
             <CheckIcon width={40} height={40} />
@@ -311,5 +311,6 @@ const StylePutBag = styled.TouchableOpacity`
 const StyledNameText = styled(CustomText)<{ length: number }>`
   margin-top: 3px;
   height: 28px;
-  font-size: ${({ length }) => (length > 4 ? 9 : 11)};
+  padding-horizontal: 2px;
+  font-size: ${({ length }) => (length > 4 ? 8 : 11)};
 `;

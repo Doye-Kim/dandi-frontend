@@ -67,10 +67,18 @@ export const ErrorMessages: { [key: string]: string } = {
 
 export const NotiTitleMessages: { [key: string]: string } = {
   route: '잠깐, 소지품은 다 챙기셨나요?',
+  lostComment: '새로운 댓글이 달렸어요!',
+  foundComment: '새로운 댓글이 달렸어요!',
+  foundItem: '습득물이 등록되었어요!',
+  lostItem: '분실물이 신고되었어요!',
 };
 
 export const NotiBodyMessages: { [key: string]: string } = {
   route: '체크리스트를 작성해 보세요!',
+  lostComment: '댓글을 확인해 보세요!',
+  foundComment: '댓글을 확인해 보세요!',
+  foundItem: '잃어버린 물건인지 확인해 보세요!',
+  lostItem: '주변에 있는지 확인해서 도와주세요!',
 };
 
 export const SharedErrorMessages = {

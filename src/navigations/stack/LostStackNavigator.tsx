@@ -36,6 +36,7 @@ function LostStackNavigator() {
         headerStyle: {
           shadowColor: 'transparent',
           backgroundColor: colors.WHITE,
+          height: 70,
         },
         headerTitleStyle: {
           fontSize: 20,
@@ -50,8 +51,8 @@ function LostStackNavigator() {
         name={lostNavigations.PICKUP_LIST}
         component={PickupListScreen}
         options={{
-          headerTitle: '습득물 목록',
-          headerTitleAlign: 'center',
+          headerTitle: '[습득물] 찾아보세요!',
+          // headerTitleAlign: 'center',
         }}
       />
       {/* 습득물 등록 화면 */}
@@ -77,8 +78,8 @@ function LostStackNavigator() {
         name={lostNavigations.SOS_LIST}
         component={SOSListScreen}
         options={{
-          headerTitle: 'SOS 목록',
-          headerTitleAlign: 'center',
+          headerTitle: '[분실물] 찾아주세요!',
+          // headerTitleAlign: 'center',
           headerLeft: () => null,
         }}
       />
@@ -87,7 +88,7 @@ function LostStackNavigator() {
         name={lostNavigations.SOS_REGISTER}
         component={SOSRegisterScreen}
         options={{
-          headerTitle: 'SOS 등록',
+          headerTitle: '분실물 SOS 등록',
           headerTitleAlign: 'center',
         }}
       />

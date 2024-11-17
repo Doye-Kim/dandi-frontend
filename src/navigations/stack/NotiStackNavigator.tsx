@@ -24,6 +24,7 @@ function NotiStackNavigator() {
         headerStyle: {
           shadowColor: 'transparent',
           backgroundColor: colors.WHITE,
+          height: 70,
         },
         headerTitleStyle: {
           fontSize: 20,

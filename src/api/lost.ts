@@ -38,6 +38,15 @@ const deleteAlert = async (alertList: number[]) => {
   });
   return data;
 };
+// 알림 조회 API
+const readAlert = async (itemId: number, type: string) => {
+  const { data } = await axiosInstance.put(`/noti`, {
+    itemId: itemId,
+    type: type,
+  });
+  return data;
+};
+
 // 습득물, 분실물 사진 등록 API
 const uploadImage = async (image: any, itemType: string) => {
   const { data } = await axiosInstance.post(`/images/${itemType}`, image, {
@@ -147,6 +156,7 @@ const getPostByCommentId = async (
 export {
   getAlertList,
   deleteAlert,
+  readAlert,
   getPickupQuiz,
   submitPickupQuiz,
   uploadImage,

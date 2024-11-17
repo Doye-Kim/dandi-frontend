@@ -86,7 +86,7 @@ const RouteSelectionScreen = ({
         });
         console.log(data);
         navigation.navigate('SOSList');
-        showToast('SOS 등록이 완료되었습니다.');
+        showToast('분실물 SOS 등록이 완료되었습니다.');
       } catch (error) {
         if (isAxiosError(error) && error.response?.data.code === 'E302') {
           showCustomErrorToast('SOS 등록은 하루에 한 번만 가능합니다.');

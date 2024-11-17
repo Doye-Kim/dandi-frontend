@@ -27,10 +27,17 @@ const AlertListItem = ({
     <CardContainer
       isSelected={isSelected}
       onPress={!isSelectMode ? goToDetail : handleSelect}
-      onLongPress={handleLongPress}>
+      onLongPress={handleLongPress}
+      isRead={data.confirmation}>
       <AlertHeader>
         <EmojiBox>
-          <CustomText>👀</CustomText>
+          {data.commentId ? (
+            <CustomText>🔔</CustomText>
+          ) : data.foundItemId ? (
+            <CustomText>👀</CustomText>
+          ) : (
+            <CustomText>🚨</CustomText>
+          )}
         </EmojiBox>
         <TitleBox>
           <CustomText style={{ color: colors.PRIMARY }}>
@@ -48,11 +55,7 @@ const AlertListItem = ({
       <AlertContent>
         <BlankBox />
         {data.commentId ? (
-          <AlertContentText>
-            {data.title === 'foundComment'
-              ? '내가 신고한 분실물에 댓글이 달렸어요!'
-              : '내가 등록한 SOS에 댓글이 달렸어요!'}
-          </AlertContentText>
+          <AlertContentText>새로운 댓글 알림이 있어요!</AlertContentText>
         ) : (
           <AlertContentText>{data.title}</AlertContentText>
         )}
@@ -63,10 +66,17 @@ const AlertListItem = ({
 
 export default AlertListItem;
 
-const CardContainer = styled.TouchableOpacity<{ isSelected: boolean }>`
+const CardContainer = styled.TouchableOpacity<{
+  isSelected: boolean;
+  isRead: boolean;
+}>`
   flex: 1;
-  background-color: ${({ isSelected }) =>
-    !isSelected ? colors.WHITE : colors.SELECTED_BLUE};
+  background-color: ${({ isSelected, isRead }) =>
+    isSelected
+      ? colors.SELECTED_BLUE
+      : isRead
+      ? colors.GRAY_300
+      : colors.WHITE};
   padding: ${responsive(16)}px;
 `;
 

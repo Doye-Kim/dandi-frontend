@@ -9,7 +9,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { isAxiosError } from 'axios';
 import styled from 'styled-components/native';
 import { colors } from '@/constants';
-import { getAlertList, getPostByCommentId, deleteAlert } from '@/api/lost';
+import {
+  getAlertList,
+  getPostByCommentId,
+  deleteAlert,
+  readAlert,
+} from '@/api/lost';
 import { AlertData } from '@/types/lost';
 import { showCustomErrorToast, showToast } from '@/utils';
 import { responsive } from '@/utils';
@@ -32,8 +37,9 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
   const [alertList, setAlertList] = useState<AlertData[]>([]);
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMoreData, setHasMoreData] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMoreData, setHasMoreData] = useState<boolean>(true);
+  const [resourceId, setResourceId] = useState<number>(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -51,16 +57,15 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
     setIsLoading(true);
     try {
       const data = await getAlertList(resourceId, ['comment']);
+      // 맨 처음 데이터일 경우 => 덮어쓰기, 아닐 경우 => 이어붙이기
       setAlertList((prev) => {
-        const mergedData =
-          resourceId === 0 ? [...data, ...prev] : [...prev, ...data];
-        return mergedData.filter(
-          (item, index, self) =>
-            self.findIndex((t) => t.id === item.id) === index,
-        );
+        console.log('prev', prev);
+        if (resourceId === 0) {
+          return data;
+        }
+        return [...prev, ...data];
       });
       setHasMoreData(data.length >= 20);
-      console.log(alertList);
     } catch (error) {
       if (isAxiosError(error)) {
         showCustomErrorToast(error.response?.data.message);
@@ -70,25 +75,41 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
     }
   };
 
+  useEffect(() => {
+    console.log('Updated alertList:', alertList);
+  }, [alertList]);
+
   useFocusEffect(
     useCallback(() => {
       fetchAlertList(0);
+
+      return () => {
+        setAlertList([]);
+        setSelectMode(false);
+        setSelected([]);
+        setIsLoading(false);
+        setHasMoreData(true);
+        setResourceId(0);
+      };
     }, [navigation]),
   );
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     fetchAlertList(0);
-  //   }, [navigation]),
-  // );
+  useEffect(() => {
+    if (resourceId !== 0) {
+      fetchAlertList(resourceId);
+    }
+  }, [resourceId]);
 
-  // 더보기 함수
+  // 더보기 함수 수정
   const handleLoadMore = () => {
     if (isLoading || !hasMoreData || alertList.length === 0) return;
 
     const lastId = alertList[alertList.length - 1]?.id;
     if (lastId) {
-      fetchAlertList(lastId);
+      setResourceId(lastId);
+      if (lastId && resourceId !== lastId) {
+        setResourceId(lastId);
+      }
     }
   };
   // 선택 모드 전환 함수(편집, 완료)
@@ -137,8 +158,17 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
     }
   };
   // 상세 페이지 이동 함수
-  const goToDetail = (commentId: number, type: string | undefined) => {
+  const goToDetail = (
+    commentId: number,
+    readId: number | undefined,
+    type: string | undefined,
+  ) => {
     const fetchPostByCommentId = async () => {
+      if (readId !== undefined) {
+        readAlert(readId, 'comment').catch((error) => {
+          console.warn('알림 읽기 실패', error);
+        });
+      }
       try {
         const data = await getPostByCommentId(commentId, type);
         if (type === 'foundComment') {
@@ -170,7 +200,8 @@ const NotiMainScreen = ({ navigation }: NotiMainScreenProps) => {
           handleLongPress={handleSelectMode}
           goToDetail={goToDetail}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.8}
+          onEndReachedThreshold={0.3}
+          isLoading={isLoading}
         />
       )}
       <ListOptionModal isVisible={selectMode} onDelete={deleteAlertList} />

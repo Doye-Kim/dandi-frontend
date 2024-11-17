@@ -224,8 +224,8 @@ const PickupDetailScreen = ({ route, navigation }: PickupDetailScreenProps) => {
         inVisible={quizModalVisible}
         quizData={quizData ? quizData.options : []}
         onClose={() => {
-          setQuizModalVisible(false);
-          setQuizData(null);
+          // setQuizModalVisible(false);
+          // setQuizData(null);
           navigation.navigate('PickupList');
         }}
         onSubmit={handleQuizSubmit}

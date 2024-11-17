@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FlatList, Modal } from 'react-native';
 import styled from 'styled-components/native';
-import Toast from 'react-native-toast-message';
 import { colors } from '@/constants';
 import { responsive, responsiveVertical } from '@/utils';
 import { BASE_IMAGE_URL } from '@/api/axios';

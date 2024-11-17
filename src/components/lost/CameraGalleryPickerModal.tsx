@@ -52,13 +52,14 @@ const CameraGalleryPickerModal = ({
   const openCamera = async () => {
     try {
       const image = await ImagePicker.openCamera({
-        width: responsive(232),
-        height: responsive(232),
+        width: 800,
+        height: 800,
         cropping: true,
         mediaType: 'photo',
         useFrontCamera: true,
         // 안드로이드 전용
         enableRotationGesture: true,
+        compressImageQuality: 1, // 품질을 100%로 설정
       });
       const fileSizeInMB = image.size / (1024 * 1024);
       const maxFileSize = 10;
@@ -79,13 +80,14 @@ const CameraGalleryPickerModal = ({
   const openGallery = async () => {
     try {
       const image = await ImagePicker.openPicker({
-        width: responsive(232),
-        height: responsive(232),
+        width: 800,
+        height: 800,
         cropping: true,
         mediaType: 'photo',
         useFrontCamera: true,
         // 안드로이드 전용
         enableRotationGesture: true,
+        compressImageQuality: 1, // 품질을 100%로 설정
       });
       console.log(image.path);
 

@@ -6,7 +6,7 @@ import { LostStackParamList } from '@/navigations/stack/LostStackNavigator';
 import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { isAxiosError } from 'axios';
-import { getAlertList, deleteAlert } from '@/api/lost';
+import { getAlertList, deleteAlert, readAlert } from '@/api/lost';
 import { AlertData } from '@/types/lost';
 import { colors } from '@/constants';
 import { RegisterIcon } from '@/assets/icons';
@@ -32,6 +32,7 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
   const [selected, setSelected] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
+  const [resourceId, setResourceId] = useState<number>(0);
 
   useEffect(() => {
     navigation.setOptions({
@@ -45,7 +46,7 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
               onPress: () => navigation.navigate('PickupList'),
             },
             {
-              label: 'SOS 목록',
+              label: '분실물 목록',
               onPress: () => navigation.navigate('SOSList'),
             },
           ]}
@@ -77,14 +78,33 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
   useFocusEffect(
     useCallback(() => {
       fetchAlertList(0);
+
+      return () => {
+        setAlertList([]);
+        setSelectMode(false);
+        setSelected([]);
+        setIsLoading(false);
+        setHasMoreData(true);
+      };
     }, [navigation]),
   );
-  // 더보기 함수
-  const handleLoadMore = () => {
-    if (!hasMoreData || alertList.length === 0) return;
+  useEffect(() => {
+    if (resourceId !== 0) {
+      fetchAlertList(resourceId);
+    }
+  }, [resourceId]);
 
-    const lastId = alertList[alertList.length - 1].id;
-    fetchAlertList(lastId);
+  // 더보기 함수 수정
+  const handleLoadMore = () => {
+    if (isLoading || !hasMoreData || alertList.length === 0) return;
+
+    const lastId = alertList[alertList.length - 1]?.id;
+    if (lastId) {
+      setResourceId(lastId);
+      if (lastId && resourceId !== lastId) {
+        setResourceId(lastId);
+      }
+    }
   };
   // 선택 모드 전환 함수(편집, 완료)
   const toggleSelectMode = () => {
@@ -132,7 +152,12 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
     }
   };
   // 상세 페이지 이동 함수
-  const goToDetail = (lostId: number) => {
+  const goToDetail = (lostId: number, readId: number | undefined) => {
+    if (readId !== undefined) {
+      readAlert(readId, 'lostItem').catch((error) => {
+        console.warn('알림 읽기 실패', error);
+      });
+    }
     navigation.navigate('SOSDetail', { id: lostId });
   };
   return (
@@ -150,7 +175,7 @@ const SOSListScreen = ({ navigation }: SOSListScreenProps) => {
           handleLongPress={handleSelectMode}
           goToDetail={goToDetail}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.8}
+          onEndReachedThreshold={0.3}
         />
       )}
       <ListOptionModal isVisible={selectMode} onDelete={deleteAlertList} />

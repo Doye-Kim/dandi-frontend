@@ -77,6 +77,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
                   height: responsive(232),
                   borderRadius: 10,
                 }}
+                resizeMode='cover'
               />
             ) : (
               <CameraIcon width={responsive(232)} height={responsive(232)} />

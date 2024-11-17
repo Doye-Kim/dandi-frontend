@@ -146,19 +146,14 @@ const putUpdateNickname = async (nickname: string) => {
   return data;
 };
 
-export type TargetOption = 'COMMENT' | 'ALL' | 'LOST_ITEM' | 'FOUND_ITEM';
+export interface TargetProps {
+  comment: boolean;
+  lostItem: boolean;
+  foundItem: boolean;
+}
 
-const putUpdateNoti = async ({
-  enabled,
-  target,
-}: {
-  enabled: boolean;
-  target: TargetOption;
-}) => {
-  const { data } = await axiosInstance.put('/member/alarm-settings', {
-    enabled,
-    target,
-  });
+const putUpdateNoti = async (target: TargetProps) => {
+  const { data } = await axiosInstance.put('/member/alarm-settings', target);
   return data;
 };
 

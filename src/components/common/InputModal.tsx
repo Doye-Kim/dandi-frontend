@@ -5,6 +5,7 @@ import {
   checkErrorAndViewToast,
   responsive,
   showCustomErrorToast,
+  showErrorToast,
   validateBagName,
   validateName,
 } from '@/utils';
@@ -78,11 +79,10 @@ const InputModal = ({
   const copyMutation = useCreateCopyBagMutation();
   const editNameMutation = useEditBagNameMutation();
 
-  const handleConfirm = async () => {
-    if (checkBagName.errors.name || checkName.errors.name)
-      showCustomErrorToast('이름은 공백 없이 1-12자로 입력해 주세요');
-    else {
+  const handleConfirm = async (error: boolean) => {
+    if (!error) {
       onConfirm();
+
       try {
         if (copyBagId) {
           await copyMutation.mutateAsync({
@@ -149,7 +149,7 @@ const InputModal = ({
               />
               <AuthButton
                 title='확인'
-                onPress={handleConfirm}
+                onPress={() => handleConfirm(!!checkName.errors.name)}
                 style={checkName.errors.name ? 'disabled' : 'enable'}
               />
             </>
@@ -166,7 +166,7 @@ const InputModal = ({
               />
               <AuthButton
                 title='확인'
-                onPress={handleConfirm}
+                onPress={() => handleConfirm(!!checkBagName.errors.name)}
                 style={checkBagName.errors.name ? 'disabled' : 'enable'}
               />
             </>

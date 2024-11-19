@@ -111,8 +111,8 @@ export const NotificationHandler = () => {
         console.log(title, body);
         const { resourceId, eventType } = JSON.parse(body as string);
 
-        if (title === 'routeSaved' || title === 'route') {
-          if (triggerModal) triggerModal(body as string);
+        if (title === 'route') {
+          if (triggerModal && body) triggerModal(body as string);
         } else if (title === 'foundComment' || title === 'lostComment') {
           goToDetail(resourceId, eventType);
         } else if (title === 'foundItem') {

@@ -84,6 +84,7 @@ const PickupRegisterScreen = ({ navigation }: PickupRegisterScreenProps) => {
       return;
     }
     try {
+      datetime.setHours(datetime.getHours() + 9);
       const data = await registerPickup({
         category: 'OTHER',
         foundLocation: {

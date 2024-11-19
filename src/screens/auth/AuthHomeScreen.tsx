@@ -1,26 +1,19 @@
 import React from 'react';
 import { useState, useCallback } from 'react';
-import { Text, View, TextInput } from 'react-native';
+import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import styled from 'styled-components/native';
-import axios from 'axios';
 import { LogoIcon } from '@/assets/icons';
 import { authNavigations, colors } from '@/constants';
 import { AuthStackParamList } from '@/navigations/stack/AuthStackNavigator';
-import {
-  checkErrorAndViewToast,
-  responsive,
-  responsiveVertical,
-  showErrorToast,
-} from '@/utils';
+import { checkErrorAndViewToast, responsive } from '@/utils';
 import { getUserInfo, managerLogin } from '@/api/auth';
 import AuthButton from '@/components/auth/AuthButton';
 import useAuthStore from '@/store/useAuthStore';
 import useUserStore from '@/store/useUserStore';
 import messaging from '@react-native-firebase/messaging';
 import useBagStore from '@/store/useBagStore';
-import Toast from 'react-native-toast-message';
 
 export type AuthHomeScreenProps = {
   navigation: StackNavigationProp<
@@ -92,29 +85,6 @@ const AuthHomeScreen = ({ navigation }: AuthHomeScreenProps) => {
       </View>
       <AuthButton title='로그인' onPress={onPressLogin} style='gray' />
       <AuthButton title='회원가입' onPress={onPressJoin} style='enable' />
-      <TextInput
-        placeholder='관리자 ID 입력'
-        value={managerId}
-        onChangeText={setManagerId}
-        style={{
-          width: responsive(352), // Adjusted to match the default width of buttons
-          height: responsiveVertical(60), // Similar height to buttons
-          paddingHorizontal: 15, // Horizontal padding for comfortable typing
-          marginVertical: responsiveVertical(10), // Vertical margin to separate elements
-          borderColor: colors.PRIMARY,
-          borderWidth: 1,
-          borderRadius: responsive(20), // Consistent rounded corners
-          backgroundColor: colors.WHITE, // Background color for a clean look
-          fontSize: responsive(16), // Consistent font size
-          color: colors.BLACK, // Text color
-          fontFamily: 'OAGothic-Regular', // Consistent font style
-        }}
-      />
-      <AuthButton
-        title='관리자 로그인'
-        onPress={onPressManager}
-        style='enable'
-      />
     </StyledSafeAreaView>
   );
 };

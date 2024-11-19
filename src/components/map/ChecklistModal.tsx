@@ -37,6 +37,7 @@ const CheckListModal = ({
   const [items, setItems] = useState<Item[]>();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const fetchItems = async (routeId: number) => {
     try {
       const data = await getSnapshot(routeId);
@@ -51,6 +52,7 @@ const CheckListModal = ({
   };
 
   const sendSnapshot = async (routeId: number, snapshot: Snapshot) => {
+    console.log('sendSnapshot');
     try {
       await putSnapshot(routeId, snapshot);
     } catch (error) {
@@ -94,28 +96,27 @@ const CheckListModal = ({
     skip: string;
     snapshot: Snapshot;
   }
-  const handleComplete = (route: RouteProps) => {
+
+  const handleComplete = async (route: RouteProps) => {
+    console.log('complete');
     setItems((prevItems) =>
       prevItems?.map((item) => ({
         ...item,
-        isChecked: selectedItems.includes(item.name)
-          ? !item.isChecked
-          : item.isChecked,
+        isChecked: selectedItems.includes(item.name) ? true : false,
       })),
     );
     const newItems = items
       ? items.map((item) => ({
           ...item,
-          isChecked: selectedItems.includes(item.name)
-            ? !item.isChecked
-            : item.isChecked,
+          isChecked: selectedItems.includes(item.name) ? true : false,
         }))
       : [];
-    sendSnapshot(route.routeId, {
+    await sendSnapshot(route.routeId, {
       bagId: route.snapshot.bagId,
       items: newItems,
     });
-    setSelectedItems([]); // 선택 초기화
+    setSelectedItems([]);
+    setItems([]);
     onDismiss();
   };
 
@@ -124,6 +125,7 @@ const CheckListModal = ({
       setIsLoading(false);
     }
   }, [items]);
+
   const Item = ({ name }: { name: string }) => (
     <TouchableOpacity
       style={{ flexDirection: 'row' }}
@@ -137,6 +139,7 @@ const CheckListModal = ({
       </CustomText>
     </TouchableOpacity>
   );
+
   return (
     <Portal>
       <Modal

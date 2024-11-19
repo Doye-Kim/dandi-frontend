@@ -46,6 +46,7 @@ const SOSRegisterScreen = ({ navigation }: SOSRegisterScreenProps) => {
     } else if (!location) {
       showToast('분실 위치를 입력해주세요.');
     } else {
+      datetime.setHours(datetime.getHours() + 9);
       navigation.navigate('RouteSelection', {
         photoUrl,
         explain,

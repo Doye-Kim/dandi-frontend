@@ -85,7 +85,7 @@ const App = () => {
     return () => {
       triggerModal = null;
     };
-  }, []);
+  }, [triggerModal]);
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [startMovementData, setStartMovementData] = useState<string>('');
@@ -96,16 +96,20 @@ const App = () => {
     AsyncStorage.setItem('routeId', JSON.stringify(JSON.parse(body).routeId));
   };
 
+  const handleDismiss = () => {
+    setModalVisible(false);
+    setStartMovementData('');
+  };
   return (
     <QueryClientProvider client={queryClient}>
       <PaperProvider>
         <View style={styles.container}>
           <NavigationContainer ref={navigationRef}>
             <RootNavigator />
-            {startMovementData && (
+            {startMovementData && isModalVisible && (
               <CheckListModal
                 visible={isModalVisible}
-                onDismiss={() => setModalVisible(false)}
+                onDismiss={handleDismiss}
                 body={startMovementData}
               />
             )}
